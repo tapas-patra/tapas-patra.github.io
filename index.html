@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=\, initial-scale=1.0">
+    <title>Tapas Kumar Patra</title>
+    <link rel="stylesheet" href="style.css">
+    <script
+      type="module"
+      src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"
+    ></script>
+    <script
+    nomodule
+    src="https://unpkg.com/@google/model-viewer/dist/model-viewer-legacy.js"
+    ></script>
+</head>
+<body>
+    <!--------Header---------> 
+    <header class="header">
+        <img src="./assets/logo/logo.png" alt="" class="logo">
+        <ul class="main-nav-list">
+            <li><a href="#" class="main-nav-link">Home</a></li>
+            <li><a href="#" class="main-nav-link">Work</a></li>
+            <li><a href="#" class="main-nav-link">Contact</a></li>
+        </ul>
+    </header>
+    <section class="hero">
+        <img src="./assets/hero/webdev.png" alt="" class="hero-img">
+        <img src="./assets/hero/bg.jpg" alt="" class="bg">
+        <div class="hero-description">
+            <h1 class="hero-title">Hi, i'm <span class="tapas">Tapas</span> !</h1>
+            <p class="hero-subheading">Software Developer cum Tester !</p>
+        </div>
+        <div class="hero-model">
+            <model-viewer src="./models/desk.glb" 
+            camera-controls 
+            disable-pan
+            disable-zoom
+            interaction-prompt="none"
+            mini-camera-orbit="auto 55deg auto"
+            max-camera-orbit="auto 92deg auto"
+            field-of-view = "35.3deg"
+            ></model-viewer>
+        </div>
+    </section>
+    <section class="about-me">
+        <div class="about-me-description">
+            <p class="introduction">INTRODUCTION !</p>
+            <h1 class="about-me-title">Hello World !</h1>
+            <p class="about-me-subheading">
+                I started my coding journey a few years ago and now i am working full time and doing freelance projects. I am obssed with unique, intresting design and user-friendly functionality. So hit me up with your artistic project ideas or app proposals.
+            </p>
+        </div>
+        <div class="cards">
+            <div class="card animation">
+                <img src="./assets/skills/htmlcss.png" alt="" class="htmlcssImg">
+                <p class="title">Html Css</p>
+            </div>
+            <div class="card animation">
+                <img src="./assets/skills/js.png" alt="" class="javascriptImg">
+                <p class="title">JavaScript</p>
+            </div>
+            <div class="card animation">
+                <img src="./assets/skills/java.png" alt="" class="htmlcssImg">
+                <p class="title">Java</p>
+            </div>
+            <div class="card animation">
+                <img src="./assets/skills/python.png" alt="" class="htmlcssImg">
+                <p class="title">Python</p>
+            </div>
+        </div>
+    </section>
+    <section class="time-line-section">
+        <div class="time-line-content">
+            <div class="heading-description">
+                <p class="time-line-title">WHAT I HAVE DONE !</p>
+                <h1 class="time-line-subheading">Work Experience !</h1>
+            </div>
+            <div class="timeline">
+                <div class="line"></div>
+                <div class="time-line-description">
+                    <div class="mini-circle"></div>
+                    <div class="content">
+                        <h2 class="content-timeline-title">Web Development</h2>
+                        <p class="content-timeline-description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Praesentium voluptatem quia, a deserunt ea eveniet provident, laboriosam culpa est voluptatibus dolore. Laudantium ullam cumque, magnam nostrum ipsum aliquam velit officia.</p>
+                    </div>
+                </div>
+                <div class="time-line-description">
+                    <div class="mini-circle"></div>
+                    <div class="content">
+                        <h2 class="content-timeline-title">Windows Application Development</h2>
+                        <p class="content-timeline-description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Praesentium voluptatem quia, a deserunt ea eveniet provident, laboriosam culpa est voluptatibus dolore. Laudantium ullam cumque, magnam nostrum ipsum aliquam velit officia.</p>                     
+                    </div>
+                </div>
+                <div class="time-line-description">
+                    <div class="mini-circle"></div>
+                    <div class="content">
+                        <h2 class="content-timeline-title">Android Application Development</h2>
+                        <p class="content-timeline-description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Praesentium voluptatem quia, a deserunt ea eveniet provident, laboriosam culpa est voluptatibus dolore. Laudantium ullam cumque, magnam nostrum ipsum aliquam velit officia.</p>                        
+                    </div>
+                </div>
+            </div>
+        </div>        
+    </section>
+    <section class="final">
+        <div class="form-box">
+            <h1 class="form-title">Contact</h1>
+            <div class="form-bg">
+                <form id="form" >
+                    <div class="form-content">
+                        <div class="email-box">
+                            <label for="email" class="email-title">Email:</label>
+                            <input type="email" id="email" name="email" placeholder="Email destination"  class="email-input">
+                        </div>
+                        <div class="subject-box">
+                            <label for="subject" class="subject-title">Subject:</label>
+                            <input type="text" id="subject" name="subject" placeholder="Email Subject"  class="subject-input">
+                        </div>
+                        <div class="message-box">
+                            <label for="message" class="message-title">Message:</label>
+                            <textarea type="text" id="message" name="message" placeholder="Email Message"  class="message-input"></textarea>
+                        </div>
+                        <div id="buttons">
+                            <button type="submit" class="send-button" disabled>Send</button>
+                            <button type="reset" class="reset-button">Reset</button>
+                        </div>
+                    </div>
+                </form>
+                <div id="spinner" class="hideSpinner messageSent">
+                    <div class="sk-chase">
+                        <div class="sk-chase-dot"></div>
+                        <div class="sk-chase-dot"></div>
+                        <div class="sk-chase-dot"></div>
+                        <div class="sk-chase-dot"></div>
+                        <div class="sk-chase-dot"></div>
+                        <div class="sk-chase-dot"></div>
+                    </div>
+                </div> 
+                <div id="spinner" class="hideSpinner messageSent">
+                    <div class="sk-chase">
+                        <div class="sk-chase-dot"></div>
+                        <div class="sk-chase-dot"></div>
+                        <div class="sk-chase-dot"></div>
+                        <div class="sk-chase-dot"></div>
+                        <div class="sk-chase-dot"></div>
+                        <div class="sk-chase-dot"></div>
+                    </div>
+                </div> 
+            </div>
+
+        </div>
+        <model-viewer
+        class="robo"
+        src="./models/robot_playground/scene.gltf"
+        camera-contros
+        disable-pan
+        disable-zoom
+        interaction-prompt="none"
+        field-of-view="10deg"
+        autoplay="experiment_Object_159"
+        ></model-viewer>        
+    </section>
+    <script src="main.js"></script>
+</body>
+</html>
