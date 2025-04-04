@@ -1,36 +1,115 @@
-// Retrieval-Augmented Generation Core Functionality
-async function generateRAGResponse(userQuery) {
+// DOM References
+const messagesContainer = document.getElementById('messages-container');
+const userInput = document.getElementById('user-input');
+const sendButton = document.getElementById('send-button');
+
+// Add event listeners
+document.addEventListener('DOMContentLoaded', () => {
+    // Display welcome message
+    addBotMessage("Hello! I'm your portfolio assistant. How can I help you today?");
+    
+    // Setup event listeners
+    sendButton.addEventListener('click', handleUserMessage);
+    userInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleUserMessage();
+    });
+});
+
+// Handle user messages
+async function handleUserMessage() {
+    const message = userInput.value.trim();
+    if (!message) return;
+    
+    // Add user message to chat
+    addUserMessage(message);
+    
+    // Clear input
+    userInput.value = '';
+    
+    // Show thinking indicator
+    const thinkingElement = addThinkingIndicator();
+    
     try {
-        // Step l: Generate embedding for the query
-        const queryEmbedding = await generateEmbedding(userQuery);
+        // Generate response
+        const response = await generateRAGResponse(message);
         
-        // Step 2: Retrieve relevant documents
-        const relevantDocs = await getSimilarDocuments(queryEmbedding);
-        
-        // Step 3: Prepare context from retrieved documents
-        let context = "";
-        if (relevantDocs && relevantDocs.length > 0) {
-            context = relevantDocs.map(doc => doc.content).join("\n\n");
-        } else {
-            context = "No relevant information found.";
-        }
-        
-        // Step 4: Generate a response using the context and query
-        const messages = [
-            {
-                role: "system",
-                content: "You are a helpful portfolio assistant. Use the provided information to answer questions about the portfolio owner's skills, projects, and experience. If the information doesn't contain the answer, just say you don't know but are happy to help with something else."
-            },
-            {
-                role: "user",
-                content: `Here is information about the portfolio owner:\n\n${context}\n\nBased only on this information, please answer the following question: ${userQuery}`
-            }
-        ];
-        
-        const response = await generateChatCompletion(messages);
-        return response;
+        // Remove thinking indicator and add bot response
+        messagesContainer.removeChild(thinkingElement);
+        addBotMessage(response);
     } catch (error) {
-        console.error("Error in RAG process:", error);
-        throw error;
+        // Remove thinking indicator and show error
+        messagesContainer.removeChild(thinkingElement);
+        addErrorMessage("Sorry, I encountered an error. Please try again later.");
+        console.error("Error generating response:", error);
     }
+}
+
+// Add user message to chat
+function addUserMessage(message) {
+    const messageElement = document.createElement('div');
+    messageElement.className = 'message user-message';
+    messageElement.textContent = message;
+    messagesContainer.appendChild(messageElement);
+    scrollToBottom();
+}
+
+// Add bot message to chat
+function addBotMessage(message) {
+    const messageElement = document.createElement('div');
+    messageElement.className = 'message bot-message';
+    
+    // Process markdown-like formatting for code
+    if (message.includes('```')) {
+        const formattedMessage = formatCodeBlocks(message);
+        messageElement.innerHTML = formattedMessage;
+    } else {
+        messageElement.textContent = message;
+    }
+    
+    messagesContainer.appendChild(messageElement);
+    scrollToBottom();
+}
+
+// Add thinking indicator
+function addThinkingIndicator() {
+    const thinkingElement = document.createElement('div');
+    thinkingElement.className = 'message bot-message thinking';
+    
+    for (let i = 0; i < 3; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'dot';
+        thinkingElement.appendChild(dot);
+    }
+    
+    messagesContainer.appendChild(thinkingElement);
+    scrollToBottom();
+    return thinkingElement;
+}
+
+// Add error message
+function addErrorMessage(message) {
+    const errorElement = document.createElement('div');
+    errorElement.className = 'message bot-message error-message';
+    errorElement.textContent = message;
+    messagesContainer.appendChild(errorElement);
+    scrollToBottom();
+}
+
+// Format code blocks
+function formatCodeBlocks(text) {
+    // Replace code blocks
+    let formattedText = text.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+    
+    // Replace inline code
+    formattedText = formattedText.replace(/`([^`]+)`/g, '<code>$1</code>');
+    
+    // Replace newlines with <br>
+    formattedText = formattedText.replace(/\n/g, '<br>');
+    
+    return formattedText;
+}
+
+// Scroll to bottom of messages container
+function scrollToBottom() {
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
