@@ -138,8 +138,8 @@
                     return;
                 }
                 
-                // Initialize Supabase
-                const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+                // Initialize Supabase - FIX: Use a different variable name
+                const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
                 
                 // Process each document
                 showStatus(`Processing ${data.documents.length} documents...`, 'progress');
@@ -151,7 +151,7 @@
                     showStatus(`Processing document ${i+1}/${data.documents.length}...`, 'progress');
                     
                     // Insert document
-                    const { data: documentData, error: documentError } = await supabase
+                    const { data: documentData, error: documentError } = await supabaseClient
                         .from('documents')
                         .insert({
                             content: doc.content,
@@ -169,7 +169,7 @@
                     const embedding = await generateMistralEmbedding(doc.content, mistralKey);
                     
                     // Insert embedding
-                    const { error: embeddingError } = await supabase
+                    const { error: embeddingError } = await supabaseClient
                         .from('embeddings')
                         .insert({
                             document_id: documentData.id,
