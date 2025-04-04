@@ -1,172 +1,19 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+// Initialize Supabase Client
+const supabase = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 
-body {
-    background-color: #f5f5f5;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 20px;
-}
-
-.chat-container {
-    width: 100%;
-    max-width: 800px;
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    height: 600px;
-}
-
-.chat-header {
-    padding: 20px;
-    background-color: #4a55a2;
-    color: white;
-}
-
-.chat-header h2 {
-    margin-bottom: 5px;
-}
-
-.messages-container {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.message {
-    max-width: 80%;
-    padding: 12px 16px;
-    border-radius: 18px;
-    line-height: 1.5;
-    position: relative;
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.user-message {
-    background-color: #e1ecff;
-    color: #0a2463;
-    align-self: flex-end;
-    border-bottom-right-radius: 5px;
-}
-
-.bot-message {
-    background-color: #f0f0f0;
-    color: #333;
-    align-self: flex-start;
-    border-bottom-left-radius: 5px;
-}
-
-.thinking {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.dot {
-    width: 8px;
-    height: 8px;
-    background-color: #888;
-    border-radius: 50%;
-    animation: pulse 1.5s infinite;
-}
-
-.dot:nth-child(2) {
-    animation-delay: 0.2s;
-}
-
-.dot:nth-child(3) {
-    animation-delay: 0.4s;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 0.4; transform: scale(0.8); }
-    50% { opacity: 1; transform: scale(1); }
-}
-
-.input-container {
-    display: flex;
-    padding: 15px;
-    background-color: #ffffff;
-    border-top: 1px solid #eaeaea;
-}
-
-#user-input {
-    flex: 1;
-    padding: 12px 15px;
-    border: 1px solid #ddd;
-    border-radius: 25px;
-    outline: none;
-    font-size: 16px;
-}
-
-#user-input:focus {
-    border-color: #4a55a2;
-}
-
-#send-button {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background-color: #4a55a2;
-    color: white;
-    border: none;
-    margin-left: 10px;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: background-color 0.2s;
-}
-
-#send-button:hover {
-    background-color: #3a4482;
-}
-
-#send-button svg {
-    width: 20px;
-    height: 20px;
-}
-
-.error-message {
-    background-color: #ffebee;
-    color: #c62828;
-    padding: 10px;
-    border-radius: 4px;
-    margin-bottom: 10px;
-    font-size: 14px;
-}
-
-/* Code blocks styling */
-pre {
-    background-color: #f5f5f5;
-    padding: 10px;
-    border-radius: 5px;
-    overflow-x: auto;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 14px;
-}
-
-code {
-    font-family: 'Courier New', Courier, monospace;
-    background-color: #f5f5f5;
-    padding: 2px 4px;
-    border-radius: 3px;
-    font-size: 14px;
+// Function to get similar documents based on embedding
+async function getSimilarDocuments(embedding, limit = CONFIG.MAX_DOCUMENTS) {
+    try {
+        const { data, error } = await supabase.rpc('match_documents', {
+            query_embedding: embedding,
+            match_threshold: CONFIG.SIMILARITY_THRESHOLD,
+            match_count: limit
+        });
+        
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.error("Error fetching similar documents:", error);
+        throw error;
+    }
 }
