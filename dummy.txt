@@ -1,43 +1,36 @@
-// Mistral API Helper Functions
-async function callMistralAPI(endpoint, payload) {
+// Retrieval-Augmented Generation Core Functionality
+async function generateRAGResponse(userQuery) {
     try {
-        const response = await fetch(`https://api.mistral.ai/v1/${endpoint}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${CONFIG.MISTRAL_API_KEY}`
-            },
-            body: JSON.stringify(payload)
-        });
+        // Step l: Generate embedding for the query
+        const queryEmbedding = await generateEmbedding(userQuery);
         
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(`Mistral API Error: ${errorData.error?.message || response.statusText}`);
+        // Step 2: Retrieve relevant documents
+        const relevantDocs = await getSimilarDocuments(queryEmbedding);
+        
+        // Step 3: Prepare context from retrieved documents
+        let context = "";
+        if (relevantDocs && relevantDocs.length > 0) {
+            context = relevantDocs.map(doc => doc.content).join("\n\n");
+        } else {
+            context = "No relevant information found.";
         }
         
-        return await response.json();
+        // Step 4: Generate a response using the context and query
+        const messages = [
+            {
+                role: "system",
+                content: "You are a helpful portfolio assistant. Use the provided information to answer questions about the portfolio owner's skills, projects, and experience. If the information doesn't contain the answer, just say you don't know but are happy to help with something else."
+            },
+            {
+                role: "user",
+                content: `Here is information about the portfolio owner:\n\n${context}\n\nBased only on this information, please answer the following question: ${userQuery}`
+            }
+        ];
+        
+        const response = await generateChatCompletion(messages);
+        return response;
     } catch (error) {
-        console.error(`Error calling Mistral API (${endpoint}):`, error);
+        console.error("Error in RAG process:", error);
         throw error;
     }
-}
-
-// Generate embeddings using Mistral
-async function generateEmbedding(text) {
-    const response = await callMistralAPI('embeddings', {
-        model: CONFIG.MISTRAL_EMBEDDING_MODEL,
-        input: text
-    });
-    
-    return response.data[0].embedding;
-}
-
-// Generate chat completion using Mistral
-async function generateChatCompletion(messages) {
-    const response = await callMistralAPI('chat/completions', {
-        model: CONFIG.MISTRAL_COMPLETION_MODEL,
-        messages: messages
-    });
-    
-    return response.choices[0].message.content;
 }
