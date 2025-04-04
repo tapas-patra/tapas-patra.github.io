@@ -1,3 +1,91 @@
-ERROR:  42P13: cannot change return type of existing function
-DETAIL:  Row type defined by OUT parameters is different.
-HINT:  Use DROP FUNCTION match_documents(vector,double precision,integer) first.
+-- First, drop the existing function
+DROP FUNCTION IF EXISTS match_documents(vector, float, int);
+
+-- Then create the new version with the updated return type
+CREATE OR REPLACE FUNCTION match_documents(
+  query_embedding VECTOR(1024),
+  match_threshold FLOAT,
+  match_count INT
+)
+RETURNS TABLE (
+  id BIGINT,
+  content TEXT,
+  metadata JSONB,
+  similarity FLOAT
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    documents.id,
+    documents.content,
+    documents.metadata,
+    1 - (embeddings.embedding <=> query_embedding) AS similarity
+  FROM embeddings
+  JOIN documents ON embeddings.document_id = documents.id
+  WHERE 1 - (embeddings.embedding <=> query_embedding) > match_threshold
+  ORDER BY similarity DESC
+  LIMIT match_count;
+END;
+$$;
+
+-- Also make sure the hybrid_search function is created correctly
+DROP FUNCTION IF EXISTS hybrid_search(text, vector, float, int);
+
+CREATE OR REPLACE FUNCTION hybrid_search(
+  query_text TEXT,
+  query_embedding VECTOR(1024),
+  match_threshold FLOAT,
+  match_count INT
+)
+RETURNS TABLE (
+  id BIGINT,
+  content TEXT,
+  metadata JSONB,
+  similarity FLOAT
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  RETURN QUERY
+  -- Get results based on embedding similarity
+  SELECT 
+    documents.id,
+    documents.content,
+    documents.metadata,
+    1 - (embeddings.embedding <=> query_embedding) AS similarity
+  FROM embeddings
+  JOIN documents ON embeddings.document_id = documents.id
+  WHERE 1 - (embeddings.embedding <=> query_embedding) > match_threshold
+  
+  UNION ALL
+  
+  -- Get results based on text search
+  SELECT
+    documents.id,
+    documents.content,
+    documents.metadata,
+    0.6 AS similarity -- Set a lower similarity score for text matches
+  FROM documents
+  WHERE 
+    documents.content ILIKE '%' || query_text || '%'
+    -- Exclude documents that likely matched in the embedding query
+    AND documents.id NOT IN (
+      SELECT doc_id FROM (
+        SELECT 
+          documents.id as doc_id,
+          1 - (embeddings.embedding <=> query_embedding) AS similarity
+        FROM embeddings
+        JOIN documents ON embeddings.document_id = documents.id
+        WHERE 1 - (embeddings.embedding <=> query_embedding) > match_threshold
+        LIMIT match_count
+      ) AS embedding_matches
+    )
+  LIMIT match_count
+  
+  -- Sort by similarity score
+  ORDER BY similarity DESC
+  LIMIT match_count;
+END;
+$$;
