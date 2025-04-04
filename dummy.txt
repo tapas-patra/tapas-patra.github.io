@@ -1,115 +1,93 @@
-// DOM References
-const messagesContainer = document.getElementById('messages-container');
-const userInput = document.getElementById('user-input');
-const sendButton = document.getElementById('send-button');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Portfolio Assistant</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <div class="chatbot-container">
+            <div class="chatbot-header">
+                <div class="avatar-container">
+                    <div class="avatar">
+                        <div class="avatar-inner">AI</div>
+                    </div>
+                </div>
+                <div class="header-text">
+                    <h2>Portfolio Assistant</h2>
+                    <div class="status">
+                        <span class="status-dot"></span>
+                        <span class="status-text">Online</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button id="clear-chat" class="clear-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 6h18"></path>
+                            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
 
-// Add event listeners
-document.addEventListener('DOMContentLoaded', () => {
-    // Display welcome message
-    addBotMessage("Hello! I'm your portfolio assistant. How can I help you today?");
-    
-    // Setup event listeners
-    sendButton.addEventListener('click', handleUserMessage);
-    userInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') handleUserMessage();
-    });
-});
+            <div class="intro-panel" id="intro-panel">
+                <div class="intro-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 16v-4"></path>
+                        <path d="M12 8h.01"></path>
+                    </svg>
+                </div>
+                <h3>How can I help you?</h3>
+                <p>Ask me anything about my projects, skills, or experience.</p>
+                <div class="suggestion-chips">
+                    <button class="suggestion-chip" data-query="Tell me about your projects">Projects</button>
+                    <button class="suggestion-chip" data-query="What technologies do you use?">Technologies</button>
+                    <button class="suggestion-chip" data-query="What are your main skills?">Skills</button>
+                    <button class="suggestion-chip" data-query="Tell me about your work experience">Experience</button>
+                </div>
+            </div>
 
-// Handle user messages
-async function handleUserMessage() {
-    const message = userInput.value.trim();
-    if (!message) return;
-    
-    // Add user message to chat
-    addUserMessage(message);
-    
-    // Clear input
-    userInput.value = '';
-    
-    // Show thinking indicator
-    const thinkingElement = addThinkingIndicator();
-    
-    try {
-        // Generate response
-        const response = await generateRAGResponse(message);
-        
-        // Remove thinking indicator and add bot response
-        messagesContainer.removeChild(thinkingElement);
-        addBotMessage(response);
-    } catch (error) {
-        // Remove thinking indicator and show error
-        messagesContainer.removeChild(thinkingElement);
-        addErrorMessage("Sorry, I encountered an error. Please try again later.");
-        console.error("Error generating response:", error);
-    }
-}
+            <div class="chat-messages" id="chat-messages">
+                <!-- Messages will appear here -->
+            </div>
 
-// Add user message to chat
-function addUserMessage(message) {
-    const messageElement = document.createElement('div');
-    messageElement.className = 'message user-message';
-    messageElement.textContent = message;
-    messagesContainer.appendChild(messageElement);
-    scrollToBottom();
-}
+            <div class="chat-input-container">
+                <div class="input-wrapper">
+                    <textarea id="user-input" placeholder="Ask me anything..." rows="1"></textarea>
+                    <button id="send-button" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+                <div class="chat-footer">
+                    <p>Powered by Mistral AI & Supabase</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-// Add bot message to chat
-function addBotMessage(message) {
-    const messageElement = document.createElement('div');
-    messageElement.className = 'message bot-message';
-    
-    // Process markdown-like formatting for code
-    if (message.includes('```')) {
-        const formattedMessage = formatCodeBlocks(message);
-        messageElement.innerHTML = formattedMessage;
-    } else {
-        messageElement.textContent = message;
-    }
-    
-    messagesContainer.appendChild(messageElement);
-    scrollToBottom();
-}
+    <!-- Loading spinner overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner-ring"></div>
+            <div class="spinner-text">Connecting...</div>
+        </div>
+    </div>
 
-// Add thinking indicator
-function addThinkingIndicator() {
-    const thinkingElement = document.createElement('div');
-    thinkingElement.className = 'message bot-message thinking';
+    <!-- Import libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    for (let i = 0; i < 3; i++) {
-        const dot = document.createElement('div');
-        dot.className = 'dot';
-        thinkingElement.appendChild(dot);
-    }
-    
-    messagesContainer.appendChild(thinkingElement);
-    scrollToBottom();
-    return thinkingElement;
-}
-
-// Add error message
-function addErrorMessage(message) {
-    const errorElement = document.createElement('div');
-    errorElement.className = 'message bot-message error-message';
-    errorElement.textContent = message;
-    messagesContainer.appendChild(errorElement);
-    scrollToBottom();
-}
-
-// Format code blocks
-function formatCodeBlocks(text) {
-    // Replace code blocks
-    let formattedText = text.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
-    
-    // Replace inline code
-    formattedText = formattedText.replace(/`([^`]+)`/g, '<code>$1</code>');
-    
-    // Replace newlines with <br>
-    formattedText = formattedText.replace(/\n/g, '<br>');
-    
-    return formattedText;
-}
-
-// Scroll to bottom of messages container
-function scrollToBottom() {
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-}
+    <!-- Import application scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
