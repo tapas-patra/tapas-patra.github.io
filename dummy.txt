@@ -1473,7 +1473,6 @@
             gap: 1rem;
             scroll-behavior: smooth;
             background-color: var(--ai-bg-white);
-            font-family: 'Outfit', sans-serif;
         }
 
         .message {
@@ -1618,7 +1617,7 @@
             resize: none;
             max-height: 120px;
             overflow-y: auto;
-            font-family: 'Outfit', sans-serif;
+            font-family: var(--font-sans);
             font-size: 0.9rem;
             color: var(--ai-text);
             outline: none;
@@ -1691,7 +1690,6 @@
         .loading-overlay.hidden {
             opacity: 0;
             visibility: hidden;
-            pointer-events: none;
         }
 
         .loading-spinner {
@@ -2472,7 +2470,7 @@
                         </button>
                     </div>
                     <div class="chat-footer">
-                        <p>Powered by Portfolio AI</p>
+                        <p>Powered by Mistral AI & Supabase</p>
                     </div>
                 </div>
             </div>
@@ -2489,6 +2487,7 @@
 
     <!-- Scripts -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // Initialize AOS
         AOS.init({
@@ -2648,15 +2647,8 @@
                 aiMode.classList.add('mode-transition');
                 setTimeout(() => {
                     aiMode.classList.remove('mode-transition');
-                    // Hide loading overlay in AI mode after a short delay
-                    setTimeout(() => {
-                        document.getElementById('loading-overlay').classList.add('hidden');
-                        // Add welcome message
-                        const chatMessages = document.getElementById('chat-messages');
-                        if (chatMessages && chatMessages.childElementCount === 0) {
-                            addBotMessage("Hi there! I'm Tapas's AI assistant. How can I help you learn more about my skills, projects, or experience?");
-                        }
-                    }, 1500);
+                    // Initialize AI mode
+                    initializeAiMode();
                 }, 500);
                 currentMode = 'ai';
             } else {
@@ -3424,52 +3416,57 @@
             commandInput.focus();
         }
 
-        // AI Mode Functionality
-        // Get DOM elements for AI mode
+        // AI Mode Setup - Mock Implementation
+        const loadingOverlay = document.getElementById('loading-overlay');
         const chatMessages = document.getElementById('chat-messages');
         const userInput = document.getElementById('user-input');
         const sendButton = document.getElementById('send-button');
         const clearChatButton = document.getElementById('clear-chat');
         const introPanel = document.getElementById('intro-panel');
         const suggestionChips = document.querySelectorAll('.suggestion-chip');
-        const loadingOverlay = document.getElementById('loading-overlay');
 
-        // Predefined responses for the AI assistant
-        const responses = {
-            greeting: [
-                "Hello! I'm Tapas's AI assistant. How can I help you today?",
-                "Hi there! I'm here to tell you about Tapas's skills and experience. What would you like to know?",
-                "Greetings! I'm Tapas's virtual assistant. What information are you looking for?"
-            ],
-            skills: "I have extensive experience in automation engineering with expertise in Python, Slash Framework, Appium, and other automation tools. I'm particularly skilled in the automotive domain, working with components like Media, Audio, NFC, WiFi, and Hotspot. I'm familiar with protocols like CAN and SOME/IP. I also develop custom tools to improve workflow efficiency.",
-            projects: "I've developed several projects including: \n\n• Railbridge: A tool for transferring test cases between TestRail servers\n• RTMHelper: Assists in requirement traceability matrix creation\n• UIAutoGen: Automatically generates UI properties for Android environments\n• PocketPad: A web app for remotely controlling computers\n• TestCrafter: Creates test runs across multiple projects\n• TestrailInsight: A comprehensive reporting solution for TestRail",
-            experience: "I'm currently working as an Automation Engineer at Wipro since 2021. I design and implement automated test solutions for automotive components including Media, Audio, NFC, WiFi, and Hotspot features. I develop testing frameworks and tools to improve efficiency and coverage.",
-            technologies: "My main technologies include:\n\n• Programming: Python, JavaScript, Shell Scripting, Java\n• Automation: Slash Framework, Appium, Selenium\n• Automotive: CAN Protocol, SOME/IP, Media Systems\n• Tools: Git, Jenkins, Docker, JIRA, TestRail\n• Web Technologies: HTML, CSS, JavaScript",
-            contact: "You can reach me at tapas.patra0406@gmail.com. I'm based in Bengaluru, India. You can also connect with me on LinkedIn at linkedin.com/in/tapas-kumar-patra or check out my projects on GitHub at github.com/tapas-patra.",
-            about: "I'm a passionate Automation Engineer with 4 years of experience in the IT industry. My journey in the tech world has been driven by my passion for creating efficient and innovative automation solutions that solve real-world problems. I have extensive experience in the automotive domain and enjoy developing tools that improve workflow efficiency.",
-            fallback: "I'm not sure I understand that question. Feel free to ask about my skills, projects, experience, or contact information!"
+        // Mock responses for the AI assistant
+        const mockResponses = {
+            projects: "I've worked on several projects including Railbridge, RTMHelper, UIAutoGen, PocketPad, TestCrafter, and TestrailInsight. My most notable project is PocketPad, which lets you control your computer remotely using your phone over the internet.",
+            skills: "My main skills include Python, JavaScript, and Shell Scripting for programming languages. I'm proficient with automation frameworks like Slash, Appium, and Selenium. In the automotive domain, I work with CAN Protocol, SOME/IP, and various connectivity technologies.",
+            experience: "I've been working as an Automation Engineer at Wipro since 2021. I focus on automotive component testing and automation, developing frameworks and tools to improve efficiency and coverage.",
+            technologies: "I use Python for most of my automation work and tool development. I also work with JavaScript for web applications like PocketPad. For testing, I use frameworks like Slash and Appium. In the automotive domain, I work with CAN, SOME/IP, and various connectivity protocols.",
+            introduction: "Hi there! I'm Tapas Kumar Patra, an Automation Engineer with 4 years of experience. I specialize in creating efficient automation solutions for the automotive industry. How can I help you today?",
+            fallback: "I'm sorry, I don't have specific information about that. Feel free to ask me about my projects, skills, technologies I use, or my work experience."
         };
 
-        // Initialize AI chat functionality
-        function initializeAIChat() {
+        function initializeAiMode() {
+            // Hide loading overlay after a short delay to simulate connection
+            setTimeout(() => {
+                loadingOverlay.classList.add('hidden');
+                
+                // Add welcome message
+                addBotMessage("Hi there! I'm Tapas Kumar Patra, an Automation Engineer. How can I help you today?");
+            }, 1500);
+
+            // Set up event listeners
+            setupAiEventListeners();
+        }
+
+        function setupAiEventListeners() {
             // Send button click
-            sendButton.addEventListener('click', handleUserAIMessage);
+            sendButton.addEventListener('click', handleUserMessage);
 
             // Enter key in textarea
             userInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
-                    handleUserAIMessage();
+                    handleUserMessage();
                 }
             });
 
             // Input changes (for enabling/disabling send button)
             userInput.addEventListener('input', () => {
-                // Adjust textarea height
+                // Adjust textarea height based on content
                 userInput.style.height = 'auto';
                 userInput.style.height = `${Math.min(userInput.scrollHeight, 120)}px`;
 
-                // Enable/disable send button
+                // Enable/disable send button based on input
                 sendButton.disabled = userInput.value.trim() === '';
             });
 
@@ -3503,13 +3500,13 @@
                     userInput.dispatchEvent(new Event('input'));
 
                     // Send message
-                    handleUserAIMessage();
+                    handleUserMessage();
                 });
             });
         }
 
         // Handle user message in AI mode
-        function handleUserAIMessage() {
+        function handleUserMessage() {
             const message = userInput.value.trim();
 
             // Don't process empty messages
@@ -3532,22 +3529,43 @@
             // Show thinking indicator
             const thinkingIndicator = addThinkingIndicator();
 
-            // Simulate thinking time (500-1500ms)
+            // Generate a response after a delay to simulate processing
             setTimeout(() => {
                 // Remove thinking indicator
                 chatMessages.removeChild(thinkingIndicator);
 
-                // Generate and add bot response
-                const response = generateResponse(message);
-                addBotMessage(response);
-            }, Math.floor(Math.random() * 1000) + 500);
+                // Find appropriate response
+                let botResponse = getBotResponse(message);
+
+                // Add bot response
+                addBotMessage(botResponse);
+            }, 1500);
+        }
+
+        // Get appropriate response based on user query
+        function getBotResponse(query) {
+            query = query.toLowerCase();
+            
+            if (query.includes("project") || query.includes("work") || query.includes("portfolio")) {
+                return mockResponses.projects;
+            } else if (query.includes("skill") || query.includes("what can you do")) {
+                return mockResponses.skills;
+            } else if (query.includes("experience") || query.includes("job") || query.includes("career")) {
+                return mockResponses.experience;
+            } else if (query.includes("tech") || query.includes("programming") || query.includes("language") || query.includes("framework")) {
+                return mockResponses.technologies;
+            } else if (query.includes("hi") || query.includes("hello") || query.includes("hey") || query.includes("introduction") || query.includes("about you")) {
+                return mockResponses.introduction;
+            } else {
+                return mockResponses.fallback;
+            }
         }
 
         // Add user message to chat
         function addUserMessage(message) {
             const messageElement = document.createElement('div');
             messageElement.className = 'message message-user';
-            messageElement.innerHTML = formatMessageText(message);
+            messageElement.innerHTML = `<p>${message}</p>`;
             chatMessages.appendChild(messageElement);
             scrollToBottom();
         }
@@ -3556,7 +3574,7 @@
         function addBotMessage(message) {
             const messageElement = document.createElement('div');
             messageElement.className = 'message message-bot';
-            messageElement.innerHTML = formatMessageText(message);
+            messageElement.innerHTML = `<p>${message}</p>`;
             chatMessages.appendChild(messageElement);
             scrollToBottom();
         }
@@ -3582,73 +3600,10 @@
             return thinkingElement;
         }
 
-        // Format message text
-        function formatMessageText(text) {
-            // Replace code blocks
-            let formattedText = text.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
-
-            // Replace inline code
-            formattedText = formattedText.replace(/`([^`]+)`/g, '<code>$1</code>');
-
-            // Auto-link URLs
-            formattedText = formattedText.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
-
-            // Replace newlines with <br>
-            formattedText = formattedText.replace(/\n/g, '<br>');
-
-            return formattedText;
-        }
-
-        // Scroll to bottom of messages
+        // Scroll to bottom of chat messages
         function scrollToBottom() {
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
-
-        // Generate AI response based on user input
-        function generateResponse(message) {
-            const lowercaseMsg = message.toLowerCase();
-
-            // Check for greetings
-            if (lowercaseMsg.match(/^(hi|hello|hey|greetings|howdy)/i)) {
-                return responses.greeting[Math.floor(Math.random() * responses.greeting.length)];
-            }
-            
-            // Check for skills related questions
-            if (lowercaseMsg.includes('skill') || lowercaseMsg.includes('can you do') || lowercaseMsg.includes('capable of') || lowercaseMsg.includes('good at')) {
-                return responses.skills;
-            }
-            
-            // Check for project related questions
-            if (lowercaseMsg.includes('project') || lowercaseMsg.includes('portfolio') || lowercaseMsg.includes('work') || lowercaseMsg.includes('created') || lowercaseMsg.includes('built')) {
-                return responses.projects;
-            }
-            
-            // Check for experience related questions
-            if (lowercaseMsg.includes('experience') || lowercaseMsg.includes('background') || lowercaseMsg.includes('history') || lowercaseMsg.includes('worked') || lowercaseMsg.includes('job')) {
-                return responses.experience;
-            }
-            
-            // Check for technology related questions
-            if (lowercaseMsg.includes('technolog') || lowercaseMsg.includes('tech stack') || lowercaseMsg.includes('programming') || lowercaseMsg.includes('language') || lowercaseMsg.includes('framework')) {
-                return responses.technologies;
-            }
-            
-            // Check for contact related questions
-            if (lowercaseMsg.includes('contact') || lowercaseMsg.includes('email') || lowercaseMsg.includes('reach you') || lowercaseMsg.includes('get in touch')) {
-                return responses.contact;
-            }
-            
-            // Check for about related questions
-            if (lowercaseMsg.includes('about you') || lowercaseMsg.includes('who are you') || lowercaseMsg.includes('tell me about') || lowercaseMsg.includes('introduction') || lowercaseMsg.includes('yourself')) {
-                return responses.about;
-            }
-            
-            // Return fallback for unrecognized questions
-            return responses.fallback;
-        }
-
-        // Initialize AI Chat
-        initializeAIChat();
     </script>
 </body>
 </html>
