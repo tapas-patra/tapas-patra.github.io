@@ -1,43 +1,111 @@
-// lib/config.js
-const CONFIG = {
-  // API Credentials - from environment variables
-  SUPABASE_URL: process.env.SUPABASE_URL,
-  SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
-  MISTRAL_API_KEY: process.env.MISTRAL_API_KEY,
-  
-  // Mistral models
-  MISTRAL_EMBEDDING_MODEL: process.env.MISTRAL_EMBEDDING_MODEL || "mistral-embed",
-  MISTRAL_COMPLETION_MODEL: process.env.MISTRAL_COMPLETION_MODEL || "open-mistral-7b",
-  
-  // RAG settings
-  SIMILARITY_THRESHOLD: 0.6,
-  MAX_DOCUMENTS: 5,
-  
-  // System prompt for AI responses
-  SYSTEM_PROMPT: "You are an AI assistant representing Tapas Kumar Patra on his personal portfolio website. Speak in first person as if you are Tapas when discussing his skills, projects, and experience (e.g., 'I have experience with...' not 'Tapas has...'). For general questions or casual conversation, respond naturally without forcing portfolio information. Be friendly, conversational, and helpful. If you don't know something specific about Tapas, just be honest and offer to help with something else.",
-  
-  // Rate limiting settings
-  RATE_LIMIT: {
-    MAX_RETRIES: 3,
-    MIN_INTERVAL: 1500,      // Minimum milliseconds between requests
-    BASE_DELAY: 2000,        // Base delay for exponential backoff
-    MAX_DELAY: 30000         // Maximum delay (30 seconds)
-  },
-  
-  // Document context settings
-  CONTEXT: {
-    MAX_SIZE: 4000           // Maximum context size in characters
-  },
-  
-  // Fallback responses for errors
-  FALLBACK_RESPONSES: {
-    GREETING: "Hello! I'm glad you're visiting my portfolio. How can I help you today?",
-    ERROR: "I apologize, but I'm having trouble accessing my information right now. Please try a different question or try again shortly.",
-    GENERAL: "I'd be happy to tell you more about my experience and projects. Could you please try a more specific question?",
-    SKILLS: "I have experience in web development, automation testing, and various technologies like Python, JavaScript, and automation frameworks.",
-    EXPERIENCE: "I have professional experience in automation engineering, particularly in the automotive domain.",
-    PROJECTS: "I've worked on several interesting projects in my career, including tools for test management and automation."
-  }
-};
+// lib/supabase.js
+const { createClient } = require('@supabase/supabase-js');
+const CONFIG = require('./config');
 
-module.exports = CONFIG;
+// Create Supabase client
+const supabase = createClient(
+  CONFIG.SUPABASE_URL,
+  CONFIG.SUPABASE_ANON_KEY
+);
+
+// Verify connection and retry mechanism
+async function verifySupabaseConnection() {
+  let attempts = 0;
+  const maxAttempts = 3;
+  
+  while (attempts < maxAttempts) {
+    try {
+      const { data, error } = await supabase.from('documents').select('id').limit(1);
+      
+      if (error) {
+        throw error;
+      }
+      
+      return true;
+    } catch (error) {
+      attempts++;
+      console.error(`Supabase connection attempt ${attempts} failed:`, error);
+      
+      if (attempts >= maxAttempts) {
+        throw new Error('Failed to connect to Supabase after multiple attempts');
+      }
+      
+      // Exponential backoff
+      await new Promise(resolve => setTimeout(resolve, 1000 * attempts));
+    }
+  }
+}
+
+// Get similar documents using vector search
+async function getSimilarDocuments(embedding, threshold, limit) {
+  try {
+    const { data, error } = await supabase.rpc('match_documents', {
+      query_embedding: embedding,
+      match_threshold: threshold || CONFIG.SIMILARITY_THRESHOLD,
+      match_count: limit || CONFIG.MAX_DOCUMENTS
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching similar documents:', error);
+    throw error;
+  }
+}
+
+// Get documents by keyword search
+async function getDocumentsByKeyword(keyword, limit = 3) {
+  try {
+    const { data, error } = await supabase
+      .from('documents')
+      .select('id, content, metadata')
+      .ilike('content', `%${keyword}%`)
+      .limit(limit);
+
+    if (error) {
+      throw error;
+    }
+
+    // Add a similarity score for ranking
+    return (data || []).map(doc => ({
+      ...doc,
+      similarity: 0.6  // Default similarity for keyword results
+    }));
+  } catch (error) {
+    console.error(`Error in keyword search for "${keyword}":`, error);
+    return []; // Return empty array instead of failing
+  }
+}
+
+// Try hybrid search if available
+async function hybridSearch(queryText, queryEmbedding, threshold, limit) {
+  try {
+    const { data, error } = await supabase.rpc('hybrid_search', {
+      query_text: queryText,
+      query_embedding: queryEmbedding,
+      match_threshold: threshold || CONFIG.SIMILARITY_THRESHOLD,
+      match_count: limit || CONFIG.MAX_DOCUMENTS
+    });
+
+    if (error) {
+      // If RPC is not available, just return null - we'll fall back to regular search
+      return null;
+    }
+
+    return data || [];
+  } catch (error) {
+    console.log('Hybrid search not available, falling back to vector search');
+    return null;
+  }
+}
+
+module.exports = {
+  supabase,
+  verifySupabaseConnection,
+  getSimilarDocuments,
+  getDocumentsByKeyword,
+  hybridSearch
+};
