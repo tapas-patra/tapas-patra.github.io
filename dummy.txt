@@ -1,1 +1,532 @@
-"You are an AI assistant representing me on my personal portfolio website. Speak in first person as if you are me when discussing my skills, projects, and experience (e.g., 'I have experience with...' not 'The portfolio owner has...'). For general questions or casual conversation, respond naturally without forcing portfolio information. Be friendly, conversational, and helpful. If you don't know something specific about me, just be honest and offer to help with something else."
+// Initialize the Supabase client
+let supabaseClient = null;
+
+// Rate limiting management
+const rateLimitManager = {
+    lastRequestTime: 0,
+    minRequestInterval: CONFIG.RATE_LIMIT.MIN_INTERVAL,
+    retryCount: 0,
+    maxRetries: CONFIG.RATE_LIMIT.MAX_RETRIES,
+    isWaitingForRateLimit: false,
+    
+    // Get delay time for exponential backoff
+    getRetryDelay() {
+        // Exponential backoff with jitter: 2^retryCount * baseDelay + random jitter
+        return Math.min(
+            (Math.pow(2, this.retryCount) * CONFIG.RATE_LIMIT.BASE_DELAY) + (Math.random() * 1000),
+            CONFIG.RATE_LIMIT.MAX_DELAY
+        );
+    },
+    
+    // Reset retry count
+    reset() {
+        this.retryCount = 0;
+        this.isWaitingForRateLimit = false;
+    },
+    
+    // Increment retry count
+    incrementRetry() {
+        this.retryCount++;
+        return this.retryCount <= this.maxRetries;
+    },
+    
+    // Ensure we're not sending requests too quickly
+    async enforceRateLimit() {
+        const now = Date.now();
+        const timeSinceLastRequest = now - this.lastRequestTime;
+        
+        if (timeSinceLastRequest < this.minRequestInterval) {
+            // Wait before proceeding
+            const waitTime = this.minRequestInterval - timeSinceLastRequest;
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+        }
+        
+        this.lastRequestTime = Date.now();
+    }
+};
+
+// Cache management
+const responseCache = {
+    // LRU (Least Recently Used) cache with a max size
+    maxSize: CONFIG.CACHE.MAX_SIZE,
+    items: new Map(),
+    enabled: CONFIG.CACHE.ENABLED,
+    ttl: CONFIG.CACHE.TTL,
+    
+    // Get a cached response
+    get(query) {
+        if (!this.enabled) return null;
+        
+        const normalizedQuery = query.toLowerCase().trim();
+        const item = this.items.get(normalizedQuery);
+        
+        if (item) {
+            // Check if cache entry has expired
+            if (Date.now() - item.timestamp > this.ttl) {
+                this.items.delete(normalizedQuery);
+                return null;
+            }
+            
+            // Move this item to the end (most recently used)
+            this.items.delete(normalizedQuery);
+            this.items.set(normalizedQuery, item);
+            
+            console.log('Cache hit for query:', normalizedQuery);
+            return item.response;
+        }
+        
+        return null; // Cache miss
+    },
+    
+    // Store a response in the cache
+    set(query, response) {
+        if (!this.enabled) return;
+        
+        const normalizedQuery = query.toLowerCase().trim();
+        
+        // Check if cache is full and remove oldest item if needed
+        if (this.items.size >= this.maxSize) {
+            const oldestKey = this.items.keys().next().value;
+            this.items.delete(oldestKey);
+        }
+        
+        // Add the new item
+        this.items.set(normalizedQuery, {
+            response,
+            timestamp: Date.now()
+        });
+        
+        console.log('Cached response for query:', normalizedQuery);
+    },
+    
+    // Clear cache
+    clear() {
+        this.items.clear();
+    }
+};
+
+// Fallback responses for when the API is unavailable
+const fallbackResponses = {
+    greeting: "Hello! I'm glad you're visiting my portfolio. How can I help you today?",
+    error: "I apologize, but my AI assistant is having trouble accessing information about me right now. Please try again in a moment.",
+    general: "I'd be happy to tell you more about my experience and projects when my AI assistant's connection is restored. Please try a different question or try again shortly.",
+    skills: "I have experience in web development, including technologies like JavaScript, React, and Node.js. I can provide more specific details when my AI connection improves.",
+    experience: "I have professional experience in software development. I can share more details about my work history when my AI connection improves.",
+    projects: "I've worked on several interesting projects in my career. I can tell you more about them when my AI connection improves."
+};
+
+// Function to detect casual conversation
+function isCasualConversation(query) {
+    const casualPatterns = [
+        /^hi+\s*$/i,
+        /^hello+\s*$/i,
+        /^hey+\s*$/i,
+        /^how are you/i,
+        /^what's up/i,
+        /^good morning/i,
+        /^good afternoon/i,
+        /^good evening/i,
+        /^nice to meet you/i,
+        /^thanks/i,
+        /^thank you/i,
+        /^ok+\s*$/i,
+        /^okay+\s*$/i,
+        /^cool+\s*$/i,
+        /^bye+\s*$/i,
+        /^goodbye/i,
+        /^see you/i
+    ];
+    
+    return casualPatterns.some(pattern => pattern.test(query.trim()));
+}
+
+// Initialize API connections
+async function initializeConnections() {
+    try {
+        // Check if Supabase is available
+        if (typeof supabase === 'undefined') {
+            throw new Error('Supabase client is not loaded');
+        }
+        
+        // Initialize Supabase client
+        supabaseClient = supabase.createClient(
+            CONFIG.SUPABASE_URL,
+            CONFIG.SUPABASE_ANON_KEY
+        );
+        
+        // Verify the connection works
+        const { data, error } = await supabaseClient.from('documents').select('id').limit(1);
+        
+        if (error) {
+            throw new Error(`Supabase connection error: ${error.message}`);
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('Failed to initialize connections:', error);
+        return false;
+    }
+}
+
+// Extract potential keywords from a query
+function extractKeywords(query) {
+    // Remove common words, keep only potential keywords
+    const stopWords = ["a", "an", "the", "and", "or", "but", "in", "on", "at", "to", "for", "with", "about", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "do", "does", "did", "can", "could", "will", "would", "shall", "should", "may", "might", "must"];
+    
+    return query.toLowerCase()
+        .replace(/[^\w\s]/g, '') // Remove punctuation
+        .split(/\s+/) // Split by whitespace
+        .filter(word => 
+            word.length > 2 && // Word must be longer than 2 chars
+            !stopWords.includes(word) // Word must not be a stop word
+        );
+}
+
+// Generate embeddings using Mistral with rate limit handling
+async function generateEmbedding(text) {
+    // Reset retry counter at the start of a new request
+    rateLimitManager.reset();
+    
+    // Keep trying until we hit max retries
+    while (true) {
+        try {
+            // Enforce rate limiting
+            await rateLimitManager.enforceRateLimit();
+            
+            const response = await fetch('https://api.mistral.ai/v1/embeddings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${CONFIG.MISTRAL_API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: CONFIG.MISTRAL_EMBEDDING_MODEL,
+                    input: text
+                })
+            });
+            
+            if (response.status === 429) {
+                // Handle rate limit
+                const retryAfter = response.headers.get('Retry-After') || 
+                                   rateLimitManager.getRetryDelay() / 1000;
+                
+                console.warn(`Rate limited. Retrying after ${retryAfter} seconds.`);
+                
+                // Check if we should retry
+                if (!rateLimitManager.incrementRetry()) {
+                    throw new Error('Maximum retry attempts reached for rate limiting');
+                }
+                
+                // Wait before retrying
+                const delayMs = retryAfter * 1000 || rateLimitManager.getRetryDelay();
+                rateLimitManager.isWaitingForRateLimit = true;
+                
+                // Send a rate limit event for UI updates
+                const rateEvent = new CustomEvent('ratelimit', { 
+                    detail: { waitTime: delayMs, retryCount: rateLimitManager.retryCount } 
+                });
+                document.dispatchEvent(rateEvent);
+                
+                await new Promise(resolve => setTimeout(resolve, delayMs));
+                rateLimitManager.isWaitingForRateLimit = false;
+                
+                // Try again
+                continue;
+            }
+            
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(`Mistral API Error: ${errorData.error?.message || response.statusText}`);
+            }
+            
+            const data = await response.json();
+            return data.data[0].embedding;
+            
+        } catch (error) {
+            // If it's not a rate limit error or we've exceeded retries, throw
+            if (!rateLimitManager.isWaitingForRateLimit || rateLimitManager.retryCount > rateLimitManager.maxRetries) {
+                console.error('Error generating embedding:', error);
+                throw error;
+            }
+            // Otherwise, the loop will continue due to the continue statement above
+        }
+    }
+}
+
+// Get relevant documents using both vector search and keyword filtering
+async function getRelevantDocuments(queryEmbedding, keywords) {
+    try {
+        // Try hybrid search if available
+        try {
+            const { data, error } = await supabaseClient.rpc('hybrid_search', {
+                query_text: keywords.join(' '),
+                query_embedding: queryEmbedding,
+                match_threshold: CONFIG.SIMILARITY_THRESHOLD,
+                match_count: CONFIG.MAX_DOCUMENTS
+            });
+            
+            if (!error && data && data.length > 0) {
+                return data;
+            }
+        } catch (hybridError) {
+            console.log('Hybrid search not available, falling back to vector search');
+        }
+        
+        // Fall back to vector search
+        const vectorResults = await getSimilarDocuments(queryEmbedding);
+        
+        // If we got good results, return them
+        if (vectorResults && vectorResults.length >= 3) {
+            return vectorResults;
+        }
+        
+        // If vector search didn't return enough results, try keyword search
+        let keywordResults = [];
+        
+        for (const keyword of keywords) {
+            // Search for the keyword in the content
+            const { data, error } = await supabaseClient
+                .from('documents')
+                .select('id, content, metadata')
+                .ilike('content', `%${keyword}%`)
+                .limit(3);
+                
+            if (!error && data) {
+                // Add a fake similarity score for ranking
+                const scoredResults = data.map(doc => ({
+                    ...doc,
+                    similarity: 0.6 // Lower than typical vector search results
+                }));
+                
+                keywordResults = [...keywordResults, ...scoredResults];
+            }
+        }
+        
+        // Deduplicate results
+        const uniqueResults = Array.from(
+            new Map(keywordResults.map(item => [item.id, item])).values()
+        );
+        
+        // Combine vector and keyword results, removing duplicates
+        const allResults = [...vectorResults];
+        
+        for (const keywordResult of uniqueResults) {
+            if (!allResults.some(item => item.id === keywordResult.id)) {
+                allResults.push(keywordResult);
+            }
+        }
+        
+        return allResults;
+    } catch (error) {
+        console.error('Error retrieving documents:', error);
+        throw error;
+    }
+}
+
+// Fetch similar documents from Supabase
+async function getSimilarDocuments(embedding) {
+    try {
+        const { data, error } = await supabaseClient.rpc('match_documents', {
+            query_embedding: embedding,
+            match_threshold: CONFIG.SIMILARITY_THRESHOLD,
+            match_count: CONFIG.MAX_DOCUMENTS
+        });
+        
+        if (error) {
+            throw error;
+        }
+        
+        return data || [];
+    } catch (error) {
+        console.error('Error fetching similar documents:', error);
+        throw error;
+    }
+}
+
+// Generate chat completion with Mistral AI - with rate limit handling
+async function generateChatCompletion(messages) {
+    // Reset retry counter at the start of a new request
+    rateLimitManager.reset();
+    
+    // Keep trying until we hit max retries
+    while (true) {
+        try {
+            // Enforce rate limiting
+            await rateLimitManager.enforceRateLimit();
+            
+            const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${CONFIG.MISTRAL_API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: CONFIG.MISTRAL_COMPLETION_MODEL,
+                    messages: messages
+                })
+            });
+            
+            if (response.status === 429) {
+                // Handle rate limit
+                const retryAfter = response.headers.get('Retry-After') || 
+                                   rateLimitManager.getRetryDelay() / 1000;
+                
+                console.warn(`Rate limited. Retrying after ${retryAfter} seconds.`);
+                
+                // Check if we should retry
+                if (!rateLimitManager.incrementRetry()) {
+                    throw new Error('Maximum retry attempts reached for rate limiting');
+                }
+                
+                // Wait before retrying
+                const delayMs = retryAfter * 1000 || rateLimitManager.getRetryDelay();
+                rateLimitManager.isWaitingForRateLimit = true;
+                
+                // Send a rate limit event for UI updates
+                const rateEvent = new CustomEvent('ratelimit', { 
+                    detail: { waitTime: delayMs, retryCount: rateLimitManager.retryCount } 
+                });
+                document.dispatchEvent(rateEvent);
+                
+                await new Promise(resolve => setTimeout(resolve, delayMs));
+                rateLimitManager.isWaitingForRateLimit = false;
+                
+                // Try again
+                continue;
+            }
+            
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(`Mistral API Error: ${errorData.error?.message || response.statusText}`);
+            }
+            
+            const data = await response.json();
+            return data.choices[0].message.content;
+            
+        } catch (error) {
+            // If it's not a rate limit error or we've exceeded retries, throw
+            if (!rateLimitManager.isWaitingForRateLimit || rateLimitManager.retryCount > rateLimitManager.maxRetries) {
+                console.error('Error generating chat completion:', error);
+                throw error;
+            }
+            // Otherwise, the loop will continue due to the continue statement above
+        }
+    }
+}
+
+// RAG response generation - with caching, fallbacks, and casual conversation handling
+async function generateRAGResponse(userQuery) {
+    // Check if this is casual conversation
+    if (isCasualConversation(userQuery)) {
+        // Handle casual conversation differently
+        const messages = [
+            {
+                role: "system",
+                content: "You are a friendly AI assistant on a portfolio website. Respond naturally to casual conversation without mentioning portfolio information unless specifically asked."
+            },
+            {
+                role: "user",
+                content: userQuery
+            }
+        ];
+        
+        try {
+            // Check cache first
+            const cachedResponse = responseCache.get(userQuery);
+            if (cachedResponse) return cachedResponse;
+            
+            const response = await generateChatCompletion(messages);
+            responseCache.set(userQuery, response);
+            return response;
+        } catch (error) {
+            console.error("Error in casual conversation:", error);
+            
+            // Return appropriate fallback
+            if (userQuery.toLowerCase().includes("hi") || userQuery.toLowerCase().includes("hello") || userQuery.toLowerCase().includes("hey")) {
+                return fallbackResponses.greeting;
+            } else {
+                return "Nice chatting with you! Let me know if you'd like to know anything about my work or projects.";
+            }
+        }
+    }
+    
+    // For non-casual queries, proceed with regular RAG
+    // Check cache first
+    const cachedResponse = responseCache.get(userQuery);
+    if (cachedResponse) {
+        return cachedResponse;
+    }
+    
+    try {
+        // Extract keywords for potential keyword search
+        const keywords = extractKeywords(userQuery);
+        
+        // Generate embedding for the query
+        const queryEmbedding = await generateEmbedding(userQuery);
+        
+        // Retrieve relevant documents
+        const relevantDocs = await getRelevantDocuments(queryEmbedding, keywords);
+        
+        // Prepare context from retrieved documents
+        let context = "";
+        if (relevantDocs && relevantDocs.length > 0) {
+            // Sort documents by relevance score
+            relevantDocs.sort((a, b) => b.similarity - a.similarity);
+            
+            // Take only the top documents until we reach a reasonable context size
+            let contextSize = 0;
+            const maxContextSize = CONFIG.CONTEXT.MAX_SIZE;
+            const selectedDocs = [];
+            
+            for (const doc of relevantDocs) {
+                if (contextSize + doc.content.length <= maxContextSize) {
+                    selectedDocs.push(doc);
+                    contextSize += doc.content.length;
+                } else {
+                    break;
+                }
+            }
+            
+            // Create the context string
+            context = selectedDocs.map(doc => doc.content).join("\n\n");
+        } else {
+            context = "No relevant information found.";
+        }
+        
+        // Generate a response using the context and query
+        const messages = [
+            {
+                role: "system",
+                content: CONFIG.SYSTEM_PROMPT
+            },
+            {
+                role: "user",
+                content: `Here is information about me:\n\n${context}\n\nBased only on this information, please answer the following question as if you are me: ${userQuery}`
+            }
+        ];
+        
+        const response = await generateChatCompletion(messages);
+        
+        // Cache the response before returning
+        responseCache.set(userQuery, response);
+        
+        return response;
+    } catch (error) {
+        console.error("Error in RAG process:", error);
+        
+        // Try to provide a relevant fallback response
+        const lowercaseQuery = userQuery.toLowerCase();
+        
+        if (lowercaseQuery.includes("hello") || lowercaseQuery.includes("hi") || lowercaseQuery.includes("hey")) {
+            return fallbackResponses.greeting;
+        } else if (lowercaseQuery.includes("skill") || lowercaseQuery.includes("technology") || lowercaseQuery.includes("tech stack")) {
+            return fallbackResponses.skills;
+        } else if (lowercaseQuery.includes("experience") || lowercaseQuery.includes("work") || lowercaseQuery.includes("job")) {
+            return fallbackResponses.experience;
+        } else if (lowercaseQuery.includes("project") || lowercaseQuery.includes("portfolio") || lowercaseQuery.includes("build")) {
+            return fallbackResponses.projects;
+        } else {
+            return fallbackResponses.general;
+        }
+    }
+}
