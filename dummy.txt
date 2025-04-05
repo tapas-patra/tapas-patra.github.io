@@ -1,89 +1,161 @@
-// lib/utils.js
+// lib/rag.js
+const { supabase, getSimilarDocuments, getDocumentsByKeyword, hybridSearch } = require('./supabase');
+const { createEmbedding, generateChatCompletion } = require('./mistral');
+const { isCasualConversation, extractKeywords, logger } = require('./utils');
+const CONFIG = require('./config');
 
-// Function to detect casual conversation
-function isCasualConversation(query) {
-  const casualPatterns = [
-    /^hi+\s*$/i,
-    /^hello+\s*$/i,
-    /^hey+\s*$/i,
-    /^how are you/i,
-    /^what's up/i,
-    /^good morning/i,
-    /^good afternoon/i,
-    /^good evening/i,
-    /^nice to meet you/i,
-    /^thanks/i,
-    /^thank you/i,
-    /^ok+\s*$/i,
-    /^okay+\s*$/i,
-    /^cool+\s*$/i,
-    /^bye+\s*$/i,
-    /^goodbye/i,
-    /^see you/i
-  ];
+// Main RAG function
+async function generateRAGResponse(userQuery) {
+  try {
+    // Log the incoming query
+    logger('info', 'Processing query', { query: userQuery });
 
-  return casualPatterns.some(pattern => pattern.test(query.trim()));
-}
+    // Check if this is casual conversation
+    if (isCasualConversation(userQuery)) {
+      logger('info', 'Detected casual conversation', { query: userQuery });
+      
+      // Handle casual conversation differently
+      const messages = [
+        {
+          role: "system",
+          content: "You are a friendly AI assistant on a portfolio website. Respond naturally to casual conversation without mentioning portfolio information unless specifically asked."
+        },
+        {
+          role: "user",
+          content: userQuery
+        }
+      ];
 
-// Extract potential keywords from a query
-function extractKeywords(query) {
-  // Remove common words, keep only potential keywords
-  const stopWords = [
-    "a", "an", "the", "and", "or", "but", "in", "on", "at", "to", "for", 
-    "with", "about", "is", "are", "was", "were", "be", "been", "being", 
-    "have", "has", "had", "do", "does", "did", "can", "could", "will", 
-    "would", "shall", "should", "may", "might", "must", "that", "this", 
-    "these", "those", "i", "you", "he", "she", "it", "we", "they", "who", 
-    "what", "which", "whose", "whom", "when", "where", "why", "how"
-  ];
+      try {
+        const response = await generateChatCompletion(messages);
+        return response;
+      } catch (error) {
+        logger('error', "Error in casual conversation handling", { error: error.message });
 
-  return query.toLowerCase()
-    .replace(/[^\w\s]/g, '') // Remove punctuation
-    .split(/\s+/) // Split by whitespace
-    .filter(word =>
-      word.length > 2 && // Word must be longer than 2 chars
-      !stopWords.includes(word) // Word must not be a stop word
-    );
-}
-
-// Log with timestamps and levels
-function logger(level, message, data = null) {
-  const timestamp = new Date().toISOString();
-  const logEntry = {
-    timestamp,
-    level,
-    message
-  };
-  
-  if (data) {
-    logEntry.data = data;
-  }
-  
-  // Log to console with appropriate method
-  switch (level) {
-    case 'error':
-      console.error(JSON.stringify(logEntry));
-      break;
-    case 'warn':
-      console.warn(JSON.stringify(logEntry));
-      break;
-    case 'info':
-      console.log(JSON.stringify(logEntry));
-      break;
-    case 'debug':
-      if (process.env.DEBUG) {
-        console.log(JSON.stringify(logEntry));
+        // Return appropriate fallback
+        if (userQuery.toLowerCase().includes("hi") || userQuery.toLowerCase().includes("hello") || userQuery.toLowerCase().includes("hey")) {
+          return CONFIG.FALLBACK_RESPONSES.GREETING;
+        } else {
+          return "Nice chatting with you! Let me know if you'd like to know anything about my work or projects.";
+        }
       }
-      break;
-    default:
-      console.log(JSON.stringify(logEntry));
+    }
+
+    // For non-casual queries, proceed with regular RAG
+    try {
+      // Extract keywords for potential keyword search
+      const keywords = extractKeywords(userQuery);
+      logger('info', 'Extracted keywords', { keywords });
+
+      // Generate embedding for the query
+      const queryEmbedding = await createEmbedding(userQuery);
+      
+      // Get relevant documents through different strategies
+      let relevantDocs = [];
+      
+      // Try hybrid search first (if available)
+      const keywordsText = keywords.join(' ');
+      const hybridResults = await hybridSearch(keywordsText, queryEmbedding);
+      
+      if (hybridResults && hybridResults.length > 0) {
+        logger('info', 'Using hybrid search results', { count: hybridResults.length });
+        relevantDocs = hybridResults;
+      } else {
+        // Fall back to vector search
+        logger('info', 'Falling back to vector search');
+        relevantDocs = await getSimilarDocuments(queryEmbedding);
+        
+        // If vector search didn't yield enough good results, try keyword search
+        if (relevantDocs.length < 2 && keywords.length > 0) {
+          logger('info', 'Supplementing with keyword search', { keywords });
+          
+          // Get documents for each keyword
+          const keywordPromises = keywords.map(keyword => 
+            getDocumentsByKeyword(keyword)
+          );
+          
+          const keywordResults = await Promise.all(keywordPromises);
+          
+          // Flatten results and remove duplicates
+          keywordResults.forEach(results => {
+            results.forEach(doc => {
+              // Only add if not already in relevantDocs
+              if (!relevantDocs.some(d => d.id === doc.id)) {
+                relevantDocs.push(doc);
+              }
+            });
+          });
+        }
+      }
+
+      // Prepare context from retrieved documents
+      let context = "";
+      if (relevantDocs && relevantDocs.length > 0) {
+        // Sort documents by relevance score
+        relevantDocs.sort((a, b) => b.similarity - a.similarity);
+        logger('info', 'Retrieved relevant documents', { count: relevantDocs.length });
+
+        // Take only the top documents until we reach a reasonable context size
+        let contextSize = 0;
+        const maxContextSize = CONFIG.CONTEXT.MAX_SIZE;
+        const selectedDocs = [];
+
+        for (const doc of relevantDocs) {
+          if (contextSize + doc.content.length <= maxContextSize) {
+            selectedDocs.push(doc);
+            contextSize += doc.content.length;
+          } else {
+            break;
+          }
+        }
+
+        // Create the context string
+        context = selectedDocs.map(doc => doc.content).join("\n\n");
+      } else {
+        logger('warn', 'No relevant documents found');
+        context = "No relevant information found.";
+      }
+
+      // Generate a response using the context and query
+      const messages = [
+        {
+          role: "system",
+          content: CONFIG.SYSTEM_PROMPT
+        },
+        {
+          role: "user",
+          content: `Here is information about me:\n\n${context}\n\nBased only on this information, please answer the following question as if you are me: ${userQuery}`
+        }
+      ];
+
+      const response = await generateChatCompletion(messages);
+      logger('info', 'Generated response successfully');
+      
+      return response;
+    } catch (error) {
+      logger('error', "Error in RAG process", { error: error.message });
+
+      // Try to provide a relevant fallback response
+      const lowercaseQuery = userQuery.toLowerCase();
+
+      if (lowercaseQuery.includes("hello") || lowercaseQuery.includes("hi") || lowercaseQuery.includes("hey")) {
+        return CONFIG.FALLBACK_RESPONSES.GREETING;
+      } else if (lowercaseQuery.includes("skill") || lowercaseQuery.includes("technology") || lowercaseQuery.includes("tech stack")) {
+        return CONFIG.FALLBACK_RESPONSES.SKILLS;
+      } else if (lowercaseQuery.includes("experience") || lowercaseQuery.includes("work") || lowercaseQuery.includes("job")) {
+        return CONFIG.FALLBACK_RESPONSES.EXPERIENCE;
+      } else if (lowercaseQuery.includes("project") || lowercaseQuery.includes("portfolio") || lowercaseQuery.includes("build")) {
+        return CONFIG.FALLBACK_RESPONSES.PROJECTS;
+      } else {
+        return CONFIG.FALLBACK_RESPONSES.GENERAL;
+      }
+    }
+  } catch (error) {
+    logger('error', "Critical error in RAG process", { error: error.message, stack: error.stack });
+    return CONFIG.FALLBACK_RESPONSES.ERROR;
   }
-  
-  return logEntry;
 }
 
 module.exports = {
-  isCasualConversation,
-  extractKeywords,
-  logger
+  generateRAGResponse
 };
