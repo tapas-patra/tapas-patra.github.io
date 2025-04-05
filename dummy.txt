@@ -1,26 +1,823 @@
-<script>
-    // Check for URL parameters to override saved mode
-    document.addEventListener('DOMContentLoaded', function() {
-        // Parse the URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const modeParam = urlParams.get('mode');
-        
-        // If URL parameter exists, it overrides localStorage
-        if (modeParam === 'cli') {
-            // Force CLI mode
-            localStorage.setItem('portfolioMode', 'cli');
-            setMode('cli');
-        } else if (modeParam === 'ui') {
-            // Force UI mode
-            localStorage.setItem('portfolioMode', 'ui');
-            setMode('ui');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Portfolio Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366F1;
+            --primary-dark: #4F46E5;
+            --primary-light: #A5B4FC;
+            --primary-bg: #EEF2FF;
+            --secondary: #FB7185;
+            --text: #1E293B;
+            --text-light: #64748B;
+            --bg-light: #F8FAFC;
+            --bg-white: #FFFFFF;
+            --border: #E2E8F0;
+            --success: #10B981;
+            --error: #EF4444;
+            --warning: #F59E0B;
+            --animation-duration: 0.3s;
+            --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+            --radius-full: 9999px;
+        }
+
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            color: var(--text);
+            background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        /* Layout */
+        .app-container {
+            width: 100%;
+            max-width: 420px;
+            height: 85vh;
+            max-height: 750px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .chatbot-container {
+            background-color: var(--bg-white);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-xl);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+            backdrop-filter: blur(8px);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .chatbot-container:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl), 0 20px 40px -10px rgba(99, 102, 241, 0.2);
+        }
+
+        /* Header Styles */
+        .chatbot-header {
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            background-color: var(--bg-white);
+            border-bottom: 1px solid var(--border);
+            position: relative;
+            z-index: 10;
+        }
+
+        .avatar-container {
+            margin-right: 1rem;
+            position: relative;
+        }
+
+        .avatar {
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            font-weight: 600;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+        }
+
+        .avatar-inner {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-full);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-text {
+            flex: 1;
+        }
+
+        .header-text h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            font-size: 0.875rem;
+            color: var(--text-light);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--success);
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            position: relative;
+        }
+
+        .status-dot::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--success);
+            border-radius: 50%;
+            opacity: 0.5;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(2.5);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* Header Mode Buttons */
+        .header-mode-buttons {
+            display: flex;
+            gap: 10px;
+            margin-right: 10px;
         }
         
-        // Make sure CLI mode button properly includes the parameter
-        document.getElementById('ui-to-cli-btn').addEventListener('click', function() {
-            localStorage.setItem('portfolioMode', 'cli');
-            // Instead of calling setMode directly, set the URL parameter
-            window.location.href = 'index.html?mode=cli';
+        .mode-button {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .mode-button:hover {
+            color: var(--primary);
+            background-color: var(--primary-bg);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .clear-button {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s;
+        }
+
+        .clear-button:hover {
+            background-color: var(--bg-light);
+            color: var(--text);
+        }
+
+        /* Intro Panel */
+        .intro-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem 1.5rem;
+            background-color: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(5px);
+            position: absolute;
+            top: 85px;
+            left: 0;
+            right: 0;
+            bottom: 80px;
+            border-radius: 0;
+            z-index: 5;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .intro-panel.hidden {
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+        }
+
+        .intro-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-full);
+            background-color: var(--primary-bg);
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .intro-panel h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text);
+        }
+
+        .intro-panel p {
+            font-size: 1rem;
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            max-width: 280px;
+        }
+
+        .suggestion-chips {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.75rem;
+            max-width: 350px;
+        }
+
+        .suggestion-chip {
+            background-color: var(--bg-white);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-full);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .suggestion-chip:hover {
+            background-color: var(--primary-bg);
+            border-color: var(--primary-light);
+            color: var(--primary);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        /* Chat Messages */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            position: relative;
+            animation: fadeIn 0.3s forwards;
+            line-height: 1.5;
+            box-shadow: var(--shadow-sm);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message-user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border-bottom-right-radius: 0;
+        }
+
+        .message-user::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: -12px;
+            width: 12px;
+            height: 20px;
+            background-color: var(--primary-dark);
+            clip-path: polygon(0 0, 0% 100%, 100% 100%);
+        }
+
+        .message-bot {
+            align-self: flex-start;
+            background-color: var(--bg-light);
+            color: var(--text);
+            border-bottom-left-radius: 0;
+        }
+
+        .message-bot::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: -12px;
+            width: 12px;
+            height: 20px;
+            background-color: var(--bg-light);
+            clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+        }
+
+        .message p {
+            margin: 0;
+        }
+
+        .message pre {
+            margin-top: 0.5rem;
+            padding: 0.75rem;
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: var(--radius-sm);
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .message-bot pre {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .message-user pre {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .message.thinking {
+            padding: 0.75rem 1rem;
+        }
+
+        .thinking-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .thinking-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--text-light);
+            opacity: 0.6;
+        }
+
+        .message-bot .thinking-dot {
+            background-color: var(--text-light);
+        }
+
+        .thinking-dot:nth-child(1) {
+            animation: bounce 1.2s infinite 0s;
+        }
+
+        .thinking-dot:nth-child(2) {
+            animation: bounce 1.2s infinite 0.2s;
+        }
+
+        .thinking-dot:nth-child(3) {
+            animation: bounce 1.2s infinite 0.4s;
+        }
+
+        @keyframes bounce {
+            0%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-8px);
+            }
+        }
+
+        /* Chat Input */
+        .chat-input-container {
+            padding: 1rem;
+            border-top: 1px solid var(--border);
+            background-color: var(--bg-white);
+            position: relative;
+            z-index: 10;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: flex-end;
+            background-color: var(--bg-light);
+            border-radius: var(--radius-md);
+            padding: 0.5rem;
+            transition: all 0.2s;
+            border: 1px solid var(--border);
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        #user-input {
+            flex: 1;
+            border: none;
+            background: none;
+            padding: 0.5rem;
+            resize: none;
+            max-height: 120px;
+            overflow-y: auto;
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            color: var(--text);
+            outline: none;
+        }
+
+        #user-input::placeholder {
+            color: var(--text-light);
+        }
+
+        #send-button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.2s;
+            transform: scale(1);
+            margin-bottom: 2px;
+        }
+
+        #send-button:hover:not(:disabled) {
+            background-color: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        #send-button:disabled {
+            background-color: var(--text-light);
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        #send-button svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .chat-footer {
+            display: flex;
+            justify-content: center;
+            margin-top: 0.75rem;
+        }
+
+        .chat-footer p {
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loading-spinner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .spinner-ring {
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(99, 102, 241, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spinner-text {
+            font-size: 1rem;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        /* Media Queries */
+        @media (max-width: 480px) {
+            .app-container {
+                height: 100vh;
+                max-height: none;
+                padding: 0;
+            }
+
+            body {
+                padding: 0;
+            }
+
+            .chatbot-container {
+                border-radius: 0;
+            }
+        }
+
+        /* Code block formatting */
+        code {
+            font-family: 'Courier New', monospace;
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+
+        .message-user code {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Rate limit message styling */
+        .rate-limit-message {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--warning);
+            font-size: 0.9rem;
+        }
+
+        .rate-limit-message svg {
+            color: var(--warning);
+            flex-shrink: 0;
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-light: #1E293B;
+                --bg-white: #0F172A;
+                --text: #E2E8F0;
+                --text-light: #94A3B8;
+                --border: #334155;
+            }
+
+            body {
+                background: linear-gradient(135deg, #1E1E2D 0%, #2D3748 100%);
+            }
+
+            .loading-overlay {
+                background-color: rgba(15, 23, 42, 0.9);
+            }
+
+            .intro-panel {
+                background-color: rgba(15, 23, 42, 0.7);
+            }
+
+            .suggestion-chip {
+                background-color: #1E293B;
+            }
+
+            .suggestion-chip:hover {
+                background-color: #2D3748;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="chatbot-container">
+            <div class="chatbot-header">
+                <div class="avatar-container">
+                    <div class="avatar">
+                        <div class="avatar-inner">AI</div>
+                    </div>
+                </div>
+                <div class="header-text">
+                    <h2>Portfolio Assistant</h2>
+                    <div class="status">
+                        <span class="status-dot"></span>
+                        <span class="status-text">Online</span>
+                    </div>
+                </div>
+                <div class="header-mode-buttons">
+                    <a href="index.html" class="mode-button" id="ui-mode-btn" title="Switch to UI Mode">
+                        <i class="fas fa-desktop"></i>
+                    </a>
+                    <a href="#" class="mode-button" id="cli-mode-btn" title="Switch to CLI Mode">
+                        <i class="fas fa-terminal"></i>
+                    </a>
+                </div>
+                <div class="header-actions">
+                    <button id="clear-chat" class="clear-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 6h18"></path>
+                            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="intro-panel" id="intro-panel">
+                <div class="intro-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 16v-4"></path>
+                        <path d="M12 8h.01"></path>
+                    </svg>
+                </div>
+                <h3>How can I help you?</h3>
+                <p>Ask me anything about my projects, skills, or experience.</p>
+                <div class="suggestion-chips">
+                    <button class="suggestion-chip" data-query="Tell me about your projects">Projects</button>
+                    <button class="suggestion-chip" data-query="What technologies do you use?">Technologies</button>
+                    <button class="suggestion-chip" data-query="What are your main skills?">Skills</button>
+                    <button class="suggestion-chip" data-query="Tell me about your work experience">Experience</button>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chat-messages">
+                <!-- Messages will appear here -->
+            </div>
+
+            <div class="chat-input-container">
+                <div class="input-wrapper">
+                    <textarea id="user-input" placeholder="Ask me anything..." rows="1"></textarea>
+                    <button id="send-button" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+                <div class="chat-footer">
+                    <p>Powered by Mistral AI & Supabase</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading spinner overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner-ring"></div>
+            <div class="spinner-text">Connecting...</div>
+        </div>
+    </div>
+
+    <!-- Import libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Import application scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        // Add this script to handle mode commands and URL parameters
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up CLI mode link with proper URL parameter
+            document.getElementById('cli-mode-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                // Force CLI mode by setting localStorage AND redirecting with parameter
+                localStorage.setItem('portfolioMode', 'cli');
+                window.location.href = 'index.html?mode=cli';
+            });
+            
+            // Set up UI mode link
+            document.getElementById('ui-mode-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                // Force UI mode by setting localStorage
+                localStorage.setItem('portfolioMode', 'ui');
+                window.location.href = 'index.html';
+            });
+            
+            // Define a function to modify the handleUserMessage behavior
+            function modifyHandleUserMessage() {
+                // Store the original function reference
+                const originalHandleUserMessage = handleUserMessage;
+                
+                // Override the function
+                handleUserMessage = async function() {
+                    const message = userInput.value.trim().toLowerCase();
+                    
+                    // Check for UI mode command
+                    if (message === 'uimode' || message === 'ui mode' || message === 'switch to ui mode') {
+                        addUserMessage(userInput.value);
+                        userInput.value = '';
+                        userInput.style.height = 'auto';
+                        
+                        // Add bot response
+                        addBotMessage("Switching to UI mode...");
+                        
+                        // Force UI mode by setting localStorage
+                        localStorage.setItem('portfolioMode', 'ui');
+                        
+                        // Redirect after a short delay
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 1000);
+                        
+                        return;
+                    }
+                    
+                    // Check for CLI mode command
+                    if (message === 'climode' || message === 'cli mode' || message === 'switch to cli mode') {
+                        addUserMessage(userInput.value);
+                        userInput.value = '';
+                        userInput.style.height = 'auto';
+                        
+                        // Add bot response
+                        addBotMessage("Switching to CLI mode...");
+                        
+                        // Force CLI mode by setting localStorage
+                        localStorage.setItem('portfolioMode', 'cli');
+                        
+                        // Redirect after a short delay
+                        setTimeout(() => {
+                            window.location.href = 'index.html?mode=cli';
+                        }, 1000);
+                        
+                        return;
+                    }
+                    
+                    // Default behavior for other messages
+                    return originalHandleUserMessage.apply(this, arguments);
+                };
+            }
+            
+            // Call the modification function once the app is fully loaded
+            // We need to wait until the original handleUserMessage is defined
+            const checkAppLoaded = setInterval(function() {
+                if (typeof handleUserMessage === 'function') {
+                    clearInterval(checkAppLoaded);
+                    modifyHandleUserMessage();
+                    console.log('Chat mode detection initialized');
+                }
+            }, 100);
         });
-    });
-</script>
+    </script>
+    <script src="js/app.js"></script>
+</body>
+</html>
