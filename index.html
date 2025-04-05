@@ -1374,6 +1374,9 @@
                         <button class="nav-toggle-btn" id="ui-to-cli-btn" title="Switch to CLI Mode">
                             <i class="fas fa-terminal"></i>
                         </button>
+                        <a href="bot.html" class="nav-toggle-btn" title="Switch to AI Mode">
+                            <i class="fas fa-robot"></i>
+                        </a>
                         <button class="theme-toggle" id="theme-toggle" title="Toggle Light/Dark Mode">
                             <i class="fas fa-moon"></i>
                         </button>
@@ -1773,6 +1776,9 @@
                         <div class="control maximize"></div>
                     </div>
                     <div class="window-title">tapas@portfolio:~/</div>
+                    <a href="bot.html" class="cli-toggle-btn" title="Switch to AI Mode">
+                        <i class="fas fa-robot"></i>
+                    </a>
                     <button class="cli-toggle-btn" id="cli-to-ui-btn" title="Switch to UI Mode">
                         <i class="fas fa-desktop"></i>
                     </button>
@@ -1810,7 +1816,32 @@
             </div>
         </div>
     </div>
+    <script>
+    // Check for URL parameters to override saved mode
+    document.addEventListener('DOMContentLoaded', function() {
+        // Parse the URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const modeParam = urlParams.get('mode');
 
+        // If URL parameter exists, it overrides localStorage
+        if (modeParam === 'cli') {
+            // Force CLI mode
+            localStorage.setItem('portfolioMode', 'cli');
+            setMode('cli');
+        } else if (modeParam === 'ui') {
+            // Force UI mode
+            localStorage.setItem('portfolioMode', 'ui');
+            setMode('ui');
+        }
+
+        // Make sure CLI mode button properly includes the parameter
+        document.getElementById('ui-to-cli-btn').addEventListener('click', function() {
+            localStorage.setItem('portfolioMode', 'cli');
+            // Instead of calling setMode directly, set the URL parameter
+            window.location.href = 'index.html?mode=cli';
+        });
+    });
+    </script>
     <!-- Scripts -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
@@ -2412,6 +2443,17 @@
                 usage: "switchtoui",
                 execute: function() {
                     return commands.uimode.execute();
+                }
+            },
+            aimode: {
+                description: "Switch to AI mode",
+                usage: "aimode",
+                execute: function() {
+                    setTimeout(() => {
+                        window.location.href = 'bot.html';
+                    }, 1000);
+
+                    return `<div class="line info">Switching to AI mode<span class="loading"></span></div>`;
                 }
             },
             matrix: {
