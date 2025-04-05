@@ -1,8 +1,43 @@
-// api/health.js
-module.exports = (req, res) => {
-  res.status(200).json({ 
-    status: 'ok', 
-    timestamp: new Date().toISOString(),
-    version: '1.0.0'
-  });
+// lib/config.js
+const CONFIG = {
+  // API Credentials - from environment variables
+  SUPABASE_URL: process.env.SUPABASE_URL,
+  SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
+  MISTRAL_API_KEY: process.env.MISTRAL_API_KEY,
+  
+  // Mistral models
+  MISTRAL_EMBEDDING_MODEL: process.env.MISTRAL_EMBEDDING_MODEL || "mistral-embed",
+  MISTRAL_COMPLETION_MODEL: process.env.MISTRAL_COMPLETION_MODEL || "open-mistral-7b",
+  
+  // RAG settings
+  SIMILARITY_THRESHOLD: 0.6,
+  MAX_DOCUMENTS: 5,
+  
+  // System prompt for AI responses
+  SYSTEM_PROMPT: "You are an AI assistant representing Tapas Kumar Patra on his personal portfolio website. Speak in first person as if you are Tapas when discussing his skills, projects, and experience (e.g., 'I have experience with...' not 'Tapas has...'). For general questions or casual conversation, respond naturally without forcing portfolio information. Be friendly, conversational, and helpful. If you don't know something specific about Tapas, just be honest and offer to help with something else.",
+  
+  // Rate limiting settings
+  RATE_LIMIT: {
+    MAX_RETRIES: 3,
+    MIN_INTERVAL: 1500,      // Minimum milliseconds between requests
+    BASE_DELAY: 2000,        // Base delay for exponential backoff
+    MAX_DELAY: 30000         // Maximum delay (30 seconds)
+  },
+  
+  // Document context settings
+  CONTEXT: {
+    MAX_SIZE: 4000           // Maximum context size in characters
+  },
+  
+  // Fallback responses for errors
+  FALLBACK_RESPONSES: {
+    GREETING: "Hello! I'm glad you're visiting my portfolio. How can I help you today?",
+    ERROR: "I apologize, but I'm having trouble accessing my information right now. Please try a different question or try again shortly.",
+    GENERAL: "I'd be happy to tell you more about my experience and projects. Could you please try a more specific question?",
+    SKILLS: "I have experience in web development, automation testing, and various technologies like Python, JavaScript, and automation frameworks.",
+    EXPERIENCE: "I have professional experience in automation engineering, particularly in the automotive domain.",
+    PROJECTS: "I've worked on several interesting projects in my career, including tools for test management and automation."
+  }
 };
+
+module.exports = CONFIG;
