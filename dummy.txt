@@ -1,181 +1,89 @@
-// lib/mistral.js
-const CONFIG = require('./config');
+// lib/utils.js
 
-// Rate limiting management
-const rateLimitManager = {
-  lastRequestTime: 0,
-  minRequestInterval: CONFIG.RATE_LIMIT.MIN_INTERVAL,
-  retryCount: 0,
-  maxRetries: CONFIG.RATE_LIMIT.MAX_RETRIES,
-  isWaitingForRateLimit: false,
+// Function to detect casual conversation
+function isCasualConversation(query) {
+  const casualPatterns = [
+    /^hi+\s*$/i,
+    /^hello+\s*$/i,
+    /^hey+\s*$/i,
+    /^how are you/i,
+    /^what's up/i,
+    /^good morning/i,
+    /^good afternoon/i,
+    /^good evening/i,
+    /^nice to meet you/i,
+    /^thanks/i,
+    /^thank you/i,
+    /^ok+\s*$/i,
+    /^okay+\s*$/i,
+    /^cool+\s*$/i,
+    /^bye+\s*$/i,
+    /^goodbye/i,
+    /^see you/i
+  ];
 
-  // Get delay time for exponential backoff
-  getRetryDelay() {
-    // Exponential backoff with jitter: 2^retryCount * baseDelay + random jitter
-    return Math.min(
-      (Math.pow(2, this.retryCount) * CONFIG.RATE_LIMIT.BASE_DELAY) + (Math.random() * 1000),
-      CONFIG.RATE_LIMIT.MAX_DELAY
-    );
-  },
-
-  // Reset retry count
-  reset() {
-    this.retryCount = 0;
-    this.isWaitingForRateLimit = false;
-  },
-
-  // Increment retry count
-  incrementRetry() {
-    this.retryCount++;
-    return this.retryCount <= this.maxRetries;
-  },
-
-  // Ensure we're not sending requests too quickly
-  async enforceRateLimit() {
-    const now = Date.now();
-    const timeSinceLastRequest = now - this.lastRequestTime;
-
-    if (timeSinceLastRequest < this.minRequestInterval) {
-      // Wait before proceeding
-      const waitTime = this.minRequestInterval - timeSinceLastRequest;
-      await new Promise(resolve => setTimeout(resolve, waitTime));
-    }
-
-    this.lastRequestTime = Date.now();
-  }
-};
-
-// Generate embeddings with rate limit handling
-async function createEmbedding(text) {
-  // Reset retry counter at the start of a new request
-  rateLimitManager.reset();
-
-  // Keep trying until we hit max retries
-  while (true) {
-    try {
-      // Enforce rate limiting
-      await rateLimitManager.enforceRateLimit();
-
-      const response = await fetch('https://api.mistral.ai/v1/embeddings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${CONFIG.MISTRAL_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: CONFIG.MISTRAL_EMBEDDING_MODEL,
-          input: text
-        })
-      });
-
-      if (response.status === 429) {
-        // Handle rate limit
-        const retryAfter = response.headers.get('Retry-After') ||
-                           rateLimitManager.getRetryDelay() / 1000;
-
-        console.warn(`Rate limited. Retrying after ${retryAfter} seconds.`);
-
-        // Check if we should retry
-        if (!rateLimitManager.incrementRetry()) {
-          throw new Error('Maximum retry attempts reached for rate limiting');
-        }
-
-        // Wait before retrying
-        const delayMs = retryAfter * 1000 || rateLimitManager.getRetryDelay();
-        rateLimitManager.isWaitingForRateLimit = true;
-
-        await new Promise(resolve => setTimeout(resolve, delayMs));
-        rateLimitManager.isWaitingForRateLimit = false;
-
-        // Try again
-        continue;
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(`Mistral API Error: ${errorData.error?.message || response.statusText}`);
-      }
-
-      const data = await response.json();
-      return data.data[0].embedding;
-
-    } catch (error) {
-      // If it's not a rate limit error or we've exceeded retries, throw
-      if (!rateLimitManager.isWaitingForRateLimit || rateLimitManager.retryCount > rateLimitManager.maxRetries) {
-        console.error('Error generating embedding:', error);
-        throw error;
-      }
-      // Otherwise, the loop will continue
-    }
-  }
+  return casualPatterns.some(pattern => pattern.test(query.trim()));
 }
 
-// Generate chat completion with rate limit handling
-async function generateChatCompletion(messages) {
-  // Reset retry counter at the start of a new request
-  rateLimitManager.reset();
+// Extract potential keywords from a query
+function extractKeywords(query) {
+  // Remove common words, keep only potential keywords
+  const stopWords = [
+    "a", "an", "the", "and", "or", "but", "in", "on", "at", "to", "for", 
+    "with", "about", "is", "are", "was", "were", "be", "been", "being", 
+    "have", "has", "had", "do", "does", "did", "can", "could", "will", 
+    "would", "shall", "should", "may", "might", "must", "that", "this", 
+    "these", "those", "i", "you", "he", "she", "it", "we", "they", "who", 
+    "what", "which", "whose", "whom", "when", "where", "why", "how"
+  ];
 
-  // Keep trying until we hit max retries
-  while (true) {
-    try {
-      // Enforce rate limiting
-      await rateLimitManager.enforceRateLimit();
+  return query.toLowerCase()
+    .replace(/[^\w\s]/g, '') // Remove punctuation
+    .split(/\s+/) // Split by whitespace
+    .filter(word =>
+      word.length > 2 && // Word must be longer than 2 chars
+      !stopWords.includes(word) // Word must not be a stop word
+    );
+}
 
-      const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${CONFIG.MISTRAL_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: CONFIG.MISTRAL_COMPLETION_MODEL,
-          messages: messages
-        })
-      });
-
-      if (response.status === 429) {
-        // Handle rate limit
-        const retryAfter = response.headers.get('Retry-After') ||
-                           rateLimitManager.getRetryDelay() / 1000;
-
-        console.warn(`Rate limited. Retrying after ${retryAfter} seconds.`);
-
-        // Check if we should retry
-        if (!rateLimitManager.incrementRetry()) {
-          throw new Error('Maximum retry attempts reached for rate limiting');
-        }
-
-        // Wait before retrying
-        const delayMs = retryAfter * 1000 || rateLimitManager.getRetryDelay();
-        rateLimitManager.isWaitingForRateLimit = true;
-
-        await new Promise(resolve => setTimeout(resolve, delayMs));
-        rateLimitManager.isWaitingForRateLimit = false;
-
-        // Try again
-        continue;
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(`Mistral API Error: ${errorData.error?.message || response.statusText}`);
-      }
-
-      const data = await response.json();
-      return data.choices[0].message.content;
-
-    } catch (error) {
-      // If it's not a rate limit error or we've exceeded retries, throw
-      if (!rateLimitManager.isWaitingForRateLimit || rateLimitManager.retryCount > rateLimitManager.maxRetries) {
-        console.error('Error generating chat completion:', error);
-        throw error;
-      }
-      // Otherwise, the loop will continue
-    }
+// Log with timestamps and levels
+function logger(level, message, data = null) {
+  const timestamp = new Date().toISOString();
+  const logEntry = {
+    timestamp,
+    level,
+    message
+  };
+  
+  if (data) {
+    logEntry.data = data;
   }
+  
+  // Log to console with appropriate method
+  switch (level) {
+    case 'error':
+      console.error(JSON.stringify(logEntry));
+      break;
+    case 'warn':
+      console.warn(JSON.stringify(logEntry));
+      break;
+    case 'info':
+      console.log(JSON.stringify(logEntry));
+      break;
+    case 'debug':
+      if (process.env.DEBUG) {
+        console.log(JSON.stringify(logEntry));
+      }
+      break;
+    default:
+      console.log(JSON.stringify(logEntry));
+  }
+  
+  return logEntry;
 }
 
 module.exports = {
-  createEmbedding,
-  generateChatCompletion
+  isCasualConversation,
+  extractKeywords,
+  logger
 };
