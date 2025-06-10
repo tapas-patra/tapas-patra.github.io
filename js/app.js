@@ -1,7 +1,7 @@
 // App.js - Enhanced with Session Support for Conversation Context
 document.addEventListener('DOMContentLoaded', function() {
   // Configuration
-  const API_URL = 'https://portfolio-bot-backend-git-bot-20-tapaspatra.vercel.app/api';
+  const API_URL = 'https://portfolio-bot-backend.vercel.app/api';
 
   // DOM References
   const loadingOverlay = document.getElementById('loading-overlay');
