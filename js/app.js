@@ -272,7 +272,7 @@ document.addEventListener('DOMContentLoaded', function() {
     scrollToBottom();
   }
 
-  // Add thinking indicator
+  // ✅ CORRECTED Add thinking indicator
   function addThinkingIndicator() {
     const thinkingElement = document.createElement('div');
     thinkingElement.className = 'message message-bot thinking';
@@ -287,7 +287,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     thinkingElement.appendChild(dotsContainer);
-    chatMessages.appendChild(thinkingIndicator);
+    chatMessages.appendChild(thinkingElement); // ✅ FIXED: correct variable name
     scrollToBottom();
 
     return thinkingElement;
