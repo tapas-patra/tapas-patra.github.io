@@ -1,240 +1,59 @@
-<!--<!DOCTYPE html>-->
-<!--<html lang="en">-->
-<!--<head>-->
-<!--    <meta charset="UTF-8">-->
-<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
-<!--    <title>AI Portfolio Assistant</title>-->
-<!--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">-->
-<!--    <link rel="stylesheet" href="css/style.css">-->
-<!--    <link rel="preconnect" href="https://fonts.googleapis.com">-->
-<!--    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>-->
-<!--    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">-->
-<!--    <style>-->
-<!--        /* Additional styles for mode buttons */-->
-<!--        .header-mode-buttons {-->
-<!--            display: flex;-->
-<!--            gap: 10px;-->
-<!--            margin-right: 10px;-->
-<!--        }-->
-<!--        .mode-button {-->
-<!--            background: none;-->
-<!--            border: none;-->
-<!--            color: var(&#45;&#45;text-light);-->
-<!--            font-size: 16px;-->
-<!--            cursor: pointer;-->
-<!--            padding: 5px;-->
-<!--            border-radius: 5px;-->
-<!--            transition: all 0.2s;-->
-<!--            display: flex;-->
-<!--            align-items: center;-->
-<!--            justify-content: center;-->
-<!--        }-->
-<!--        .mode-button:hover {-->
-<!--            color: var(&#45;&#45;primary);-->
-<!--            background-color: var(&#45;&#45;primary-bg);-->
-<!--        }-->
-<!--        .header-actions {-->
-<!--            display: flex;-->
-<!--            align-items: center;-->
-<!--        }-->
-<!--    </style>-->
-<!--</head>-->
-<!--<body>-->
-<!--    <div class="app-container">-->
-<!--        <div class="chatbot-container">-->
-<!--            <div class="chatbot-header">-->
-<!--                <div class="avatar-container">-->
-<!--                    <div class="avatar">-->
-<!--                        <div class="avatar-inner">AI</div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--                <div class="header-text">-->
-<!--                    <h2>Portfolio Assistant</h2>-->
-<!--                    <div class="status">-->
-<!--                        <span class="status-dot"></span>-->
-<!--                        <span class="status-text">Online</span>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--                <div class="header-mode-buttons">-->
-<!--                    <a href="index.html" class="mode-button" id="ui-mode-btn" title="Switch to UI Mode">-->
-<!--                        <i class="fas fa-desktop"></i>-->
-<!--                    </a>-->
-<!--                    <a href="index.html?mode=cli" class="mode-button" id="cli-mode-btn" title="Switch to CLI Mode">-->
-<!--                        <i class="fas fa-terminal"></i>-->
-<!--                    </a>-->
-<!--                </div>-->
-<!--                <div class="header-actions">-->
-<!--                    <button id="clear-chat" class="clear-button">-->
-<!--                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">-->
-<!--                            <path d="M3 6h18"></path>-->
-<!--                            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>-->
-<!--                        </svg>-->
-<!--                    </button>-->
-<!--                </div>-->
-<!--            </div>-->
-
-<!--            <div class="intro-panel" id="intro-panel">-->
-<!--                <div class="intro-icon">-->
-<!--                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">-->
-<!--                        <circle cx="12" cy="12" r="10"></circle>-->
-<!--                        <path d="M12 16v-4"></path>-->
-<!--                        <path d="M12 8h.01"></path>-->
-<!--                    </svg>-->
-<!--                </div>-->
-<!--                <h3>How can I help you?</h3>-->
-<!--                <p>Ask me anything about my projects, skills, or experience.</p>-->
-<!--                <div class="suggestion-chips">-->
-<!--                    <button class="suggestion-chip" data-query="Tell me about your projects">Projects</button>-->
-<!--                    <button class="suggestion-chip" data-query="What technologies do you use?">Technologies</button>-->
-<!--                    <button class="suggestion-chip" data-query="What are your main skills?">Skills</button>-->
-<!--                    <button class="suggestion-chip" data-query="Tell me about your work experience">Experience</button>-->
-<!--                </div>-->
-<!--            </div>-->
-
-<!--            <div class="chat-messages" id="chat-messages">-->
-<!--                &lt;!&ndash; Messages will appear here &ndash;&gt;-->
-<!--            </div>-->
-
-<!--            <div class="chat-input-container">-->
-<!--                <div class="input-wrapper">-->
-<!--                    <textarea id="user-input" placeholder="Ask me anything..." rows="1"></textarea>-->
-<!--                    <button id="send-button" disabled>-->
-<!--                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">-->
-<!--                            <line x1="22" y1="2" x2="11" y2="13"></line>-->
-<!--                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>-->
-<!--                        </svg>-->
-<!--                    </button>-->
-<!--                </div>-->
-<!--                <div class="chat-footer">-->
-<!--                    <p>Powered by Mistral AI & Supabase</p>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
-
-<!--    &lt;!&ndash; Loading spinner overlay &ndash;&gt;-->
-<!--    <div class="loading-overlay" id="loading-overlay">-->
-<!--        <div class="loading-spinner">-->
-<!--            <div class="spinner-ring"></div>-->
-<!--            <div class="spinner-text">Connecting...</div>-->
-<!--        </div>-->
-<!--    </div>-->
-
-<!--    &lt;!&ndash; Import libraries &ndash;&gt;-->
-<!--    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>-->
-
-<!--    &lt;!&ndash; Import application scripts &ndash;&gt;-->
-<!--    <script src="js/config.js"></script>-->
-<!--    <script src="js/api.js"></script>-->
-<!--    <script>-->
-<!--        // Add this script to handle mode commands-->
-<!--        function modifyHandleUserMessage() {-->
-<!--            const originalHandleUserMessage = handleUserMessage;-->
-
-<!--            handleUserMessage = async function() {-->
-<!--                const message = userInput.value.trim().toLowerCase();-->
-
-<!--                // Check for UI mode command-->
-<!--                if (message === 'uimode' || message === 'ui mode' || message === 'switch to ui mode') {-->
-<!--                    addUserMessage(userInput.value);-->
-<!--                    userInput.value = '';-->
-<!--                    userInput.style.height = 'auto';-->
-
-<!--                    // Add bot response-->
-<!--                    addBotMessage("Switching to UI mode...");-->
-
-<!--                    // Redirect after a short delay-->
-<!--                    setTimeout(() => {-->
-<!--                        window.location.href = 'index.html';-->
-<!--                    }, 1000);-->
-
-<!--                    return;-->
-<!--                }-->
-
-<!--                // Check for CLI mode command-->
-<!--                if (message === 'climode' || message === 'cli mode' || message === 'switch to cli mode') {-->
-<!--                    addUserMessage(userInput.value);-->
-<!--                    userInput.value = '';-->
-<!--                    userInput.style.height = 'auto';-->
-
-<!--                    // Add bot response-->
-<!--                    addBotMessage("Switching to CLI mode...");-->
-
-<!--                    // Redirect after a short delay-->
-<!--                    setTimeout(() => {-->
-<!--                        window.location.href = 'index.html?mode=cli';-->
-<!--                    }, 1000);-->
-
-<!--                    return;-->
-<!--                }-->
-
-<!--                // Default behavior for other messages-->
-<!--                return originalHandleUserMessage.apply(this, arguments);-->
-<!--            };-->
-<!--        }-->
-
-<!--        // Call the modification function after the document is loaded-->
-<!--        document.addEventListener('DOMContentLoaded', function() {-->
-<!--            // Set up UI mode link-->
-<!--            document.getElementById('ui-mode-btn').addEventListener('click', function(e) {-->
-<!--                e.preventDefault();-->
-<!--                window.location.href = 'index.html?mode=ui';-->
-<!--            });-->
-
-<!--            // Set up CLI mode link-->
-<!--            document.getElementById('cli-mode-btn').addEventListener('click', function(e) {-->
-<!--                e.preventDefault();-->
-<!--                window.location.href = 'index.html?mode=cli';-->
-<!--            });-->
-
-<!--            // Modify the handleUserMessage function to detect mode commands-->
-<!--            modifyHandleUserMessage();-->
-<!--        });-->
-<!--    </script>-->
-<!--    <script src="js/app.js"></script>-->
-<!--</body>-->
-<!--</html>-->
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Portfolio Assistant</title>
+    <title>Voice AI Portfolio Assistant</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #6366F1;
-            --primary-dark: #4F46E5;
-            --primary-light: #A5B4FC;
-            --primary-bg: #EEF2FF;
-            --secondary: #FB7185;
-            --text: #1E293B;
-            --text-light: #64748B;
-            --bg-light: #F8FAFC;
-            --bg-white: #FFFFFF;
-            --border: #E2E8F0;
-            --success: #10B981;
-            --error: #EF4444;
-            --warning: #F59E0B;
-            --animation-duration: 0.3s;
-            --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            
+            --primary: #667eea;
+            --primary-dark: #5a67d8;
+            --secondary: #f093fb;
+            --accent: #4facfe;
+            --success: #43e97b;
+            --warning: #fbbf24;
+            --error: #ef4444;
+            
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+            --text-inverse: #ffffff;
+            
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7fafc;
+            --bg-tertiary: #edf2f7;
+            --bg-dark: #1a202c;
+            --bg-overlay: rgba(26, 32, 44, 0.8);
+            
+            --border-light: #e2e8f0;
+            --border-medium: #cbd5e0;
+            
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            
             --radius-sm: 0.375rem;
-            --radius-md: 0.75rem;
-            --radius-lg: 1rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
             --radius-full: 9999px;
+            
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-heading: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
-        /* Base Styles */
         * {
             margin: 0;
             padding: 0;
@@ -242,267 +61,299 @@
         }
 
         body {
-            font-family: var(--font-sans);
-            color: var(--text);
-            background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+            font-family: var(--font-primary);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 1rem;
+            color: var(--text-primary);
         }
 
-        /* Layout */
         .app-container {
             width: 100%;
-            max-width: 420px;
-            height: 85vh;
-            max-height: 750px;
-            display: flex;
-            flex-direction: column;
+            max-width: 480px;
+            height: 90vh;
+            max-height: 800px;
             position: relative;
         }
 
-        .chatbot-container {
-            background-color: var(--bg-white);
-            border-radius: var(--radius-lg);
+        .voice-assistant-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-2xl);
             overflow: hidden;
-            box-shadow: var(--shadow-xl);
             display: flex;
             flex-direction: column;
             height: 100%;
-            position: relative;
-            backdrop-filter: blur(8px);
-            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: var(--shadow-xl), 0 0 50px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
         }
 
-        .chatbot-container:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-xl), 0 20px 40px -10px rgba(99, 102, 241, 0.2);
-        }
-
-        /* Header Styles */
-        .chatbot-header {
+        /* Header */
+        .assistant-header {
             padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+            border-bottom: 1px solid var(--border-light);
             display: flex;
             align-items: center;
-            background-color: var(--bg-white);
-            border-bottom: 1px solid var(--border);
-            position: relative;
-            z-index: 10;
+            justify-content: space-between;
         }
 
-        .avatar-container {
-            margin-right: 1rem;
-            position: relative;
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
 
-        .avatar {
-            width: 45px;
-            height: 45px;
+        .ai-avatar {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-gradient);
+            border-radius: var(--radius-full);
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: var(--radius-full);
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
+            color: var(--text-inverse);
             font-weight: 600;
-            position: relative;
-            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
-        }
-
-        .avatar-inner {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: var(--radius-full);
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .header-text {
-            flex: 1;
-        }
-
-        .header-text h2 {
             font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
         }
 
-        .status {
+        .ai-avatar::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: rotate(45deg);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        .header-info h2 {
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .status-indicator {
             display: flex;
             align-items: center;
+            gap: 0.5rem;
             font-size: 0.875rem;
-            color: var(--text-light);
+            color: var(--text-secondary);
         }
 
         .status-dot {
             width: 8px;
             height: 8px;
-            background-color: var(--success);
-            border-radius: 50%;
-            margin-right: 0.5rem;
-            position: relative;
-        }
-
-        .status-dot::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--success);
-            border-radius: 50%;
-            opacity: 0.5;
-            animation: pulse 1.5s infinite;
+            background: var(--success);
+            border-radius: var(--radius-full);
+            animation: pulse 2s infinite;
         }
 
         @keyframes pulse {
-            0% {
-                transform: scale(1);
-                opacity: 0.5;
-            }
-            50% {
-                transform: scale(2.5);
-                opacity: 0;
-            }
-            100% {
-                transform: scale(1);
-                opacity: 0;
-            }
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
         }
 
-        /* Header Mode Buttons */
-        .header-mode-buttons {
+        .header-controls {
             display: flex;
-            gap: 10px;
-            margin-right: 10px;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .mode-button {
-            background: none;
+        .control-btn {
+            width: 40px;
+            height: 40px;
             border: none;
-            color: var(--text-light);
-            font-size: 16px;
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 5px;
-            transition: all 0.2s;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: var(--radius-lg);
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        .mode-button:hover {
-            color: var(--primary);
-            background-color: var(--primary-bg);
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-        }
-
-        .clear-button {
-            background: none;
-            border: none;
-            color: var(--text-light);
             cursor: pointer;
-            padding: 0.5rem;
-            border-radius: var(--radius-sm);
-            transition: all 0.2s;
+            transition: all 0.2s ease;
+            color: var(--text-secondary);
+            box-shadow: var(--shadow-sm);
         }
 
-        .clear-button:hover {
-            background-color: var(--bg-light);
-            color: var(--text);
+        .control-btn:hover {
+            background: var(--bg-primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
 
-        /* Intro Panel */
-        .intro-panel {
+        .control-btn.active {
+            background: var(--primary-gradient);
+            color: var(--text-inverse);
+        }
+
+        /* Voice Interface */
+        .voice-interface {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            flex: 1;
+            padding: 2rem;
             text-align: center;
-            padding: 2rem 1.5rem;
-            background-color: rgba(255, 255, 255, 0.5);
-            backdrop-filter: blur(5px);
-            position: absolute;
-            top: 85px;
-            left: 0;
-            right: 0;
-            bottom: 80px;
-            border-radius: 0;
-            z-index: 5;
-            transition: opacity 0.3s, transform 0.3s;
+            position: relative;
         }
 
-        .intro-panel.hidden {
-            opacity: 0;
-            transform: translateY(20px);
-            pointer-events: none;
-        }
-
-        .intro-icon {
+        .voice-visualizer {
+            width: 200px;
+            height: 200px;
+            border-radius: var(--radius-full);
+            background: var(--primary-gradient);
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 80px;
-            height: 80px;
+            margin-bottom: 2rem;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .voice-visualizer:hover {
+            transform: scale(1.05);
+        }
+
+        .voice-visualizer.recording {
+            animation: recordingPulse 1.5s ease-in-out infinite;
+            box-shadow: 0 0 50px rgba(102, 126, 234, 0.6);
+        }
+
+        @keyframes recordingPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .voice-icon {
+            font-size: 4rem;
+            color: var(--text-inverse);
+            transition: all 0.3s ease;
+        }
+
+        .recording-rings {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 220px;
+            height: 220px;
+            pointer-events: none;
+        }
+
+        .recording-ring {
+            position: absolute;
+            border: 2px solid rgba(102, 126, 234, 0.3);
             border-radius: var(--radius-full);
-            background-color: var(--primary-bg);
-            color: var(--primary);
+            animation: ripple 2s infinite;
+        }
+
+        .recording-ring:nth-child(1) { animation-delay: 0s; }
+        .recording-ring:nth-child(2) { animation-delay: 0.5s; }
+        .recording-ring:nth-child(3) { animation-delay: 1s; }
+
+        @keyframes ripple {
+            0% {
+                width: 200px;
+                height: 200px;
+                opacity: 1;
+            }
+            100% {
+                width: 300px;
+                height: 300px;
+                opacity: 0;
+            }
+        }
+
+        .voice-status {
             margin-bottom: 1.5rem;
         }
 
-        .intro-panel h3 {
+        .voice-status h3 {
+            font-family: var(--font-heading);
             font-size: 1.5rem;
             font-weight: 600;
-            margin-bottom: 0.75rem;
-            color: var(--text);
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
         }
 
-        .intro-panel p {
+        .voice-status p {
+            color: var(--text-secondary);
             font-size: 1rem;
-            color: var(--text-light);
-            margin-bottom: 1.5rem;
-            max-width: 280px;
         }
 
-        .suggestion-chips {
+        .voice-controls {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 0.75rem;
-            max-width: 350px;
+            gap: 1rem;
+            margin-bottom: 2rem;
         }
 
-        .suggestion-chip {
-            background-color: var(--bg-white);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 0.5rem 1rem;
+        .voice-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
             border-radius: var(--radius-full);
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: all 0.2s;
             font-weight: 500;
-            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .suggestion-chip:hover {
-            background-color: var(--primary-bg);
-            border-color: var(--primary-light);
-            color: var(--primary);
+        .voice-btn-primary {
+            background: var(--primary-gradient);
+            color: var(--text-inverse);
             box-shadow: var(--shadow-md);
-            transform: translateY(-2px);
         }
 
-        /* Chat Messages */
+        .voice-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .voice-btn-secondary {
+            background: rgba(255, 255, 255, 0.8);
+            color: var(--text-primary);
+            border: 1px solid var(--border-light);
+        }
+
+        .voice-btn-secondary:hover {
+            background: var(--bg-primary);
+        }
+
+        /* Chat Interface */
+        .chat-interface {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chat-interface.active {
+            display: flex;
+        }
+
         .chat-messages {
             flex: 1;
             overflow-y: auto;
@@ -510,23 +361,21 @@
             display: flex;
             flex-direction: column;
             gap: 1rem;
-            scroll-behavior: smooth;
         }
 
         .message {
-            max-width: 85%;
-            padding: 1rem;
-            border-radius: var(--radius-md);
+            max-width: 80%;
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-xl);
             position: relative;
-            animation: fadeIn 0.3s forwards;
-            line-height: 1.5;
+            animation: messageSlideIn 0.3s ease-out;
             box-shadow: var(--shadow-sm);
         }
 
-        @keyframes fadeIn {
+        @keyframes messageSlideIn {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(20px);
             }
             to {
                 opacity: 1;
@@ -536,487 +385,1156 @@
 
         .message-user {
             align-self: flex-end;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            border-bottom-right-radius: 0;
-        }
-
-        .message-user::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            right: -12px;
-            width: 12px;
-            height: 20px;
-            background-color: var(--primary-dark);
-            clip-path: polygon(0 0, 0% 100%, 100% 100%);
+            background: var(--primary-gradient);
+            color: var(--text-inverse);
+            border-bottom-right-radius: var(--radius-md);
         }
 
         .message-bot {
             align-self: flex-start;
-            background-color: var(--bg-light);
-            color: var(--text);
-            border-bottom-left-radius: 0;
-        }
-
-        .message-bot::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: -12px;
-            width: 12px;
-            height: 20px;
-            background-color: var(--bg-light);
-            clip-path: polygon(100% 0, 0% 100%, 100% 100%);
-        }
-
-        .message p {
-            margin: 0;
-        }
-
-        .message pre {
-            margin-top: 0.5rem;
-            padding: 0.75rem;
-            background-color: rgba(0, 0, 0, 0.1);
-            border-radius: var(--radius-sm);
-            overflow-x: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 0.875rem;
-        }
-
-        .message-bot pre {
-            background-color: rgba(0, 0, 0, 0.05);
-        }
-
-        .message-user pre {
-            background-color: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-primary);
+            border: 1px solid var(--border-light);
+            border-bottom-left-radius: var(--radius-md);
         }
 
         .message.thinking {
-            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--border-light);
         }
 
         .thinking-dots {
             display: flex;
             gap: 4px;
+            align-items: center;
         }
 
         .thinking-dot {
             width: 8px;
             height: 8px;
-            border-radius: 50%;
-            background-color: var(--text-light);
-            opacity: 0.6;
+            border-radius: var(--radius-full);
+            background: var(--primary);
+            animation: thinkingBounce 1.4s infinite ease-in-out both;
         }
 
-        .message-bot .thinking-dot {
-            background-color: var(--text-light);
-        }
+        .thinking-dot:nth-child(1) { animation-delay: -0.32s; }
+        .thinking-dot:nth-child(2) { animation-delay: -0.16s; }
 
-        .thinking-dot:nth-child(1) {
-            animation: bounce 1.2s infinite 0s;
-        }
-
-        .thinking-dot:nth-child(2) {
-            animation: bounce 1.2s infinite 0.2s;
-        }
-
-        .thinking-dot:nth-child(3) {
-            animation: bounce 1.2s infinite 0.4s;
-        }
-
-        @keyframes bounce {
+        @keyframes thinkingBounce {
             0%, 80%, 100% {
-                transform: translateY(0);
+                transform: scale(0);
             }
             40% {
-                transform: translateY(-8px);
+                transform: scale(1);
             }
         }
 
-        /* Chat Input */
         .chat-input-container {
-            padding: 1rem;
-            border-top: 1px solid var(--border);
-            background-color: var(--bg-white);
-            position: relative;
-            z-index: 10;
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-light);
+            background: rgba(255, 255, 255, 0.9);
         }
 
-        .input-wrapper {
+        .input-group {
             display: flex;
             align-items: flex-end;
-            background-color: var(--bg-light);
-            border-radius: var(--radius-md);
-            padding: 0.5rem;
-            transition: all 0.2s;
-            border: 1px solid var(--border);
+            gap: 0.75rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-xl);
+            padding: 0.75rem;
+            transition: all 0.2s ease;
         }
 
-        .input-wrapper:focus-within {
-            border-color: var(--primary-light);
-            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        .input-group:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         #user-input {
             flex: 1;
             border: none;
             background: none;
-            padding: 0.5rem;
+            outline: none;
             resize: none;
+            font-family: var(--font-primary);
+            font-size: 1rem;
+            color: var(--text-primary);
             max-height: 120px;
             overflow-y: auto;
-            font-family: var(--font-sans);
-            font-size: 0.9rem;
-            color: var(--text);
-            outline: none;
         }
 
         #user-input::placeholder {
-            color: var(--text-light);
+            color: var(--text-muted);
         }
 
-        #send-button {
-            background-color: var(--primary);
-            color: white;
-            border: none;
+        .input-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .input-btn {
             width: 40px;
             height: 40px;
-            border-radius: var(--radius-full);
+            border: none;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: all 0.2s;
-            transform: scale(1);
-            margin-bottom: 2px;
         }
 
-        #send-button:hover:not(:disabled) {
-            background-color: var(--primary-dark);
+        .send-btn {
+            background: var(--primary-gradient);
+            color: var(--text-inverse);
+        }
+
+        .send-btn:hover:not(:disabled) {
             transform: scale(1.05);
         }
 
-        #send-button:disabled {
-            background-color: var(--text-light);
+        .send-btn:disabled {
+            background: var(--text-muted);
             cursor: not-allowed;
-            opacity: 0.5;
         }
 
-        #send-button svg {
-            width: 18px;
-            height: 18px;
+        .voice-input-btn {
+            background: rgba(248, 113, 113, 0.1);
+            color: #ef4444;
         }
 
-        .chat-footer {
-            display: flex;
-            justify-content: center;
-            margin-top: 0.75rem;
+        .voice-input-btn:hover {
+            background: rgba(248, 113, 113, 0.2);
         }
 
-        .chat-footer p {
-            font-size: 0.75rem;
-            color: var(--text-light);
+        .voice-input-btn.recording {
+            background: #ef4444;
+            color: var(--text-inverse);
+            animation: recordingBlink 1s infinite;
         }
 
-        /* Loading Overlay */
-        .loading-overlay {
+        @keyframes recordingBlink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.7; }
+        }
+
+        /* Settings Panel */
+        .settings-panel {
             position: fixed;
             top: 0;
-            left: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: var(--bg-primary);
+            box-shadow: var(--shadow-xl);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .settings-panel.open {
             right: 0;
-            bottom: 0;
-            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .settings-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-light);
             display: flex;
             align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-            transition: opacity 0.3s, visibility 0.3s;
+            justify-content: space-between;
         }
 
-        .loading-overlay.hidden {
-            opacity: 0;
-            visibility: hidden;
+        .settings-content {
+            padding: 1.5rem;
         }
 
-        .loading-spinner {
+        .setting-group {
+            margin-bottom: 2rem;
+        }
+
+        .setting-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .setting-control {
             display: flex;
-            flex-direction: column;
             align-items: center;
             gap: 1rem;
         }
 
-        .spinner-ring {
-            display: inline-block;
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: var(--border-medium);
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .toggle-switch.active {
+            background: var(--primary);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: var(--bg-primary);
+            border-radius: var(--radius-full);
+            transition: transform 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(26px);
+        }
+
+        .speed-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            background: var(--border-light);
+            border-radius: var(--radius-full);
+            outline: none;
+        }
+
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .speed-value {
+            min-width: 40px;
+            text-align: center;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        /* Overlay */
+        .settings-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-overlay);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+
+        .settings-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-overlay);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(10px);
+        }
+
+        .loading-overlay.hidden {
+            display: none;
+        }
+
+        .loading-content {
+            text-align: center;
+            color: var(--text-inverse);
+        }
+
+        .loading-spinner {
             width: 60px;
             height: 60px;
-            border: 3px solid rgba(99, 102, 241, 0.2);
-            border-radius: 50%;
-            border-top-color: var(--primary);
-            animation: spin 1s ease-in-out infinite;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-top: 3px solid var(--text-inverse);
+            border-radius: var(--radius-full);
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
         }
 
         @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        .spinner-text {
-            font-size: 1rem;
-            color: var(--text);
-            font-weight: 500;
-        }
-
-        /* Media Queries */
-        @media (max-width: 480px) {
+        /* Responsive */
+        @media (max-width: 640px) {
             .app-container {
                 height: 100vh;
                 max-height: none;
-                padding: 0;
             }
 
-            body {
-                padding: 0;
-            }
-
-            .chatbot-container {
+            .voice-assistant-container {
                 border-radius: 0;
             }
+
+            .voice-visualizer {
+                width: 160px;
+                height: 160px;
+            }
+
+            .voice-icon {
+                font-size: 3rem;
+            }
+
+            .settings-panel {
+                width: 100%;
+                right: -100%;
+            }
         }
 
-        /* Code block formatting */
-        code {
-            font-family: 'Courier New', monospace;
-            background-color: rgba(0, 0, 0, 0.05);
-            padding: 0.2em 0.4em;
-            border-radius: 3px;
-            font-size: 0.9em;
-        }
-
-        .message-user code {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-
-        /* Rate limit message styling */
-        .rate-limit-message {
+        /* Intro Panel for Voice Interface */
+        .voice-intro {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 8px;
-            color: var(--warning);
-            font-size: 0.9rem;
+            text-align: center;
+            margin-bottom: 2rem;
         }
 
-        .rate-limit-message svg {
-            color: var(--warning);
-            flex-shrink: 0;
+        .intro-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 1rem;
         }
 
-        /* Dark mode support */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-light: #1E293B;
-                --bg-white: #0F172A;
-                --text: #E2E8F0;
-                --text-light: #94A3B8;
-                --border: #334155;
-            }
+        .suggestion-chip {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-full);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-primary);
+        }
 
-            body {
-                background: linear-gradient(135deg, #1E1E2D 0%, #2D3748 100%);
-            }
+        .suggestion-chip:hover {
+            background: var(--bg-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
 
-            .loading-overlay {
-                background-color: rgba(15, 23, 42, 0.9);
-            }
+        /* Mode Toggle */
+        .mode-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: var(--radius-full);
+            padding: 0.25rem;
+            box-shadow: var(--shadow-md);
+        }
 
-            .intro-panel {
-                background-color: rgba(15, 23, 42, 0.7);
-            }
+        .mode-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            background: none;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
 
-            .suggestion-chip {
-                background-color: #1E293B;
-            }
-
-            .suggestion-chip:hover {
-                background-color: #2D3748;
-            }
+        .mode-btn.active {
+            background: var(--primary-gradient);
+            color: var(--text-inverse);
+            box-shadow: var(--shadow-sm);
         }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <div class="chatbot-container">
-            <div class="chatbot-header">
-                <div class="avatar-container">
-                    <div class="avatar">
-                        <div class="avatar-inner">AI</div>
+        <div class="voice-assistant-container">
+            <!-- Header -->
+            <div class="assistant-header">
+                <div class="header-left">
+                    <div class="ai-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="header-info">
+                        <h2>Voice Assistant</h2>
+                        <div class="status-indicator">
+                            <div class="status-dot"></div>
+                            <span id="status-text">Ready to help</span>
+                        </div>
                     </div>
                 </div>
-                <div class="header-text">
-                    <h2>Portfolio Assistant</h2>
-                    <div class="status">
-                        <span class="status-dot"></span>
-                        <span class="status-text">Online</span>
-                    </div>
-                </div>
-                <div class="header-mode-buttons">
-                    <a href="index.html" class="mode-button" id="ui-mode-btn" title="Switch to UI Mode">
-                        <i class="fas fa-desktop"></i>
-                    </a>
-                    <a href="#" class="mode-button" id="cli-mode-btn" title="Switch to CLI Mode">
-                        <i class="fas fa-terminal"></i>
-                    </a>
-                </div>
-                <div class="header-actions">
-                    <button id="clear-chat" class="clear-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 6h18"></path>
-                            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
-                        </svg>
+                <div class="header-controls">
+                    <button class="control-btn" id="settings-btn" title="Settings">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <button class="control-btn" id="clear-btn" title="Clear Chat">
+                        <i class="fas fa-trash"></i>
                     </button>
                 </div>
             </div>
 
-            <div class="intro-panel" id="intro-panel">
-                <div class="intro-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <path d="M12 16v-4"></path>
-                        <path d="M12 8h.01"></path>
-                    </svg>
-                </div>
-                <h3>How can I help you?</h3>
-                <p>Ask me anything about my projects, skills, or experience.</p>
-                <div class="suggestion-chips">
-                    <button class="suggestion-chip" data-query="Tell me about your projects">Projects</button>
-                    <button class="suggestion-chip" data-query="What technologies do you use?">Technologies</button>
-                    <button class="suggestion-chip" data-query="What are your main skills?">Skills</button>
-                    <button class="suggestion-chip" data-query="Tell me about your work experience">Experience</button>
-                </div>
+            <!-- Mode Toggle -->
+            <div class="mode-toggle">
+                <button class="mode-btn active" id="voice-mode-btn">
+                    <i class="fas fa-microphone"></i> Voice
+                </button>
+                <button class="mode-btn" id="chat-mode-btn">
+                    <i class="fas fa-keyboard"></i> Chat
+                </button>
             </div>
 
-            <div class="chat-messages" id="chat-messages">
-                <!-- Messages will appear here -->
-            </div>
+            <!-- Voice Interface -->
+            <div class="voice-interface" id="voice-interface">
+                <div class="voice-intro" id="voice-intro">
+                    <div class="voice-status">
+                        <h3 id="voice-title">Tap to speak</h3>
+                        <p id="voice-subtitle">Ask me anything about my portfolio</p>
+                    </div>
+                    <div class="intro-suggestions">
+                        <div class="suggestion-chip" data-query="Tell me about your projects">Projects</div>
+                        <div class="suggestion-chip" data-query="What technologies do you use?">Technologies</div>
+                        <div class="suggestion-chip" data-query="What are your main skills?">Skills</div>
+                        <div class="suggestion-chip" data-query="Tell me about your experience">Experience</div>
+                    </div>
+                </div>
 
-            <div class="chat-input-container">
-                <div class="input-wrapper">
-                    <textarea id="user-input" placeholder="Ask me anything..." rows="1"></textarea>
-                    <button id="send-button" disabled>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="22" y1="2" x2="11" y2="13"></line>
-                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                        </svg>
+                <div class="voice-visualizer" id="voice-visualizer">
+                    <div class="recording-rings" id="recording-rings" style="display: none;">
+                        <div class="recording-ring"></div>
+                        <div class="recording-ring"></div>
+                        <div class="recording-ring"></div>
+                    </div>
+                    <i class="fas fa-microphone voice-icon" id="voice-icon"></i>
+                </div>
+
+                <div class="voice-controls">
+                    <button class="voice-btn voice-btn-primary" id="start-recording">
+                        <i class="fas fa-microphone"></i>
+                        Start Recording
+                    </button>
+                    <button class="voice-btn voice-btn-secondary" id="stop-recording" style="display: none;">
+                        <i class="fas fa-stop"></i>
+                        Stop
                     </button>
                 </div>
-                <div class="chat-footer">
-                    <p>Powered by Mistral AI & Supabase</p>
+            </div>
+
+            <!-- Chat Interface -->
+            <div class="chat-interface" id="chat-interface">
+                <div class="chat-messages" id="chat-messages">
+                    <!-- Messages will appear here -->
+                </div>
+                
+                <div class="chat-input-container">
+                    <div class="input-group">
+                        <textarea id="user-input" placeholder="Type your message..." rows="1"></textarea>
+                        <div class="input-actions">
+                            <button class="input-btn voice-input-btn" id="voice-input-btn" title="Voice Input">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <button class="input-btn send-btn" id="send-btn" disabled>
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Loading spinner overlay -->
-    <div class="loading-overlay" id="loading-overlay">
-        <div class="loading-spinner">
-            <div class="spinner-ring"></div>
-            <div class="spinner-text">Connecting...</div>
+    <!-- Settings Panel -->
+    <div class="settings-overlay" id="settings-overlay"></div>
+    <div class="settings-panel" id="settings-panel">
+        <div class="settings-header">
+            <h3>Voice Settings</h3>
+            <button class="control-btn" id="close-settings">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="settings-content">
+            <div class="setting-group">
+                <label class="setting-label">Speech Output</label>
+                <div class="setting-control">
+                    <div class="toggle-switch active" id="speech-toggle">
+                        <div class="toggle-slider"></div>
+                    </div>
+                    <span>Enable voice responses</span>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label">Auto Speech</label>
+                <div class="setting-control">
+                    <div class="toggle-switch active" id="auto-speech-toggle">
+                        <div class="toggle-slider"></div>
+                    </div>
+                    <span>Automatically speak responses</span>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label">Speech Speed</label>
+                <div class="setting-control">
+                    <input type="range" class="speed-slider" id="speech-speed" min="0.5" max="2" step="0.1" value="1">
+                    <div class="speed-value" id="speed-value">1.0x</div>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label">Voice Selection</label>
+                <select id="voice-select" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-light); border-radius: var(--radius-md); background: var(--bg-primary);">
+                    <!-- Voices will be populated by JavaScript -->
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <button class="voice-btn voice-btn-primary" id="test-speech" style="width: 100%;">
+                    <i class="fas fa-play"></i>
+                    Test Voice
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Import libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay hidden" id="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div>Connecting to AI...</div>
+        </div>
+    </div>
 
-    <!-- Import application scripts -->
-<!--    <script src="js/config.js"></script>-->
-<!--    <script src="js/api.js"></script>-->
+    <!-- Enhanced App Script -->
     <script>
-        // Add this script to handle mode commands and URL parameters
+        // Enhanced Voice-Enabled Portfolio Assistant
         document.addEventListener('DOMContentLoaded', function() {
-            // Set up CLI mode link with proper URL parameter
-            document.getElementById('cli-mode-btn').addEventListener('click', function(e) {
-                e.preventDefault();
-                // Force CLI mode by setting localStorage AND redirecting with parameter
-                localStorage.setItem('portfolioMode', 'cli');
-                window.location.href = 'index.html?mode=cli';
-            });
+            // Configuration
+            const API_URL = 'https://portfolio-bot-backend-git-main-tapaspatra.vercel.app/api';
+            
+            // Voice API Support Check
+            const speechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const speechSynthesis = window.speechSynthesis;
+            
+            // Global state
+            let currentMode = 'voice'; // 'voice' or 'chat'
+            let isRecording = false;
+            let recognition = null;
+            let sessionId = generateSessionId();
+            let isInitialized = false;
+            let conversationStarted = false;
+            
+            // Settings
+            let settings = {
+                speechEnabled: true,
+                autoSpeak: true,
+                speechSpeed: 1.0,
+                selectedVoice: null
+            };
 
-            // Set up UI mode link
-            document.getElementById('ui-mode-btn').addEventListener('click', function(e) {
-                e.preventDefault();
-                // Force UI mode by setting localStorage
-                localStorage.setItem('portfolioMode', 'ui');
-                window.location.href = 'index.html';
-            });
+            // DOM Elements
+            const elements = {
+                // Interfaces
+                voiceInterface: document.getElementById('voice-interface'),
+                chatInterface: document.getElementById('chat-interface'),
+                
+                // Voice elements
+                voiceVisualizer: document.getElementById('voice-visualizer'),
+                voiceIcon: document.getElementById('voice-icon'),
+                recordingRings: document.getElementById('recording-rings'),
+                voiceTitle: document.getElementById('voice-title'),
+                voiceSubtitle: document.getElementById('voice-subtitle'),
+                startRecording: document.getElementById('start-recording'),
+                stopRecording: document.getElementById('stop-recording'),
+                voiceIntro: document.getElementById('voice-intro'),
+                
+                // Chat elements
+                chatMessages: document.getElementById('chat-messages'),
+                userInput: document.getElementById('user-input'),
+                sendBtn: document.getElementById('send-btn'),
+                voiceInputBtn: document.getElementById('voice-input-btn'),
+                
+                // Controls
+                voiceModeBtn: document.getElementById('voice-mode-btn'),
+                chatModeBtn: document.getElementById('chat-mode-btn'),
+                settingsBtn: document.getElementById('settings-btn'),
+                clearBtn: document.getElementById('clear-btn'),
+                
+                // Settings
+                settingsPanel: document.getElementById('settings-panel'),
+                settingsOverlay: document.getElementById('settings-overlay'),
+                closeSettings: document.getElementById('close-settings'),
+                speechToggle: document.getElementById('speech-toggle'),
+                autoSpeechToggle: document.getElementById('auto-speech-toggle'),
+                speechSpeed: document.getElementById('speech-speed'),
+                speedValue: document.getElementById('speed-value'),
+                voiceSelect: document.getElementById('voice-select'),
+                testSpeech: document.getElementById('test-speech'),
+                
+                // Status
+                statusText: document.getElementById('status-text'),
+                loadingOverlay: document.getElementById('loading-overlay')
+            };
 
-            // Define a function to modify the handleUserMessage behavior
-            function modifyHandleUserMessage() {
-                // Store the original function reference
-                const originalHandleUserMessage = handleUserMessage;
+            // Initialize
+            initializeApp();
+            setupEventListeners();
+            setupSpeechRecognition();
+            populateVoices();
 
-                // Override the function
-                handleUserMessage = async function() {
-                    const message = userInput.value.trim().toLowerCase();
+            // Session ID generator
+            function generateSessionId() {
+                return 'voice_session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            }
 
-                    // Check for UI mode command
-                    if (message === 'uimode' || message === 'ui mode' || message === 'switch to ui mode') {
-                        addUserMessage(userInput.value);
-                        userInput.value = '';
-                        userInput.style.height = 'auto';
-
-                        // Add bot response
-                        addBotMessage("Switching to UI mode...");
-
-                        // Force UI mode by setting localStorage
-                        localStorage.setItem('portfolioMode', 'ui');
-
-                        // Redirect after a short delay
+            // Initialize application
+            async function initializeApp() {
+                showLoading(true);
+                
+                try {
+                    // Check API health
+                    const response = await fetch(`${API_URL}/health`);
+                    if (!response.ok) throw new Error('API not available');
+                    
+                    isInitialized = true;
+                    updateStatus('Ready to help', 'success');
+                    
+                    // Add welcome message in chat mode
+                    if (currentMode === 'chat') {
                         setTimeout(() => {
-                            window.location.href = 'index.html';
-                        }, 1000);
-
-                        return;
+                            addBotMessage("Hello! I'm Tapas's AI assistant. How can I help you today?");
+                        }, 500);
                     }
+                    
+                } catch (error) {
+                    console.error('Initialization error:', error);
+                    updateStatus('Connection failed', 'error');
+                    addErrorMessage("I'm having trouble connecting. Please try again later.");
+                } finally {
+                    showLoading(false);
+                }
+            }
 
-                    // Check for CLI mode command
-                    if (message === 'climode' || message === 'cli mode' || message === 'switch to cli mode') {
-                        addUserMessage(userInput.value);
-                        userInput.value = '';
-                        userInput.style.height = 'auto';
+            // Setup event listeners
+            function setupEventListeners() {
+                // Mode switching
+                elements.voiceModeBtn.addEventListener('click', () => switchMode('voice'));
+                elements.chatModeBtn.addEventListener('click', () => switchMode('chat'));
+                
+                // Voice controls
+                elements.voiceVisualizer.addEventListener('click', toggleRecording);
+                elements.startRecording.addEventListener('click', startRecording);
+                elements.stopRecording.addEventListener('click', stopRecording);
+                
+                // Chat controls
+                elements.sendBtn.addEventListener('click', sendChatMessage);
+                elements.voiceInputBtn.addEventListener('click', toggleVoiceInput);
+                elements.userInput.addEventListener('input', handleInputChange);
+                elements.userInput.addEventListener('keydown', handleInputKeydown);
+                
+                // Settings
+                elements.settingsBtn.addEventListener('click', openSettings);
+                elements.closeSettings.addEventListener('click', closeSettings);
+                elements.settingsOverlay.addEventListener('click', closeSettings);
+                
+                // Settings controls
+                elements.speechToggle.addEventListener('click', () => toggleSetting('speechEnabled'));
+                elements.autoSpeechToggle.addEventListener('click', () => toggleSetting('autoSpeak'));
+                elements.speechSpeed.addEventListener('input', updateSpeechSpeed);
+                elements.voiceSelect.addEventListener('change', updateSelectedVoice);
+                elements.testSpeech.addEventListener('click', testVoice);
+                
+                // Other controls
+                elements.clearBtn.addEventListener('click', clearConversation);
+                
+                // Suggestion chips
+                document.querySelectorAll('.suggestion-chip').forEach(chip => {
+                    chip.addEventListener('click', () => {
+                        const query = chip.getAttribute('data-query');
+                        if (currentMode === 'voice') {
+                            processVoiceQuery(query);
+                        } else {
+                            elements.userInput.value = query;
+                            sendChatMessage();
+                        }
+                    });
+                });
+            }
 
-                        // Add bot response
-                        addBotMessage("Switching to CLI mode...");
+            // Speech Recognition Setup
+            function setupSpeechRecognition() {
+                if (!speechRecognition) {
+                    console.warn('Speech recognition not supported');
+                    elements.voiceInterface.innerHTML = `
+                        <div style="text-align: center; padding: 2rem;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--warning); margin-bottom: 1rem;"></i>
+                            <h3>Speech Recognition Not Supported</h3>
+                            <p>Your browser doesn't support speech recognition. Please use chat mode instead.</p>
+                        </div>
+                    `;
+                    switchMode('chat');
+                    return;
+                }
 
-                        // Force CLI mode by setting localStorage
-                        localStorage.setItem('portfolioMode', 'cli');
+                recognition = new speechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
 
-                        // Redirect after a short delay
-                        setTimeout(() => {
-                            window.location.href = 'index.html?mode=cli';
-                        }, 1000);
+                recognition.onstart = () => {
+                    isRecording = true;
+                    updateRecordingUI(true);
+                    updateStatus('Listening...', 'recording');
+                };
 
-                        return;
+                recognition.onresult = (event) => {
+                    let transcript = '';
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        transcript += event.results[i][0].transcript;
                     }
+                    
+                    if (event.results[event.results.length - 1].isFinal) {
+                        processVoiceQuery(transcript);
+                    } else {
+                        elements.voiceSubtitle.textContent = `"${transcript}"`;
+                    }
+                };
 
-                    // Default behavior for other messages
-                    return originalHandleUserMessage.apply(this, arguments);
+                recognition.onerror = (event) => {
+                    console.error('Speech recognition error:', event.error);
+                    isRecording = false;
+                    updateRecordingUI(false);
+                    updateStatus('Speech recognition error', 'error');
+                };
+
+                recognition.onend = () => {
+                    isRecording = false;
+                    updateRecordingUI(false);
+                    if (!conversationStarted) {
+                        updateStatus('Ready to help', 'success');
+                    }
                 };
             }
 
-            // Call the modification function once the app is fully loaded
-            // We need to wait until the original handleUserMessage is defined
-            const checkAppLoaded = setInterval(function() {
-                if (typeof handleUserMessage === 'function') {
-                    clearInterval(checkAppLoaded);
-                    modifyHandleUserMessage();
-                    console.log('Chat mode detection initialized');
+            // Voice functions
+            function toggleRecording() {
+                if (isRecording) {
+                    stopRecording();
+                } else {
+                    startRecording();
                 }
-            }, 100);
+            }
+
+            function startRecording() {
+                if (!recognition || isRecording) return;
+                
+                try {
+                    recognition.start();
+                    hideIntroIfNeeded();
+                } catch (error) {
+                    console.error('Failed to start recording:', error);
+                    updateStatus('Failed to start recording', 'error');
+                }
+            }
+
+            function stopRecording() {
+                if (recognition && isRecording) {
+                    recognition.stop();
+                }
+            }
+
+            function updateRecordingUI(recording) {
+                elements.voiceVisualizer.classList.toggle('recording', recording);
+                elements.recordingRings.style.display = recording ? 'block' : 'none';
+                elements.voiceIcon.className = recording ? 'fas fa-stop voice-icon' : 'fas fa-microphone voice-icon';
+                
+                elements.startRecording.style.display = recording ? 'none' : 'block';
+                elements.stopRecording.style.display = recording ? 'block' : 'none';
+                
+                if (recording) {
+                    elements.voiceTitle.textContent = 'Listening...';
+                    elements.voiceSubtitle.textContent = 'Speak now';
+                } else {
+                    elements.voiceTitle.textContent = 'Tap to speak';
+                    elements.voiceSubtitle.textContent = 'Ask me anything about my portfolio';
+                }
+            }
+
+            // Process voice query
+            async function processVoiceQuery(query) {
+                if (!query.trim()) return;
+                
+                hideIntroIfNeeded();
+                updateStatus('Processing...', 'thinking');
+                elements.voiceTitle.textContent = 'Processing...';
+                elements.voiceSubtitle.textContent = `"${query}"`;
+                
+                try {
+                    const response = await sendToAPI(query);
+                    
+                    elements.voiceTitle.textContent = 'Response ready';
+                    elements.voiceSubtitle.textContent = response.substring(0, 100) + (response.length > 100 ? '...' : '');
+                    
+                    if (settings.speechEnabled && settings.autoSpeak) {
+                        speakText(response);
+                    }
+                    
+                    updateStatus('Ready for next question', 'success');
+                    
+                } catch (error) {
+                    console.error('Voice query error:', error);
+                    elements.voiceTitle.textContent = 'Error occurred';
+                    elements.voiceSubtitle.textContent = 'Please try again';
+                    updateStatus('Error processing request', 'error');
+                }
+            }
+
+            // Chat functions
+            function sendChatMessage() {
+                const message = elements.userInput.value.trim();
+                if (!message || !isInitialized) return;
+                
+                hideIntroIfNeeded();
+                addUserMessage(message);
+                elements.userInput.value = '';
+                elements.userInput.style.height = 'auto';
+                elements.sendBtn.disabled = true;
+                
+                const thinkingIndicator = addThinkingIndicator();
+                
+                sendToAPI(message)
+                    .then(response => {
+                        removethinkingIndicator(thinkingIndicator);
+                        addBotMessage(response);
+                        
+                        if (settings.speechEnabled && settings.autoSpeak) {
+                            speakText(response);
+                        }
+                    })
+                    .catch(error => {
+                        removethinkingIndicator(thinkingIndicator);
+                        addErrorMessage("I'm having trouble generating a response. Please try again.");
+                        console.error('Chat error:', error);
+                    });
+            }
+
+            function toggleVoiceInput() {
+                if (elements.voiceInputBtn.classList.contains('recording')) {
+                    stopVoiceInput();
+                } else {
+                    startVoiceInput();
+                }
+            }
+
+            function startVoiceInput() {
+                if (!recognition) return;
+                
+                elements.voiceInputBtn.classList.add('recording');
+                elements.voiceInputBtn.querySelector('i').className = 'fas fa-stop';
+                
+                recognition.onresult = (event) => {
+                    let transcript = '';
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        transcript += event.results[i][0].transcript;
+                    }
+                    
+                    if (event.results[event.results.length - 1].isFinal) {
+                        elements.userInput.value = transcript;
+                        handleInputChange();
+                        stopVoiceInput();
+                    }
+                };
+                
+                recognition.start();
+            }
+
+            function stopVoiceInput() {
+                elements.voiceInputBtn.classList.remove('recording');
+                elements.voiceInputBtn.querySelector('i').className = 'fas fa-microphone';
+                
+                if (recognition) {
+                    recognition.stop();
+                }
+            }
+
+            // API communication
+            async function sendToAPI(query) {
+                const response = await fetch(`${API_URL}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        sessionId: sessionId
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+
+                const data = await response.json();
+                return data.response;
+            }
+
+            // Text-to-Speech
+            function speakText(text) {
+                if (!settings.speechEnabled || !speechSynthesis) return;
+                
+                // Stop any ongoing speech
+                speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = settings.speechSpeed;
+                utterance.voice = settings.selectedVoice;
+                
+                utterance.onstart = () => {
+                    updateStatus('Speaking...', 'speaking');
+                };
+                
+                utterance.onend = () => {
+                    updateStatus('Ready to help', 'success');
+                };
+                
+                utterance.onerror = (event) => {
+                    console.error('Speech synthesis error:', event);
+                    updateStatus('Speech error', 'error');
+                };
+                
+                speechSynthesis.speak(utterance);
+            }
+
+            // Voice management
+            function populateVoices() {
+                const voices = speechSynthesis.getVoices();
+                elements.voiceSelect.innerHTML = '';
+                
+                voices.forEach((voice, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = `${voice.name} (${voice.lang})`;
+                    if (voice.default) {
+                        option.selected = true;
+                        settings.selectedVoice = voice;
+                    }
+                    elements.voiceSelect.appendChild(option);
+                });
+                
+                if (voices.length === 0) {
+                    setTimeout(populateVoices, 100);
+                }
+            }
+
+            function updateSelectedVoice() {
+                const voices = speechSynthesis.getVoices();
+                const selectedIndex = elements.voiceSelect.value;
+                settings.selectedVoice = voices[selectedIndex];
+            }
+
+            function testVoice() {
+                speakText("Hello! This is how I sound with the current voice settings.");
+            }
+
+            // UI Management
+            function switchMode(mode) {
+                currentMode = mode;
+                
+                // Update mode buttons
+                elements.voiceModeBtn.classList.toggle('active', mode === 'voice');
+                elements.chatModeBtn.classList.toggle('active', mode === 'chat');
+                
+                // Update interfaces
+                elements.voiceInterface.style.display = mode === 'voice' ? 'flex' : 'none';
+                elements.chatInterface.classList.toggle('active', mode === 'chat');
+                
+                // Reset states
+                if (mode === 'voice') {
+                    stopVoiceInput();
+                    if (!conversationStarted) {
+                        elements.voiceIntro.style.display = 'flex';
+                    }
+                } else {
+                    stopRecording();
+                    if (!conversationStarted) {
+                        addBotMessage("Hello! I'm Tapas's AI assistant. How can I help you today?");
+                    }
+                }
+            }
+
+            function hideIntroIfNeeded() {
+                if (!conversationStarted) {
+                    conversationStarted = true;
+                    elements.voiceIntro.style.display = 'none';
+                }
+            }
+
+            function updateStatus(text, type = 'default') {
+                elements.statusText.textContent = text;
+                
+                // Update status dot color based on type
+                const statusDot = document.querySelector('.status-dot');
+                statusDot.style.background = {
+                    'success': 'var(--success)',
+                    'error': 'var(--error)',
+                    'warning': 'var(--warning)',
+                    'recording': '#ef4444',
+                    'thinking': 'var(--primary)',
+                    'speaking': 'var(--secondary)'
+                }[type] || 'var(--success)';
+            }
+
+            function showLoading(show) {
+                elements.loadingOverlay.classList.toggle('hidden', !show);
+            }
+
+            // Chat UI functions
+            function addUserMessage(message) {
+                const messageElement = document.createElement('div');
+                messageElement.className = 'message message-user';
+                messageElement.innerHTML = formatMessageText(message);
+                elements.chatMessages.appendChild(messageElement);
+                scrollToBottom();
+            }
+
+            function addBotMessage(message) {
+                const messageElement = document.createElement('div');
+                messageElement.className = 'message message-bot';
+                messageElement.innerHTML = formatMessageText(message);
+                elements.chatMessages.appendChild(messageElement);
+                scrollToBottom();
+            }
+
+            function addErrorMessage(message) {
+                const messageElement = document.createElement('div');
+                messageElement.className = 'message message-bot';
+                messageElement.innerHTML = `<p style="color: var(--error);"><i class="fas fa-exclamation-triangle"></i> ${message}</p>`;
+                elements.chatMessages.appendChild(messageElement);
+                scrollToBottom();
+            }
+
+            function addThinkingIndicator() {
+                const thinkingElement = document.createElement('div');
+                thinkingElement.className = 'message thinking';
+                thinkingElement.innerHTML = `
+                    <div class="thinking-dots">
+                        <div class="thinking-dot"></div>
+                        <div class="thinking-dot"></div>
+                        <div class="thinking-dot"></div>
+                    </div>
+                `;
+                elements.chatMessages.appendChild(thinkingElement);
+                scrollToBottom();
+                return thinkingElement;
+            }
+
+            function removethinkingIndicator(element) {
+                if (element && element.parentNode) {
+                    element.parentNode.removeChild(element);
+                }
+            }
+
+            function formatMessageText(text) {
+                let formatted = text
+                    .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+                    .replace(/`([^`]+)`/g, '<code>$1</code>')
+                    .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>')
+                    .replace(/\n/g, '<br>');
+                return formatted;
+            }
+
+            function scrollToBottom() {
+                elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+            }
+
+            function handleInputChange() {
+                const hasText = elements.userInput.value.trim().length > 0;
+                elements.sendBtn.disabled = !hasText;
+                
+                // Auto-resize textarea
+                elements.userInput.style.height = 'auto';
+                elements.userInput.style.height = Math.min(elements.userInput.scrollHeight, 120) + 'px';
+            }
+
+            function handleInputKeydown(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendChatMessage();
+                }
+            }
+
+            // Settings functions
+            function openSettings() {
+                elements.settingsPanel.classList.add('open');
+                elements.settingsOverlay.classList.add('active');
+            }
+
+            function closeSettings() {
+                elements.settingsPanel.classList.remove('open');
+                elements.settingsOverlay.classList.remove('active');
+            }
+
+            function toggleSetting(setting) {
+                settings[setting] = !settings[setting];
+                updateSettingsUI();
+            }
+
+            function updateSpeechSpeed() {
+                settings.speechSpeed = parseFloat(elements.speechSpeed.value);
+                elements.speedValue.textContent = settings.speechSpeed.toFixed(1) + 'x';
+            }
+
+            function updateSettingsUI() {
+                elements.speechToggle.classList.toggle('active', settings.speechEnabled);
+                elements.autoSpeechToggle.classList.toggle('active', settings.autoSpeak);
+            }
+
+            function clearConversation() {
+                elements.chatMessages.innerHTML = '';
+                sessionId = generateSessionId();
+                conversationStarted = false;
+                
+                if (currentMode === 'voice') {
+                    elements.voiceIntro.style.display = 'flex';
+                    elements.voiceTitle.textContent = 'Tap to speak';
+                    elements.voiceSubtitle.textContent = 'Ask me anything about my portfolio';
+                } else {
+                    setTimeout(() => {
+                        addBotMessage("I've cleared our conversation. How else can I help you?");
+                    }, 300);
+                }
+                
+                updateStatus('Ready to help', 'success');
+            }
+
+            // Initialize speech synthesis voices when available
+            if (speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = populateVoices;
+            }
         });
     </script>
-    <script src="js/app.js"></script>
 </body>
 </html>
