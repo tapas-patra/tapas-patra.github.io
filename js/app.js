@@ -1,7 +1,7 @@
-// App.js - Updated to use Vercel backend
+// App.js - Enhanced with Session Support for Conversation Context
 document.addEventListener('DOMContentLoaded', function() {
   // Configuration
-  const API_URL = 'https://portfolio-bot-backend-git-main-tapaspatra.vercel.app/api';
+  const API_URL = 'https://portfolio-bot-backend-git-bot-20-tapaspatra.vercel.app/api';
 
   // DOM References
   const loadingOverlay = document.getElementById('loading-overlay');
@@ -14,6 +14,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Track initialization state
   let isInitialized = false;
+  
+  // 🆕 SESSION MANAGEMENT - Generate unique session ID for conversation context
+  let sessionId = generateSessionId();
+  
+  // 🆕 Generate a unique session ID
+  function generateSessionId() {
+    return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  }
 
   // Initialize the application
   async function initializeApp() {
@@ -71,10 +79,14 @@ document.addEventListener('DOMContentLoaded', function() {
       sendButton.disabled = userInput.value.trim() === '';
     });
 
-    // Clear chat button
+    // 🆕 ENHANCED Clear chat button - now also resets session
     clearChatButton.addEventListener('click', () => {
       // Clear messages
       chatMessages.innerHTML = '';
+      
+      // 🆕 Generate new session ID for fresh conversation
+      sessionId = generateSessionId();
+      console.log('New conversation session started:', sessionId);
 
       // Show intro panel
       introPanel.classList.remove('hidden');
@@ -106,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Handle user message
+  // 🆕 ENHANCED Handle user message with session support
   async function handleUserMessage() {
     const message = userInput.value.trim();
 
@@ -180,13 +192,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const thinkingIndicator = addThinkingIndicator();
 
     try {
+      // 🆕 ENHANCED API request with session support
+      const requestBody = { 
+        query: message,
+        sessionId: sessionId  // Include session ID for conversation context
+      };
+
+      console.log('Sending message with session:', sessionId);
+
       // Send request to backend API
       const response = await fetch(`${API_URL}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ query: message })
+        body: JSON.stringify(requestBody)
       });
 
       if (!response.ok) {
@@ -201,6 +221,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
       // Add bot response
       addBotMessage(data.response);
+      
+      // 🆕 Log session info for debugging (optional)
+      if (data.sessionId) {
+        console.log('Response from session:', data.sessionId);
+      }
+
     } catch (error) {
       // Remove thinking indicator
       chatMessages.removeChild(thinkingIndicator);
@@ -261,7 +287,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     thinkingElement.appendChild(dotsContainer);
-    chatMessages.appendChild(thinkingElement);
+    chatMessages.appendChild(thinkingIndicator);
     scrollToBottom();
 
     return thinkingElement;
