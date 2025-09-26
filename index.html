@@ -490,6 +490,130 @@
             font-weight: 600;
         }
 
+        /* Education Section */
+        .education-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .education-card {
+            background-color: var(--light);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 10px 20px var(--shadow);
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .education-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px var(--shadow);
+        }
+
+        .education-icon {
+            font-size: 40px;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .education-degree {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .education-institution {
+            font-size: 16px;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .education-details {
+            font-size: 14px;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+
+        /* Resume Section */
+        .resume-container {
+            display: flex;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .resume-content {
+            flex: 1;
+        }
+
+        .resume-preview {
+            flex: 1;
+            text-align: center;
+        }
+
+        .resume-preview-box {
+            background-color: var(--light);
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 10px 20px var(--shadow);
+            border: 2px dashed var(--primary);
+        }
+
+        .resume-icon {
+            font-size: 80px;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .resume-title {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: var(--text-dark);
+        }
+
+        .resume-description {
+            margin-bottom: 30px;
+            color: var(--text-dark);
+        }
+
+        .resume-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .resume-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            background-color: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .resume-btn:hover {
+            background-color: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px var(--shadow);
+        }
+
+        .resume-btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .resume-btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
         /* Projects Section */
         .projects-grid {
             display: grid;
@@ -1189,7 +1313,7 @@
 
         /* Make it mobile friendly */
         @media screen and (max-width: 992px) {
-            .hero-content, .about-content, .contact-container {
+            .hero-content, .about-content, .contact-container, .resume-container {
                 flex-direction: column;
             }
 
@@ -1257,7 +1381,7 @@
                 display: block;
             }
 
-            .projects-grid {
+            .projects-grid, .education-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -1289,6 +1413,11 @@
 
             .suggestions {
                 display: none; /* Hide suggestions on mobile to save space */
+            }
+
+            .resume-actions {
+                justify-content: center;
+                flex-direction: column;
             }
         }
 
@@ -1322,7 +1451,7 @@
                 max-width: 100%;
             }
 
-            .projects-grid {
+            .projects-grid, .education-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -1367,7 +1496,9 @@
                         <a href="#about">About</a>
                         <a href="#skills">Skills</a>
                         <a href="#experience">Experience</a>
+                        <a href="#education">Education</a>
                         <a href="#projects">Projects</a>
+                        <a href="#resume">Resume</a>
                         <a href="#contact">Contact</a>
                     </div>
                     <div class="nav-controls">
@@ -1395,7 +1526,7 @@
                     <div class="hero-text" data-aos="fade-right" data-aos-duration="1000">
                         <h1>Tapas Kumar Patra</h1>
                         <h3>Automation Engineer</h3>
-                        <p>I'm a skilled automation engineer with 4 years of experience in the IT industry. I specialize in Python, Slash, Appium, and other automation frameworks, with a strong focus on the automotive domain.</p>
+                        <p>I'm a passionate Automation Engineer with specialized experience in the automotive sector since 2021. I architect and deploy robust, end-to-end automation frameworks using Python, Slash Framework, and Android infotainment testing, with a focus on creating efficient and innovative solutions.</p>
                         <div class="cta-buttons">
                             <a href="#projects" class="btn">View My Work</a>
                             <a href="#contact" class="btn btn-outline">Contact Me</a>
@@ -1418,11 +1549,11 @@
                         <img src="images/about_me.jpg" alt="Tapas Kumar Patra">
                     </div>
                     <div class="about-text" data-aos="fade-left" data-aos-duration="1000">
-                        <p>I'm a passionate Automation Engineer with 4 years of experience in the IT industry. My journey in the tech world has been driven by my passion for creating efficient and innovative automation solutions that solve real-world problems.</p>
-                        <p>I have extensive experience in the automotive domain, where I've worked on various components such as Media, Audio, NFC, WiFi, and Hotspot. I'm familiar with different protocols used in the automotive industry, including CAN, SOME/IP, and others.</p>
-                        <p>Beyond my regular work, I enjoy developing tools and applications that improve workflow efficiency and enhance productivity. These include Railbridge, RTMHelper, UIAutoGen, TestCrafter, and TestrailInsight, each designed to solve specific challenges in the software testing and development process.</p>
-                        <p>I take pride in being the owner of PocketPad, a cutting-edge application that revolutionizes remote connectivity. Designed to enable seamless control of systems over the internet using mobile devices, PocketPad delivers an exceptional user experience with dynamic functionality and innovative features.</p>
-                        <p>I'm constantly learning and exploring new technologies to expand my skillset and stay current in this ever-evolving field.</p>
+                        <p>I'm a passionate Automation Engineer who started my professional journey in 2021. My career in the tech world has been driven by my passion for creating efficient and innovative automation solutions that solve real-world problems, with a strong focus on the automotive domain.</p>
+                        <p>I have extensive experience in the automotive domain since 2021, where I've worked on various infotainment modules and components. I'm familiar with different protocols used in the automotive industry, including CAN Protocol, ECU Testing, and AUTOSAR Concepts.</p>
+                        <p>Beyond my regular work, I enjoy developing tools and applications that improve workflow efficiency and enhance productivity. These include UI-Auto-gen, RTM Helper, Rail-Bridge, Test-crafter, and Testrail Insight, each designed to solve specific challenges in the software testing and development process.</p>
+                        <p>I take pride in engineering innovative solutions that have increased automation efficiency by up to 40% and reduced manual testing efforts by over 60%. My tools have eliminated 100% of manual effort in RTM traceability and test case migration processes.</p>
+                        <p>I'm constantly learning and exploring new technologies to expand my skillset and stay current in this ever-evolving field. Currently pursuing M.Tech in Software Systems through Wipro's Work Integrated Learning Program.</p>
                     </div>
                 </div>
             </div>
@@ -1439,10 +1570,10 @@
                         </div>
                         <h3 class="skill-title">Programming</h3>
                         <ul class="skill-list">
-                            <li>Python</li>
+                            <li>Python (Advanced)</li>
                             <li>JavaScript</li>
                             <li>Shell Scripting</li>
-                            <li>Java</li>
+                            <li>SQL</li>
                         </ul>
                     </div>
 
@@ -1450,12 +1581,12 @@
                         <div class="skill-icon">
                             <i class="fas fa-robot"></i>
                         </div>
-                        <h3 class="skill-title">Automation</h3>
+                        <h3 class="skill-title">Automation Frameworks</h3>
                         <ul class="skill-list">
-                            <li>Slash Framework</li>
-                            <li>Appium</li>
                             <li>Selenium</li>
-                            <li>Data Driven Testing</li>
+                            <li>Appium</li>
+                            <li>Slash Framework</li>
+                            <li>Data Driven Testing (DDT)</li>
                         </ul>
                     </div>
 
@@ -1463,25 +1594,51 @@
                         <div class="skill-icon">
                             <i class="fas fa-car"></i>
                         </div>
-                        <h3 class="skill-title">Automotive</h3>
+                        <h3 class="skill-title">Automotive Technologies</h3>
                         <ul class="skill-list">
                             <li>CAN Protocol</li>
-                            <li>SOME/IP</li>
-                            <li>Media Systems</li>
-                            <li>Connectivity (WiFi, NFC)</li>
+                            <li>ECU Testing</li>
+                            <li>AUTOSAR Concepts</li>
+                            <li>Infotainment Testing</li>
                         </ul>
                     </div>
 
                     <div class="skill-card" data-aos="zoom-in" data-aos-duration="500" data-aos-delay="300">
                         <div class="skill-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <h3 class="skill-title">Web Technologies</h3>
+                        <ul class="skill-list">
+                            <li>REST API</li>
+                            <li>FastAPI</li>
+                            <li>Django</li>
+                            <li>WebSockets</li>
+                        </ul>
+                    </div>
+
+                    <div class="skill-card" data-aos="zoom-in" data-aos-duration="500" data-aos-delay="400">
+                        <div class="skill-icon">
                             <i class="fas fa-tools"></i>
                         </div>
-                        <h3 class="skill-title">Tool Development</h3>
+                        <h3 class="skill-title">Development Tools</h3>
                         <ul class="skill-list">
-                            <li>Test Automation Tools</li>
-                            <li>Web Applications</li>
-                            <li>Utility Development</li>
-                            <li>Reporting Solutions</li>
+                            <li>Git (Version Control)</li>
+                            <li>Jira (Defect Management)</li>
+                            <li>TestRail (Test Management)</li>
+                            <li>YAML</li>
+                        </ul>
+                    </div>
+
+                    <div class="skill-card" data-aos="zoom-in" data-aos-duration="500" data-aos-delay="500">
+                        <div class="skill-icon">
+                            <i class="fas fa-vial"></i>
+                        </div>
+                        <h3 class="skill-title">Testing Methodologies</h3>
+                        <ul class="skill-list">
+                            <li>STLC & DLC</li>
+                            <li>Functional Testing</li>
+                            <li>Regression Testing</li>
+                            <li>Integration Testing</li>
                         </ul>
                     </div>
                 </div>
@@ -1498,20 +1655,54 @@
                         <div class="timeline-content">
                             <div class="timeline-date">2021 - Present</div>
                             <h3 class="timeline-title">Automation Engineer</h3>
-                            <h4 class="timeline-company">Wipro</h4>
-                            <p>Working on automotive component testing and automation, developing testing frameworks and tools to improve efficiency and coverage. Responsible for designing and implementing automated test solutions for various automotive components including Media, Audio, NFC, WiFi, and Hotspot features.</p>
+                            <h4 class="timeline-company">Wipro Technologies</h4>
+                            <p>Specializing in framework architecture & development, process automation, test management optimization, and code quality assurance. Serving as module owner, leading code reviews and ensuring adherence to best practices.</p>
+                            <ul style="margin-top: 15px; padding-left: 20px;">
+                                <li>Architected and implemented a new Python-based automation framework from the ground up for infotainment modules, reducing manual testing efforts by over 60%</li>
+                                <li>Designed comprehensive test plans covering functional, regression, and integration testing using Data-Driven Testing (DDT) with YAML data sources, improving test coverage by 35%</li>
+                                <li>Developed custom tools that increased automation efficiency by 40% and eliminated 100% of manual effort in RTM traceability processes</li>
+                            </ul>
                         </div>
                     </div>
+                </div>
+            </div>
+        </section>
 
-<!--                     <div class="timeline-item" data-aos="fade-up" data-aos-delay="100">
-                        <div class="timeline-dot"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-date">2018 - 2019</div>
-                            <h3 class="timeline-title">Software Developer Intern</h3>
-                            <h4 class="timeline-company">ABC Technologies</h4>
-                            <p>Assisted in developing and maintaining automation scripts for software testing. Worked on implementing test cases and learned about different testing methodologies and frameworks. Gained foundational knowledge in Python and automation practices.</p>
+        <!-- Education Section -->
+        <section id="education">
+            <div class="container">
+                <h2 class="section-title" data-aos="fade-up">Education</h2>
+                <div class="education-grid">
+                    <div class="education-card" data-aos="fade-up">
+                        <div class="education-icon">
+                            <i class="fas fa-graduation-cap"></i>
                         </div>
-                    </div> -->
+                        <div class="education-degree">Master of Technology in Software Systems</div>
+                        <div class="education-institution">BITS Pilani</div>
+                        <div class="education-details">Expected Completion: December 2025</div>
+                        <div class="education-details">Work Integrated Learning Program (WILP)</div>
+                        <div class="education-details">Pursuing alongside professional role since 2021</div>
+                    </div>
+
+                    <div class="education-card" data-aos="fade-up" data-aos-delay="100">
+                        <div class="education-icon">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <div class="education-degree">Bachelor of Computer Applications</div>
+                        <div class="education-institution">N.C. College</div>
+                        <div class="education-details">Completed: June 2021</div>
+                        <div class="education-details">CGPA: 7.09</div>
+                    </div>
+
+                    <div class="education-card" data-aos="fade-up" data-aos-delay="200">
+                        <div class="education-icon">
+                            <i class="fas fa-school"></i>
+                        </div>
+                        <div class="education-degree">Higher Secondary Education</div>
+                        <div class="education-institution">12th Standard</div>
+                        <div class="education-details">Completed: 2018</div>
+                        <div class="education-details">Percentage: 64.83%</div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -1523,58 +1714,49 @@
                 <div class="projects-grid">
                     <div class="project-card" data-aos="fade-up">
                         <div class="project-image">
-                            <img src="images/project1.png" alt="Railbridge">
+                            <img src="images/project1.png" alt="UI-Auto-gen">
                         </div>
                         <div class="project-content">
-                            <h3 class="project-title">Railbridge</h3>
-                            <p class="project-description">A tool that facilitates the transfer of test cases between two TestRail servers, improving workflow and saving significant time for QA teams.</p>
+                            <h3 class="project-title">UI-Auto-gen</h3>
+                            <p class="project-description">A Python tool that automatically generates UI properties and their unit tests from Android layouts, increasing UI automation efficiency by 40% and reducing manual setup time for test automation.</p>
                             <div class="project-tags">
                                 <span class="project-tag">Python</span>
-                                <span class="project-tag">TestRail API</span>
-                                <span class="project-tag">Automation</span>
+                                <span class="project-tag">Android</span>
+                                <span class="project-tag">UI Automation</span>
+                                <span class="project-tag">XML Parsing</span>
                             </div>
-<!--                             <div class="project-links">
-                                <a href="#" title="Github"><i class="fab fa-github"></i></a>
-                                <a href="#" title="Demo"><i class="fas fa-external-link-alt"></i></a>
-                            </div> -->
                         </div>
                     </div>
 
                     <div class="project-card" data-aos="fade-up" data-aos-delay="100">
                         <div class="project-image">
-                            <img src="images/project2.png" alt="RTMHelper">
+                            <img src="images/project2.png" alt="RTM Helper">
                         </div>
                         <div class="project-content">
-                            <h3 class="project-title">RTMHelper</h3>
-                            <p class="project-description">A tool designed to assist in requirement traceability matrix creation and management, linking requirements, test cases, and test results efficiently.</p>
+                            <h3 class="project-title">RTM Helper</h3>
+                            <p class="project-description">Streamlines backward traceability by linking TestRail cases to Jira requirements, ensuring complete audit and reporting coverage. Eliminated 100% of manual effort in RTM traceability processes.</p>
                             <div class="project-tags">
                                 <span class="project-tag">Python</span>
-                                <span class="project-tag">Excel Automation</span>
-                                <span class="project-tag">Requirements</span>
+                                <span class="project-tag">TestRail API</span>
+                                <span class="project-tag">Jira API</span>
+                                <span class="project-tag">Traceability</span>
                             </div>
-<!--                             <div class="project-links">
-                                <a href="#" title="Github"><i class="fab fa-github"></i></a>
-                                <a href="#" title="Demo"><i class="fas fa-external-link-alt"></i></a>
-                            </div> -->
                         </div>
                     </div>
 
                     <div class="project-card" data-aos="fade-up" data-aos-delay="200">
                         <div class="project-image">
-                            <img src="images/project3.png" alt="UIAutoGen">
+                            <img src="images/project3.png" alt="Rail-Bridge">
                         </div>
                         <div class="project-content">
-                            <h3 class="project-title">UIAutoGen</h3>
-                            <p class="project-description">An application that automatically generates UI properties for Android environments, significantly speeding up the automation process.</p>
+                            <h3 class="project-title">Rail-Bridge</h3>
+                            <p class="project-description">A utility designed to migrate test cases, suites, and results between different TestRail server instances, facilitating seamless project transitions and eliminating manual migration efforts.</p>
                             <div class="project-tags">
                                 <span class="project-tag">Python</span>
-                                <span class="project-tag">Android</span>
-                                <span class="project-tag">UI Automation</span>
+                                <span class="project-tag">TestRail API</span>
+                                <span class="project-tag">Data Migration</span>
+                                <span class="project-tag">RESTful Services</span>
                             </div>
-<!--                             <div class="project-links">
-                                <a href="#" title="Github"><i class="fab fa-github"></i></a>
-                                <a href="#" title="Demo"><i class="fas fa-external-link-alt"></i></a>
-                            </div> -->
                         </div>
                     </div>
 
@@ -1584,54 +1766,88 @@
                         </div>
                         <div class="project-content">
                             <h3 class="project-title">PocketPad</h3>
-                            <p class="project-description">A web-based application that transforms a user's phone into a remote control for their computer over the internet, providing convenient control from anywhere.</p>
+                            <p class="project-description">A web-based application that transforms a user's phone into a remote control for their computer over the internet, providing convenient control from anywhere with dynamic functionality.</p>
                             <div class="project-tags">
                                 <span class="project-tag">JavaScript</span>
-                                <span class="project-tag">Web Sockets</span>
+                                <span class="project-tag">WebSockets</span>
                                 <span class="project-tag">Responsive Design</span>
+                                <span class="project-tag">Real-time Control</span>
                             </div>
                             <div class="project-links">
                                 <a href="https://pocketpad.onrender.com/" title="Website"><i class="fas fa-globe"></i></a>
-<!--                                 <a href="https://pocketpad.onrender.com/" title="Demo"><i class="fas fa-external-link-alt"></i></a> -->
                             </div>
                         </div>
                     </div>
 
                     <div class="project-card" data-aos="fade-up" data-aos-delay="400">
                         <div class="project-image">
-                            <img src="images/project4.png" alt="TestCrafter">
+                            <img src="images/project4.png" alt="Test-crafter">
                         </div>
                         <div class="project-content">
-                            <h3 class="project-title">TestCrafter</h3>
-                            <p class="project-description">A tool that helps in creating runs, plans, and milestones across different projects simultaneously, streamlining the test management process.</p>
+                            <h3 class="project-title">Test-crafter</h3>
+                            <p class="project-description">A productivity tool that reduces administrative overhead by enabling the bulk creation of test runs, plans, and milestones across multiple TestRail projects, streamlining the test management process.</p>
                             <div class="project-tags">
                                 <span class="project-tag">Python</span>
                                 <span class="project-tag">TestRail API</span>
+                                <span class="project-tag">Bulk Operations</span>
                                 <span class="project-tag">Test Management</span>
                             </div>
-<!--                             <div class="project-links">
-                                <a href="#" title="Github"><i class="fab fa-github"></i></a>
-                                <a href="#" title="Demo"><i class="fas fa-external-link-alt"></i></a>
-                            </div> -->
                         </div>
                     </div>
 
                     <div class="project-card" data-aos="fade-up" data-aos-delay="500">
                         <div class="project-image">
-                            <img src="images/project5.png" alt="TestrailInsight">
+                            <img src="images/project5.png" alt="Testrail Insight">
                         </div>
                         <div class="project-content">
-                            <h3 class="project-title">TestrailInsight</h3>
-                            <p class="project-description">A reporting solution that allows users to create comprehensive reports with unlimited runs, overcoming TestRail's native reporting limitations.</p>
+                            <h3 class="project-title">Testrail Insight</h3>
+                            <p class="project-description">A custom reporting solution that overcomes TestRail API limitations by aggregating data from unlimited test runs to generate comprehensive quality insight reports, providing advanced analytics capabilities.</p>
                             <div class="project-tags">
                                 <span class="project-tag">Python</span>
                                 <span class="project-tag">Data Visualization</span>
-                                <span class="project-tag">Reporting</span>
+                                <span class="project-tag">Advanced Analytics</span>
+                                <span class="project-tag">Custom Reporting</span>
                             </div>
-<!--                             <div class="project-links">
-                                <a href="#" title="Github"><i class="fab fa-github"></i></a>
-                                <a href="#" title="Demo"><i class="fas fa-external-link-alt"></i></a>
-                            </div> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Resume Section -->
+        <section id="resume">
+            <div class="container">
+                <h2 class="section-title" data-aos="fade-up">My Resume</h2>
+                <div class="resume-container">
+                    <div class="resume-content" data-aos="fade-right" data-aos-duration="1000">
+                        <h3>Download My Resume</h3>
+                        <p>Get a comprehensive overview of my professional experience, technical skills, education, and achievements. My resume includes detailed information about my automation engineering expertise, project contributions, and career progression since 2021.</p>
+                        <p>The resume covers:</p>
+                        <ul style="margin: 20px 0; padding-left: 30px;">
+                            <li>Professional experience at Wipro Technologies</li>
+                            <li>Educational background including ongoing M.Tech from BITS Pilani</li>
+                            <li>Technical skills and certifications</li>
+                            <li>Key projects and tools developed</li>
+                            <li>Quantified achievements and impact metrics</li>
+                        </ul>
+                    </div>
+                    <div class="resume-preview" data-aos="fade-left" data-aos-duration="1000">
+                        <div class="resume-preview-box">
+                            <div class="resume-icon">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <h3 class="resume-title">Resume PDF</h3>
+                            <p class="resume-description">Click below to download or view my latest resume</p>
+                            <div class="resume-actions">
+                                <a href="myresume.pdf" class="resume-btn" download="Tapas_Kumar_Patra_Resume.pdf">
+                                    <i class="fas fa-download"></i>
+                                    Download PDF
+                                </a>
+                                <a href="myresume.pdf" target="_blank" class="resume-btn resume-btn-outline">
+                                    <i class="fas fa-eye"></i>
+                                    View Online
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1664,25 +1880,25 @@
                             </div>
                         </div>
 
-<!--                         <div class="contact-info-item">
+                        <div class="contact-info-item">
                             <div class="contact-icon">
                                 <i class="fas fa-phone-alt"></i>
                             </div>
                             <div class="contact-details">
                                 <h3>Phone</h3>
-                                <p>+91 824 912 4954</p>
+                                <p>+91 8249124954</p>
                             </div>
-                        </div> -->
+                        </div>
 
-<!--                         <div class="contact-info-item">
+                        <div class="contact-info-item">
                             <div class="contact-icon">
                                 <i class="fas fa-globe"></i>
                             </div>
                             <div class="contact-details">
-                                <h3>Website</h3>
-                                <p>www.yourwebsite.com</p>
+                                <h3>Portfolio</h3>
+                                <p>https://tapas-patra.github.io</p>
                             </div>
-                        </div> -->
+                        </div>
                     </div>
 
                     <div class="contact-form" data-aos="fade-left" data-aos-duration="1000">
@@ -1720,11 +1936,10 @@
                 <div class="footer-content">
                     <div class="footer-column">
                         <h3 class="footer-title">Tapas Kumar Patra</h3>
-                        <p>A passionate Automation Engineer specialized in developing efficient tools and solutions for the automotive industry.</p>
+                        <p>A passionate Automation Engineer specialized in developing efficient tools and solutions for the automotive industry, with expertise in framework architecture and process automation.</p>
                         <div class="social-links">
                             <a href="https://www.linkedin.com/in/tapas-kumar-patra"><i class="fab fa-linkedin-in"></i></a>
                             <a href="https://www.github.com/tapas-patra"><i class="fab fa-github"></i></a>
-<!--                             <a href="#"><i class="fab fa-twitter"></i></a> -->
                             <a href="https://www.instagram.com/tapaspatra.dev"><i class="fab fa-instagram"></i></a>
                         </div>
                     </div>
@@ -1736,7 +1951,9 @@
                             <li><a href="#about">About</a></li>
                             <li><a href="#skills">Skills</a></li>
                             <li><a href="#experience">Experience</a></li>
+                            <li><a href="#education">Education</a></li>
                             <li><a href="#projects">Projects</a></li>
+                            <li><a href="#resume">Resume</a></li>
                             <li><a href="#contact">Contact</a></li>
                         </ul>
                     </div>
@@ -1748,7 +1965,7 @@
                             <li><a href="#skills">Tool Development</a></li>
                             <li><a href="#skills">Automotive Testing</a></li>
                             <li><a href="#skills">Test Framework Design</a></li>
-<!--                             <li><a href="#">CI/CD Implementation</a></li> -->
+                            <li><a href="#skills">Framework Architecture</a></li>
                         </ul>
                     </div>
                 </div>
@@ -1797,9 +2014,9 @@
             |_|
                             </div>
                             <div class="welcome-title">Welcome to My Interactive CLI Portfolio!</div>
-                            <div class="welcome-subtitle">Automation Engineer & Tool Developer</div>
+                            <div class="welcome-subtitle">Automation Engineer & Framework Architect</div>
                             <div class="welcome-text">
-                                I create efficient automation solutions and helpful tools. Navigate through my portfolio using terminal commands to learn more about my skills and projects.
+                                I specialize in creating robust automation frameworks and efficient testing solutions for the automotive industry. Navigate through my portfolio using terminal commands to learn more about my skills and projects.
                             </div>
                             <div class="welcome-text">
                                 Type <span class="command">help</span> to see available commands or try <span class="command">ls</span> to list content or type <span class="command">uimode</span> to switch to UI Interface.
@@ -1993,57 +2210,82 @@
                 content: {
                     "about.txt": {
                         type: "file",
-                        content: "## About Me\n\nI'm Tapas Kumar Patra, an Automation Engineer with 4 years of experience in the IT industry. I specialize in designing and implementing automated testing solutions, with a focus on the automotive domain.\n\nI'm passionate about creating tools that make testing more efficient and reliable. When I'm not coding, I enjoy exploring new technologies and contributing to open-source projects."
+                        content: "## About Me\n\nI'm Tapas Kumar Patra, a passionate Automation Engineer who started my professional journey in 2021. My career in the tech world has been driven by my passion for creating efficient and innovative automation solutions that solve real-world problems, with a strong focus on the automotive domain.\n\nI specialize in architecting and deploying robust, end-to-end automation frameworks using Python, Slash Framework, and Android infotainment testing. I take pride in engineering innovative solutions that have increased automation efficiency by up to 40% and reduced manual testing efforts by over 60%.\n\nCurrently pursuing M.Tech in Software Systems through Wipro's Work Integrated Learning Program while working full-time."
                     },
                     "contact.txt": {
                         type: "file",
-                        content: "## Contact Information\n\nEmail: tapas.patra0406@gmail.com\nLinkedIn: linkedin.com/in/tapas-kumar-patra\nGitHub: github.com/tapas-patra\nLocation: Bengaluru, India"
+                        content: "## Contact Information\n\nEmail: tapas.patra0406@gmail.com\nPhone: +91 8249124954\nLinkedIn: linkedin.com/in/tapas-kumar-patra\nGitHub: github.com/tapas-patra\nPortfolio: https://tapas-patra.github.io\nLocation: Bengaluru, India"
+                    },
+                    "resume.pdf": {
+                        type: "file",
+                        content: "This is my resume file. Use 'download resume' command to get the PDF."
+                    },
+                    "education": {
+                        type: "directory",
+                        content: {
+                            "current.txt": {
+                                type: "file",
+                                content: "## Current Education\n\n### Master of Technology in Software Systems\nInstitution: BITS Pilani\nExpected Completion: December 2025\nProgram: Work Integrated Learning Program (WILP)\nStatus: Pursuing alongside professional role since 2021\n\nThis program is specifically designed for working professionals and is structured over four years instead of the traditional two years."
+                            },
+                            "completed.txt": {
+                                type: "file",
+                                content: "## Completed Education\n\n### Bachelor of Computer Applications\nInstitution: N.C. College\nCompleted: June 2021\nCGPA: 7.09\n\n### Higher Secondary Education\n12th Standard (2018): 64.83%\n10th Standard (2016): 79.17%\n\nNote: There has been no gap in my academic or professional journey. I completed my undergraduate degree in 2021 and immediately joined Wipro as a full-time employee while enrolling in the WILP program."
+                            }
+                        }
                     },
                     "projects": {
                         type: "directory",
                         content: {
-                            "railbridge.md": {
+                            "uiautogen.md": {
                                 type: "file",
-                                content: "# Railbridge\n\nA tool that facilitates the transfer of test cases between two TestRail servers, improving workflow and saving significant time for QA teams.\n\n## Technologies\n- Python\n- TestRail API\n- RESTful services\n\n## Key Features\n- Seamless transfer of test cases with all their properties\n- Support for attachments and custom fields\n- Bulk operations for efficiency\n- Detailed logging and error handling"
+                                content: "# UI-Auto-gen\n\nA Python tool that automatically generates UI properties and their unit tests from Android layouts, increasing UI automation efficiency by 40% and reducing manual setup time for test automation.\n\n## Technologies\n- Python\n- Android Debug Bridge (ADB)\n- XML Parsing\n- UI Automation\n\n## Key Features\n- Automatic extraction of UI elements from Android layouts\n- Generation of reusable UI property classes\n- Unit test template generation\n- Support for multiple automation frameworks\n- Significant reduction in manual setup time\n\n## Impact\n- 40% increase in UI automation efficiency\n- Reduced manual setup time by over 60%"
                             },
                             "rtmhelper.md": {
                                 type: "file",
-                                content: "# RTMHelper\n\nA tool designed to assist in requirement traceability matrix creation and management, linking requirements, test cases, and test results efficiently.\n\n## Technologies\n- Python\n- Excel Automation\n- Data Analysis\n\n## Key Features\n- Automated generation of traceability matrices\n- Gap analysis for test coverage\n- Customizable reporting\n- Integration with requirement management systems"
+                                content: "# RTM Helper\n\nStreamlines backward traceability by linking TestRail cases to Jira requirements, ensuring complete audit and reporting coverage. Eliminated 100% of manual effort in RTM traceability processes.\n\n## Technologies\n- Python\n- TestRail API\n- Jira API\n- Data Analysis\n\n## Key Features\n- Automated linking of test cases to requirements\n- Backward traceability matrix generation\n- Gap analysis for test coverage\n- Comprehensive audit trails\n- Automated reporting capabilities\n\n## Impact\n- 100% elimination of manual RTM traceability effort\n- Complete audit and reporting coverage\n- Significant time savings in compliance activities"
                             },
-                            "uiautogen.md": {
+                            "railbridge.md": {
                                 type: "file",
-                                content: "# UIAutoGen\n\nAn application that automatically generates UI properties for Android environments, significantly speeding up the automation process.\n\n## Technologies\n- Python\n- Android Debug Bridge\n- XML Parsing\n\n## Key Features\n- Automatic extraction of UI elements\n- Generation of page object model classes\n- Support for multiple languages (Java, Python)\n- Integrated with popular automation frameworks"
+                                content: "# Rail-Bridge\n\nA utility designed to migrate test cases, suites, and results between different TestRail server instances, facilitating seamless project transitions and eliminating manual migration efforts.\n\n## Technologies\n- Python\n- TestRail API\n- RESTful Services\n- Data Migration\n\n## Key Features\n- Seamless migration of test cases with all properties\n- Support for test suites and test results\n- Bulk operations for efficiency\n- Data integrity validation\n- Detailed logging and error handling\n- Support for attachments and custom fields\n\n## Impact\n- Eliminated manual migration efforts\n- Facilitated seamless project transitions\n- Reduced migration time from days to hours"
                             },
                             "pocketpad.md": {
                                 type: "file",
-                                content: "# PocketPad\n\nA web-based application that transforms a user's phone into a remote control for their computer over the internet, providing convenient control from anywhere.\n\n## Technologies\n- JavaScript\n- WebSockets\n- Responsive Design\n\n## Key Features\n- Real-time control over network\n- Custom button mapping\n- Media controls integration\n- Secure connection handling"
+                                content: "# PocketPad\n\nA web-based application that transforms a user's phone into a remote control for their computer over the internet, providing convenient control from anywhere with dynamic functionality and innovative features.\n\n## Technologies\n- JavaScript\n- WebSockets\n- Responsive Design\n- Real-time Communication\n\n## Key Features\n- Real-time control over network\n- Custom button mapping\n- Media controls integration\n- Secure connection handling\n- Cross-platform compatibility\n- Dynamic functionality\n\n## Live Demo\nWebsite: https://pocketpad.onrender.com/"
                             },
                             "testcrafter.md": {
                                 type: "file",
-                                content: "# TestCrafter\n\nA tool that helps in creating runs, plans, and milestones across different projects simultaneously, streamlining the test management process.\n\n## Technologies\n- Python\n- TestRail API\n- Configuration Management\n\n## Key Features\n- Multi-project test planning\n- Template-based test run creation\n- Automated assignment of test cases\n- Integration with CI/CD pipelines"
+                                content: "# Test-crafter\n\nA productivity tool that reduces administrative overhead by enabling the bulk creation of test runs, plans, and milestones across multiple TestRail projects, streamlining the test management process.\n\n## Technologies\n- Python\n- TestRail API\n- Configuration Management\n- Bulk Operations\n\n## Key Features\n- Multi-project test planning\n- Bulk creation of test runs, plans, and milestones\n- Template-based configurations\n- Automated assignment of test cases\n- Integration capabilities with CI/CD pipelines\n- Significant reduction in administrative overhead\n\n## Impact\n- Streamlined test management process\n- Reduced administrative overhead\n- Improved efficiency in test planning"
                             },
                             "testrailinsight.md": {
                                 type: "file",
-                                content: "# TestrailInsight\n\nA reporting solution that allows users to create comprehensive reports with unlimited runs, overcoming TestRail's native reporting limitations.\n\n## Technologies\n- Python\n- Data Visualization\n- SQL\n\n## Key Features\n- Advanced filtering and aggregation\n- Custom dashboards and visualizations\n- Trend analysis over time\n- Export in multiple formats (PDF, Excel, HTML)"
+                                content: "# Testrail Insight\n\nA custom reporting solution that overcomes TestRail API limitations by aggregating data from unlimited test runs to generate comprehensive quality insight reports, providing advanced analytics capabilities.\n\n## Technologies\n- Python\n- Data Visualization\n- Advanced Analytics\n- SQL\n- Custom Reporting\n\n## Key Features\n- Advanced filtering and data aggregation\n- Custom dashboards and visualizations\n- Trend analysis over time\n- Export capabilities in multiple formats (PDF, Excel, HTML)\n- Overcomes native TestRail reporting limitations\n- Unlimited test run aggregation\n\n## Impact\n- Provided advanced analytics capabilities\n- Comprehensive quality insight reports\n- Overcame platform limitations for better reporting"
                             }
                         }
                     },
                     "skills": {
                         type: "directory",
                         content: {
-                            "technical.txt": {
+                            "programming.txt": {
                                 type: "file",
-                                content: "## Technical Skills\n\n### Programming Languages\n- Python (Advanced)\n- JavaScript (Intermediate)\n- Shell Scripting (Advanced)\n- Java (Intermediate)\n\n### Automation Frameworks\n- Slash Framework\n- Appium\n- Selenium\n- Robot Framework\n\n### Automotive Technologies\n- CAN Protocol\n- SOME/IP\n- Media Systems Testing\n- Connectivity Testing (WiFi, NFC, Bluetooth)\n\n### Development Tools\n- Git & GitHub\n- Jenkins\n- Docker\n- JIRA & Confluence\n- TestRail"
+                                content: "## Programming Skills\n\n### Languages\n- Python (Advanced) - Primary expertise\n- JavaScript (Intermediate)\n- Shell Scripting (Advanced)\n- SQL (Intermediate)\n\n### Frameworks & Libraries\n- FastAPI\n- Django\n- Selenium\n- Appium\n- Slash Framework"
                             },
-                            "soft.txt": {
+                            "automation.txt": {
                                 type: "file",
-                                content: "## Soft Skills\n\n- Problem Solving\n- Communication\n- Teamwork & Collaboration\n- Time Management\n- Adaptability\n- Critical Thinking\n- Attention to Detail\n- Leadership"
+                                content: "## Automation & Testing Skills\n\n### Automation Frameworks\n- Selenium WebDriver\n- Appium (Mobile Testing)\n- Slash Framework (Automotive Testing)\n- Data-Driven Testing (DDT)\n\n### Testing Methodologies\n- Software Testing Life Cycle (STLC)\n- Defect Life Cycle (DLC)\n- Functional Testing\n- Regression Testing\n- Integration Testing\n- Test Case Design & Optimization"
+                            },
+                            "automotive.txt": {
+                                type: "file",
+                                content: "## Automotive Technologies\n\n### Protocols & Standards\n- CAN Protocol\n- ECU Testing\n- AUTOSAR Concepts\n\n### Testing Domains\n- Infotainment Module Testing\n- Android Automotive Testing\n- HMI Testing\n- Connectivity Testing"
+                            },
+                            "tools.txt": {
+                                type: "file",
+                                content: "## Development Tools & Technologies\n\n### Version Control & CI/CD\n- Git (Advanced)\n- GitHub\n- Jenkins\n\n### Testing Tools\n- TestRail (Test Case Management)\n- Jira (Defect Management)\n- YAML (Data-Driven Testing)\n\n### Web Technologies\n- REST API\n- WebSockets\n- Caching (Redis)\n\n### Databases\n- SQL\n- Data Analysis"
                             }
                         }
                     },
                     "experience.txt": {
                         type: "file",
-                        content: "## Work Experience\n\n### Automation Engineer\nWipro | 2021 - Present\n\n- Designed and implemented automated test solutions for automotive components\n- Developed and maintained test frameworks for various projects\n- Created custom tools to improve testing efficiency\n- Collaborated with cross-functional teams to ensure quality standards\n- Mentored junior team members in automation practices\n- Assisted in developing and maintaining automation scripts\n- Learned different testing methodologies and frameworks\n- Participated in agile development processes"
+                        content: "## Work Experience\n\n### Automation Engineer\nWipro Technologies | 2021 - Present | Bengaluru, India\n\n**Role Focus:**\n- Framework Architecture & Development\n- Process Automation\n- Test Management Optimization\n- Code Quality Assurance (Module Owner)\n\n**Key Achievements:**\n- Architected and implemented a new Python-based automation framework from the ground up for infotainment modules\n- Reduced manual testing efforts by over 60%\n- Designed comprehensive test plans covering functional, regression, and integration testing using Data-Driven Testing (DDT) with YAML data sources\n- Improved test coverage by 35%\n- Developed custom tools that increased automation efficiency by 40%\n- Eliminated 100% of manual effort in RTM traceability processes\n- Serve as module owner, leading code reviews and ensuring adherence to best practices"
                     },
                     ".secret": {
                         type: "file",
@@ -2240,35 +2482,41 @@
                     }
 
                     const projects = {
-                        "railbridge": {
-                            title: "Railbridge",
-                            description: "Transfer test cases between TestRail servers",
-                            tech: ["Python", "TestRail API", "RESTful API"]
+                        "uiautogen": {
+                            title: "UI-Auto-gen",
+                            description: "Auto-generates UI properties and unit tests from Android layouts",
+                            tech: ["Python", "Android", "XML Parsing", "UI Automation"],
+                            impact: "40% efficiency increase"
                         },
                         "rtmhelper": {
-                            title: "RTMHelper",
-                            description: "Tool for requirement traceability matrix management",
-                            tech: ["Python", "Excel Automation", "Data Analysis"]
+                            title: "RTM Helper",
+                            description: "Streamlines backward traceability between TestRail and Jira",
+                            tech: ["Python", "TestRail API", "Jira API", "Traceability"],
+                            impact: "100% manual effort elimination"
                         },
-                        "uiautogen": {
-                            title: "UIAutoGen",
-                            description: "Auto-generates UI properties for Android automation",
-                            tech: ["Python", "Android", "XML Parsing"]
+                        "railbridge": {
+                            title: "Rail-Bridge",
+                            description: "Migrates test cases between TestRail server instances",
+                            tech: ["Python", "TestRail API", "Data Migration", "RESTful Services"],
+                            impact: "Seamless project transitions"
                         },
                         "pocketpad": {
                             title: "PocketPad",
-                            description: "Use phone as a remote control for computer",
-                            tech: ["JavaScript", "WebSockets", "Responsive Design"]
+                            description: "Use phone as a remote control for computer over internet",
+                            tech: ["JavaScript", "WebSockets", "Responsive Design", "Real-time Control"],
+                            impact: "Dynamic remote connectivity"
                         },
                         "testcrafter": {
-                            title: "TestCrafter",
-                            description: "Create test runs across multiple projects",
-                            tech: ["Python", "TestRail API", "Configuration Management"]
+                            title: "Test-crafter",
+                            description: "Bulk creation of test runs across multiple projects",
+                            tech: ["Python", "TestRail API", "Bulk Operations", "Test Management"],
+                            impact: "Reduced administrative overhead"
                         },
                         "testrailinsight": {
-                            title: "TestrailInsight",
-                            description: "Advanced reporting for TestRail",
-                            tech: ["Python", "Data Visualization", "SQL"]
+                            title: "Testrail Insight",
+                            description: "Advanced reporting with unlimited test run aggregation",
+                            tech: ["Python", "Data Visualization", "Advanced Analytics", "Custom Reporting"],
+                            impact: "Overcame platform limitations"
                         }
                     };
 
@@ -2278,6 +2526,7 @@
                         <div class="cli-project-card">
                             <div class="cli-project-title">${project.title}</div>
                             <div class="cli-project-description">${project.description}</div>
+                            <div class="line" style="color: var(--success-color); font-size: 12px; margin-bottom: 8px;">Impact: ${project.impact}</div>
                             <div class="cli-project-tech">
                                 ${project.tech.map(t => `<span class="tech-tag">${t}</span>`).join('')}
                             </div>
@@ -2297,19 +2546,21 @@
                 description: "Display my technical skills with proficiency levels",
                 usage: "skills",
                 execute: function() {
-                    let output = '<div class="line info">My Skills:</div>';
+                    let output = '<div class="line info">My Technical Skills:</div>';
 
                     const skills = {
-                        "Python": 90,
-                        "Automation Frameworks": 85,
+                        "Python": 95,
+                        "Automation Frameworks": 90,
                         "Slash/Appium": 90,
+                        "Framework Architecture": 95,
+                        "Automotive Testing": 90,
+                        "CAN Protocol": 85,
+                        "ECU Testing": 85,
+                        "Test Management": 90,
                         "JavaScript": 75,
-                        "Automotive Technologies": 85,
-                        "CAN Protocol": 80,
-                        "SOME/IP": 75,
-                        "Test Tools Development": 95,
-                        "Shell Scripting": 70,
-                        "Test Management": 90
+                        "REST API Development": 80,
+                        "Shell Scripting": 80,
+                        "Data-Driven Testing": 95
                     };
 
                     Object.keys(skills).forEach(skill => {
@@ -2337,6 +2588,23 @@
                     return commands.cat.execute(["~/experience.txt"]);
                 }
             },
+            education: {
+                description: "Show my education details",
+                usage: "education",
+                execute: function() {
+                    let output = '<div class="line info">My Education:</div>';
+
+                    output += '<div class="line"></div>';
+                    output += '<div class="line"><span style="color: var(--accent-color); font-weight: bold;">Current Education:</span></div>';
+                    output += commands.cat.execute(["~/education/current.txt"]);
+
+                    output += '<div class="line"></div>';
+                    output += '<div class="line"><span style="color: var(--accent-color); font-weight: bold;">Completed Education:</span></div>';
+                    output += commands.cat.execute(["~/education/completed.txt"]);
+
+                    return output;
+                }
+            },
             contact: {
                 description: "Show my contact information",
                 usage: "contact",
@@ -2349,6 +2617,26 @@
                 usage: "about",
                 execute: function() {
                     return commands.cat.execute(["~/about.txt"]);
+                }
+            },
+            resume: {
+                description: "Access my resume",
+                usage: "resume",
+                execute: function() {
+                    return `
+                    <div class="line info">My Resume:</div>
+                    <div class="line"></div>
+                    <div class="line">📄 Resume PDF available for download</div>
+                    <div class="line">📊 Contains comprehensive overview of:</div>
+                    <div class="line">   • Professional experience at Wipro Technologies (2021-Present)</div>
+                    <div class="line">   • Educational background including ongoing M.Tech from BITS Pilani</div>
+                    <div class="line">   • Technical skills and automation expertise</div>
+                    <div class="line">   • Key projects and tools developed</div>
+                    <div class="line">   • Quantified achievements and impact metrics</div>
+                    <div class="line"></div>
+                    <div class="line">Use <span class="command">download resume</span> to get the PDF file</div>
+                    <div class="line">Or <span class="command">cat resume.pdf</span> to view file info</div>
+                    `;
                 }
             },
             find: {
@@ -2412,18 +2700,33 @@
                 }
             },
             download: {
-                description: "Download my resume",
-                usage: "download resume",
+                description: "Download files (resume, etc.)",
+                usage: "download <file>",
                 execute: function(args) {
-                    if (args[0] !== "resume") {
-                        return `<div class="line error">download: unknown file '${args[0]}'</div>`;
+                    if (!args[0]) {
+                        return `<div class="line error">download: missing file operand</div><div class="line">Available files: resume</div>`;
                     }
 
-                    return `
-                    <div class="line">Starting download<span class="loading"></span></div>
-                    <div class="line success">Resume downloaded successfully!</div>
-                    <div class="line">Note: This is a simulation. In a real portfolio, this would trigger an actual download.</div>
-                    `;
+                    if (args[0] === "resume") {
+                        // Trigger actual download
+                        setTimeout(() => {
+                            const link = document.createElement('a');
+                            link.href = 'myresume.pdf';
+                            link.download = 'Tapas_Kumar_Patra_Resume.pdf';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        }, 1500);
+
+                        return `
+                        <div class="line">Initiating download<span class="loading"></span></div>
+                        <div class="line success">Resume download started!</div>
+                        <div class="line">📄 File: Tapas_Kumar_Patra_Resume.pdf</div>
+                        <div class="line">📍 Check your Downloads folder</div>
+                        `;
+                    }
+
+                    return `<div class="line error">download: unknown file '${args[0]}'</div><div class="line">Available files: resume</div>`;
                 }
             },
             uimode: {
