@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Admin Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #4a55a2;
+            margin: 0;
+        }
+
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 10px 10px 0 0;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .tab {
+            padding: 15px 25px;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            background: white;
+            border-bottom-color: #4a55a2;
+            color: #4a55a2;
+        }
+
+        .tab:hover {
+            background: #e9ecef;
+        }
+
+        .tab-content {
+            background: white;
+            padding: 20px;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-height: 600px;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* Configuration Section */
+        .config-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .config-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .config-item label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #495057;
+        }
+
+        .config-item input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        /* Documents Table */
+        .documents-container {
+            overflow-x: auto;
+        }
+
+        .documents-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .documents-table th,
+        .documents-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .documents-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+        }
+
+        .documents-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .content-preview {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .metadata-preview {
+            max-width: 200px;
+            font-family: monospace;
+            font-size: 12px;
+            background: #f1f3f4;
+            padding: 4px 8px;
+            border-radius: 3px;
+        }
+
+        /* Buttons */
+        .btn {
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 5px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #4a55a2;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3a4482;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #aaa;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            height: 200px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        /* Status Messages */
+        .status {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .status.success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #4caf50;
+        }
+
+        .status.error {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #f44336;
+        }
+
+        .status.warning {
+            background-color: #fff8e1;
+            color: #f57f17;
+            border: 1px solid #ff9800;
+        }
+
+        .status.info {
+            background-color: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #2196f3;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4a55a2;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Add Document Form */
+        .add-document-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        /* Console Log */
+        .console-log {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 2px 5px;
+        }
+
+        .log-info { color: #0277bd; }
+        .log-success { color: #2e7d32; }
+        .log-error { color: #c62828; }
+        .log-warning { color: #f57f17; }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4a55a2;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 20px auto;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Portfolio Admin Dashboard</h1>
+        <p>Manage your portfolio documents and embeddings</p>
+    </div>
+
+    <!-- Configuration Section -->
+    <div class="config-section">
+        <h3>Configuration</h3>
+        <div class="config-grid">
+            <div class="config-item">
+                <label for="supabase-url">Supabase URL:</label>
+                <input type="text" id="supabase-url" placeholder="https://your-project.supabase.co">
+            </div>
+            <div class="config-item">
+                <label for="supabase-key">Supabase Anon Key:</label>
+                <input type="text" id="supabase-key" placeholder="your-anon-key">
+            </div>
+            <div class="config-item">
+                <label for="mistral-key">Mistral API Key:</label>
+                <input type="text" id="mistral-key" placeholder="your-mistral-api-key">
+            </div>
+        </div>
+        <button id="connect-btn" class="btn btn-primary" style="margin-top: 15px;">Connect to Database</button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab active" data-tab="overview">Overview</button>
+        <button class="tab" data-tab="manage">Manage Documents</button>
+        <button class="tab" data-tab="add">Add Documents</button>
+    </div>
+
+    <div class="tab-content">
+        <!-- Overview Tab -->
+        <div id="overview" class="tab-pane active">
+            <h2>Database Overview</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-documents">--</div>
+                    <div class="stat-label">Total Documents</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total-embeddings">--</div>
+                    <div class="stat-label">Total Embeddings</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="last-updated">--</div>
+                    <div class="stat-label">Last Updated</div>
+                </div>
+            </div>
+            <button id="refresh-stats" class="btn btn-primary">Refresh Statistics</button>
+        </div>
+
+        <!-- Manage Documents Tab -->
+        <div id="manage" class="tab-pane">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Manage Documents</h2>
+                <button id="refresh-documents" class="btn btn-primary">Refresh</button>
+            </div>
+
+            <div id="documents-loading" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Loading documents...</p>
+            </div>
+
+            <div class="documents-container">
+                <table class="documents-table" id="documents-table" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Content Preview</th>
+                            <th>Metadata</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="documents-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Add Documents Tab -->
+        <div id="add" class="tab-pane">
+            <h2>Add New Documents</h2>
+
+            <div class="add-document-form">
+                <h3>Add Single Document</h3>
+                <div class="form-group">
+                    <label for="single-content">Content:</label>
+                    <textarea id="single-content" placeholder="Enter document content..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="single-metadata">Metadata (JSON):</label>
+                    <textarea id="single-metadata" placeholder='{"type": "project", "category": "web development"}' style="height: 100px;"></textarea>
+                </div>
+                <button id="add-single-btn" class="btn btn-success">Add Document</button>
+            </div>
+
+            <div class="add-document-form">
+                <h3>Bulk Add Documents</h3>
+                <div class="form-group">
+                    <label for="bulk-data">JSON Data:</label>
+                    <textarea id="bulk-data" placeholder='{
+  "documents": [
+    {
+      "content": "Your document content here...",
+      "metadata": {"type": "project", "category": "web development"}
+    }
+  ]
+}' style="height: 200px;"></textarea>
+                </div>
+                <button id="add-bulk-btn" class="btn btn-success">Add Documents</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Container -->
+    <div id="status-container"></div>
+
+    <!-- Console Log -->
+    <h3>Console Log:</h3>
+    <div id="console-log" class="console-log"></div>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Document</h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="edit-form">
+                <div class="form-group">
+                    <label for="edit-content">Content:</label>
+                    <textarea id="edit-content" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit-metadata">Metadata (JSON):</label>
+                    <textarea id="edit-metadata" style="height: 100px;"></textarea>
+                </div>
+                <div style="text-align: right;">
+                    <button type="button" class="btn btn-secondary" id="cancel-edit">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        // Global variables
+        let supabaseClient = null;
+        let mistralApiKey = null;
+        let currentEditingId = null;
+
+        // DOM Elements
+        const supabaseUrlInput = document.getElementById('supabase-url');
+        const supabaseKeyInput = document.getElementById('supabase-key');
+        const mistralKeyInput = document.getElementById('mistral-key');
+        const connectBtn = document.getElementById('connect-btn');
+        const statusContainer = document.getElementById('status-container');
+        const consoleLogElement = document.getElementById('console-log');
+
+        // Tab elements
+        const tabs = document.querySelectorAll('.tab');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+
+        // Overview elements
+        const totalDocumentsEl = document.getElementById('total-documents');
+        const totalEmbeddingsEl = document.getElementById('total-embeddings');
+        const lastUpdatedEl = document.getElementById('last-updated');
+        const refreshStatsBtn = document.getElementById('refresh-stats');
+
+        // Manage documents elements
+        const documentsTable = document.getElementById('documents-table');
+        const documentsTbody = document.getElementById('documents-tbody');
+        const documentsLoading = document.getElementById('documents-loading');
+        const refreshDocumentsBtn = document.getElementById('refresh-documents');
+
+        // Add documents elements
+        const singleContentInput = document.getElementById('single-content');
+        const singleMetadataInput = document.getElementById('single-metadata');
+        const addSingleBtn = document.getElementById('add-single-btn');
+        const bulkDataInput = document.getElementById('bulk-data');
+        const addBulkBtn = document.getElementById('add-bulk-btn');
+
+        // Modal elements
+        const editModal = document.getElementById('edit-modal');
+        const editForm = document.getElementById('edit-form');
+        const editContentInput = document.getElementById('edit-content');
+        const editMetadataInput = document.getElementById('edit-metadata');
+        const cancelEditBtn = document.getElementById('cancel-edit');
+        const closeModal = document.querySelector('.close');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+            logToConsole('Dashboard initialized', 'info');
+        });
+
+        function initializeEventListeners() {
+            // Tab switching
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+            });
+
+            // Configuration
+            connectBtn.addEventListener('click', connectToDatabase);
+
+            // Overview
+            refreshStatsBtn.addEventListener('click', loadStatistics);
+
+            // Manage documents
+            refreshDocumentsBtn.addEventListener('click', loadDocuments);
+
+            // Add documents
+            addSingleBtn.addEventListener('click', addSingleDocument);
+            addBulkBtn.addEventListener('click', addBulkDocuments);
+
+            // Modal
+            closeModal.addEventListener('click', closeEditModal);
+            cancelEditBtn.addEventListener('click', closeEditModal);
+            editForm.addEventListener('submit', saveEditedDocument);
+
+            // Close modal when clicking outside
+            window.addEventListener('click', (event) => {
+                if (event.target === editModal) {
+                    closeEditModal();
+                }
+            });
+        }
+
+        function switchTab(tabId) {
+            // Update tab buttons
+            tabs.forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.tab === tabId);
+            });
+
+            // Update tab panes
+            tabPanes.forEach(pane => {
+                pane.classList.toggle('active', pane.id === tabId);
+            });
+
+            // Load data for specific tabs
+            if (tabId === 'overview' && supabaseClient) {
+                loadStatistics();
+            } else if (tabId === 'manage' && supabaseClient) {
+                loadDocuments();
+            }
+
+            logToConsole(`Switched to ${tabId} tab`, 'info');
+        }
+
+        async function connectToDatabase() {
+            try {
+                const supabaseUrl = supabaseUrlInput.value.trim();
+                const supabaseKey = supabaseKeyInput.value.trim();
+                mistralApiKey = mistralKeyInput.value.trim();
+
+                if (!supabaseUrl || !supabaseKey || !mistralApiKey) {
+                    showStatus('Please fill in all configuration fields.', 'error');
+                    return;
+                }
+
+                connectBtn.disabled = true;
+                connectBtn.textContent = 'Connecting...';
+
+                logToConsole('Connecting to Supabase...', 'info');
+
+                supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+                // Test connection
+                const { data, error } = await supabaseClient
+                    .from('documents')
+                    .select('count', { count: 'exact', head: true });
+
+                if (error) {
+                    throw new Error(`Connection failed: ${error.message}`);
+                }
+
+                logToConsole('Successfully connected to Supabase!', 'success');
+                showStatus('Successfully connected to database!', 'success');
+
+                // Load initial data
+                loadStatistics();
+
+            } catch (error) {
+                logToConsole(`Connection error: ${error.message}`, 'error');
+                showStatus(`Connection failed: ${error.message}`, 'error');
+                supabaseClient = null;
+            } finally {
+                connectBtn.disabled = false;
+                connectBtn.textContent = 'Connect to Database';
+            }
+        }
+
+        async function loadStatistics() {
+            if (!supabaseClient) return;
+
+            try {
+                logToConsole('Loading statistics...', 'info');
+
+                // Get document count
+                const { count: docCount, error: docError } = await supabaseClient
+                    .from('documents')
+                    .select('*', { count: 'exact', head: true });
+
+                if (docError) throw docError;
+
+                // Get embedding count
+                const { count: embCount, error: embError } = await supabaseClient
+                    .from('embeddings')
+                    .select('*', { count: 'exact', head: true });
+
+                if (embError) throw embError;
+
+                // Get latest document
+                const { data: latestDoc, error: latestError } = await supabaseClient
+                    .from('documents')
+                    .select('created_at')
+                    .order('created_at', { ascending: false })
+                    .limit(1);
+
+                if (latestError) throw latestError;
+
+                // Update UI
+                totalDocumentsEl.textContent = docCount || 0;
+                totalEmbeddingsEl.textContent = embCount || 0;
+
+                if (latestDoc && latestDoc.length > 0) {
+                    const lastUpdate = new Date(latestDoc[0].created_at);
+                    lastUpdatedEl.textContent = lastUpdate.toLocaleDateString();
+                } else {
+                    lastUpdatedEl.textContent = 'Never';
+                }
+
+                logToConsole('Statistics loaded successfully', 'success');
+
+            } catch (error) {
+                logToConsole(`Error loading statistics: ${error.message}`, 'error');
+                showStatus(`Error loading statistics: ${error.message}`, 'error');
+            }
+        }
+
+        async function loadDocuments() {
+            if (!supabaseClient) return;
+
+            try {
+                documentsLoading.style.display = 'block';
+                documentsTable.style.display = 'none';
+
+                logToConsole('Loading documents...', 'info');
+
+                const { data: documents, error } = await supabaseClient
+                    .from('documents')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                // Clear existing rows
+                documentsTbody.innerHTML = '';
+
+                // Add documents to table
+                documents.forEach(doc => {
+                    const row = createDocumentRow(doc);
+                    documentsTbody.appendChild(row);
+                });
+
+                documentsLoading.style.display = 'none';
+                documentsTable.style.display = 'table';
+
+                logToConsole(`Loaded ${documents.length} documents`, 'success');
+
+            } catch (error) {
+                documentsLoading.style.display = 'none';
+                logToConsole(`Error loading documents: ${error.message}`, 'error');
+                showStatus(`Error loading documents: ${error.message}`, 'error');
+            }
+        }
+
+        function createDocumentRow(doc) {
+            const row = document.createElement('tr');
+
+            const contentPreview = doc.content.length > 50
+                ? doc.content.substring(0, 50) + '...'
+                : doc.content;
+
+            const metadataStr = JSON.stringify(doc.metadata || {});
+            const metadataPreview = metadataStr.length > 30
+                ? metadataStr.substring(0, 30) + '...'
+                : metadataStr;
+
+            const createdDate = new Date(doc.created_at).toLocaleDateString();
+
+            row.innerHTML = `
+                <td>${doc.id}</td>
+                <td class="content-preview" title="${doc.content}">${contentPreview}</td>
+                <td class="metadata-preview" title="${metadataStr}">${metadataPreview}</td>
+                <td>${createdDate}</td>
+                <td>
+                    <button class="btn btn-warning" onclick="editDocument(${doc.id})">Edit</button>
+                    <button class="btn btn-danger" onclick="deleteDocument(${doc.id})">Delete</button>
+                </td>
+            `;
+
+            return row;
+        }
+
+        async function editDocument(id) {
+            if (!supabaseClient) return;
+
+            try {
+                logToConsole(`Loading document ${id} for editing...`, 'info');
+
+                const { data: doc, error } = await supabaseClient
+                    .from('documents')
+                    .select('*')
+                    .eq('id', id)
+                    .single();
+
+                if (error) throw error;
+
+                currentEditingId = id;
+                editContentInput.value = doc.content;
+                editMetadataInput.value = JSON.stringify(doc.metadata || {}, null, 2);
+                editModal.style.display = 'block';
+
+                logToConsole(`Document ${id} loaded for editing`, 'success');
+
+            } catch (error) {
+                logToConsole(`Error loading document for editing: ${error.message}`, 'error');
+                showStatus(`Error loading document: ${error.message}`, 'error');
+            }
+        }
+
+        async function saveEditedDocument(event) {
+            event.preventDefault();
+
+            if (!supabaseClient || !currentEditingId) return;
+
+            try {
+                const content = editContentInput.value.trim();
+                const metadataText = editMetadataInput.value.trim();
+
+                if (!content) {
+                    showStatus('Content cannot be empty.', 'error');
+                    return;
+                }
+
+                let metadata = {};
+                if (metadataText) {
+                    try {
+                        metadata = JSON.parse(metadataText);
+                    } catch (e) {
+                        showStatus('Invalid JSON in metadata field.', 'error');
+                        return;
+                    }
+                }
+
+                logToConsole(`Updating document ${currentEditingId}...`, 'info');
+
+                // Update document
+                const { error: updateError } = await supabaseClient
+                    .from('documents')
+                    .update({
+                        content: content,
+                        metadata: metadata
+                    })
+                    .eq('id', currentEditingId);
+
+                if (updateError) throw updateError;
+
+                // Regenerate embedding
+                logToConsole(`Regenerating embedding for document ${currentEditingId}...`, 'info');
+
+                const embedding = await generateMistralEmbedding(content, mistralApiKey);
+
+                // Update embedding
+                const { error: embeddingError } = await supabaseClient
+                    .from('embeddings')
+                    .update({
+                        embedding: embedding
+                    })
+                    .eq('document_id', currentEditingId);
+
+                if (embeddingError) throw embeddingError;
+
+                logToConsole(`Document ${currentEditingId} updated successfully`, 'success');
+                showStatus('Document updated successfully!', 'success');
+
+                closeEditModal();
+                loadDocuments(); // Refresh the table
+                loadStatistics(); // Refresh stats
+
+            } catch (error) {
+                logToConsole(`Error updating document: ${error.message}`, 'error');
+                showStatus(`Error updating document: ${error.message}`, 'error');
+            }
+        }
+
+        function closeEditModal() {
+            editModal.style.display = 'none';
+            currentEditingId = null;
+            editForm.reset();
+        }
+
+        async function deleteDocument(id) {
+            if (!supabaseClient) return;
+
+            if (!confirm(`Are you sure you want to delete document ${id}? This action cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                logToConsole(`Deleting document ${id}...`, 'warning');
+
+                const { error } = await supabaseClient
+                    .from('documents')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                logToConsole(`Document ${id} deleted successfully`, 'success');
+                showStatus('Document deleted successfully!', 'success');
+
+                loadDocuments(); // Refresh the table
+                loadStatistics(); // Refresh stats
+
+            } catch (error) {
+                logToConsole(`Error deleting document: ${error.message}`, 'error');
+                showStatus(`Error deleting document: ${error.message}`, 'error');
+            }
+        }
+
+        async function addSingleDocument() {
+            if (!supabaseClient || !mistralApiKey) {
+                showStatus('Please connect to the database first.', 'error');
+                return;
+            }
+
+            try {
+                const content = singleContentInput.value.trim();
+                const metadataText = singleMetadataInput.value.trim();
+
+                if (!content) {
+                    showStatus('Content cannot be empty.', 'error');
+                    return;
+                }
+
+                let metadata = {};
+                if (metadataText) {
+                    try {
+                        metadata = JSON.parse(metadataText);
+                    } catch (e) {
+                        showStatus('Invalid JSON in metadata field.', 'error');
+                        return;
+                    }
+                }
+
+                addSingleBtn.disabled = true;
+                addSingleBtn.textContent = 'Adding...';
+
+                await processDocument({ content, metadata }, 0, 1, supabaseClient, mistralApiKey, 3);
+
+                showStatus('Document added successfully!', 'success');
+                singleContentInput.value = '';
+                singleMetadataInput.value = '';
+
+                loadStatistics(); // Refresh stats
+
+            } catch (error) {
+                logToConsole(`Error adding document: ${error.message}`, 'error');
+                showStatus(`Error adding document: ${error.message}`, 'error');
+            } finally {
+                addSingleBtn.disabled = false;
+                addSingleBtn.textContent = 'Add Document';
+            }
+        }
+
+        async function addBulkDocuments() {
+            if (!supabaseClient || !mistralApiKey) {
+                showStatus('Please connect to the database first.', 'error');
+                return;
+            }
+
+            try {
+                const dataText = bulkDataInput.value.trim();
+
+                if (!dataText) {
+                    showStatus('Please enter JSON data.', 'error');
+                    return;
+                }
+
+                let data;
+                try {
+                    data = JSON.parse(dataText);
+                    if (!data.documents || !Array.isArray(data.documents)) {
+                        throw new Error('Invalid format. Data should have a "documents" array.');
+                    }
+                } catch (e) {
+                    showStatus(`Invalid JSON format: ${e.message}`, 'error');
+                    return;
+                }
+
+                addBulkBtn.disabled = true;
+                addBulkBtn.textContent = 'Adding...';
+
+                const documents = data.documents;
+                let processedCount = 0;
+                let failedCount = 0;
+
+                showStatus(`Processing ${documents.length} documents...`, 'info');
+
+                // Process documents with rate limiting
+                const batchSize = 3;
+                const batchDelay = 5000;
+
+                for (let i = 0; i < documents.length; i += batchSize) {
+                    const batch = documents.slice(i, i + batchSize);
+
+                    const batchPromises = batch.map(async (doc, index) => {
+                        const docIndex = i + index;
+                        try {
+                            await processDocument(doc, docIndex, documents.length, supabaseClient, mistralApiKey, 3);
+                            processedCount++;
+                            return true;
+                        } catch (error) {
+                            failedCount++;
+                            return false;
+                        }
+                    });
+
+                    await Promise.all(batchPromises);
+
+                    if (i + batchSize < documents.length) {
+                        logToConsole(`Waiting ${batchDelay/1000} seconds before next batch...`, 'warning');
+                        await new Promise(resolve => setTimeout(resolve, batchDelay));
+                    }
+                }
+
+                const statusMessage = `Processing complete. Successfully processed ${processedCount} documents. Failed: ${failedCount}.`;
+                if (failedCount > 0) {
+                    showStatus(statusMessage, 'warning');
+                } else {
+                    showStatus(statusMessage, 'success');
+                    bulkDataInput.value = '';
+                }
+
+                loadStatistics(); // Refresh stats
+
+            } catch (error) {
+                logToConsole(`Error adding bulk documents: ${error.message}`, 'error');
+                showStatus(`Error adding bulk documents: ${error.message}`, 'error');
+            } finally {
+                addBulkBtn.disabled = false;
+                addBulkBtn.textContent = 'Add Documents';
+            }
+        }
+
+        async function processDocument(doc, index, total, supabaseClient, mistralKey, maxRetries) {
+            logToConsole(`Processing document ${index+1}/${total}: "${doc.content.substring(0, 30)}..."`);
+
+            // Insert document into Supabase
+            const { data: documentData, error: documentError } = await supabaseClient
+                .from('documents')
+                .insert({
+                    content: doc.content,
+                    metadata: doc.metadata || {}
+                })
+                .select()
+                .single();
+
+            if (documentError) {
+                throw new Error(`Failed to insert document: ${documentError.message}`);
+            }
+
+            logToConsole(`Document ${index+1} inserted with ID: ${documentData.id}`, 'success');
+
+            // Generate embedding with retry logic
+            let embedding;
+            let retryCount = 0;
+            let success = false;
+
+            while (!success && retryCount <= maxRetries) {
+                try {
+                    if (retryCount > 0) {
+                        const waitTime = Math.pow(2, retryCount) * 1000;
+                        logToConsole(`Retry ${retryCount}/${maxRetries} for document ${index+1} after ${waitTime/1000}s wait...`, 'warning');
+                        await new Promise(resolve => setTimeout(resolve, waitTime));
+                    }
+
+                    embedding = await generateMistralEmbedding(doc.content, mistralKey);
+                    success = true;
+
+                } catch (error) {
+                    retryCount++;
+                    if (retryCount > maxRetries) {
+                        throw error;
+                    }
+                }
+            }
+
+            // Insert embedding
+            const { error: embeddingError } = await supabaseClient
+                .from('embeddings')
+                .insert({
+                    document_id: documentData.id,
+                    embedding: embedding
+                });
+
+            if (embeddingError) {
+                throw new Error(`Failed to store embedding: ${embeddingError.message}`);
+            }
+
+            logToConsole(`Document ${index+1} fully processed and stored.`, 'success');
+        }
+
+        async function generateMistralEmbedding(text, apiKey) {
+            const response = await fetch('https://api.mistral.ai/v1/embeddings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: "mistral-embed",
+                    input: text
+                })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                let errorMessage = `Mistral API returned status: ${response.status}`;
+
+                try {
+                    const errorData = JSON.parse(errorText);
+                    errorMessage = `Mistral API Error (${response.status}): ${errorData.error?.message || response.statusText}`;
+                } catch (e) {
+                    errorMessage = `Mistral API Error: Status ${response.status}`;
+                }
+
+                throw new Error(errorMessage);
+            }
+
+            const data = await response.json();
+            return data.data[0].embedding;
+        }
+
+        function showStatus(message, type) {
+            statusContainer.innerHTML = `<div class="status ${type}">${message}</div>`;
+            setTimeout(() => {
+                statusContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        function logToConsole(message, type = 'info') {
+            console.log(message);
+
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            consoleLogElement.appendChild(logEntry);
+            consoleLogElement.scrollTop = consoleLogElement.scrollHeight;
+        }
+
+        // Make functions globally available for onclick handlers
+        window.editDocument = editDocument;
+        window.deleteDocument = deleteDocument;
+    </script>
+</body>
+</html>
