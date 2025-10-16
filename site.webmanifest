@@ -1,0 +1,25 @@
+{
+    "name": "Tapas Kumar Patra - Senior Automation Engineer",
+    "short_name": "Tapas Patra",
+    "description": "Portfolio of Tapas Kumar Patra - Senior Automation Engineer & Backend Developer",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#f5f6fa",
+    "theme_color": "#4a6bff",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "categories": ["portfolio", "developer", "automation"],
+    "lang": "en-US",
+    "dir": "ltr"
+}

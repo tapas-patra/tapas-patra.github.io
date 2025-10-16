@@ -1,0 +1,11 @@
+# robots.txt for https://tapas-patra.github.io
+User-agent: *
+Allow: /
+Allow: /images/
+Allow: /bot.html
+
+Disallow: /admin/
+Disallow: /*.json$
+
+# Sitemaps
+Sitemap: https://tapas-patra.github.io/sitemap.xml
