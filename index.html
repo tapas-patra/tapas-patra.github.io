@@ -55,9 +55,9 @@
     <meta name="ICBM" content="12.9716, 77.5946">
 
     <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
 
     <!-- Preconnect for Performance -->
@@ -1184,75 +1184,543 @@
         }
 
         /* Contact Section */
-        .contact-container {
+        /* ============================================
+           CONTACT SECTION REPLACEMENT STYLES
+           ============================================ */
+
+        .contact-replacement-container {
+            max-width: 1400px;
+            margin: 0 auto;
             display: flex;
-            gap: 50px;
+            gap: 40px;
+            align-items: flex-start;
         }
 
-        .contact-info, .contact-form {
+        /* Humorous Explanation Section */
+        .contact-explanation {
             flex: 1;
+            background: linear-gradient(135deg, rgba(74, 107, 255, 0.05), rgba(51, 217, 178, 0.05));
+            border: 2px dashed var(--primary);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            height: fit-content;
         }
 
-        .contact-info-item {
-            display: flex;
-            align-items: center;
+        .explanation-emoji {
+            font-size: 48px;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .explanation-title {
+            font-size: 26px;
+            color: var(--primary);
+            margin-bottom: 25px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .explanation-imagination {
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+
+        .explanation-imagination p {
+            color: var(--text-dark);
+            opacity: 0.7;
+            font-size: 15px;
+            margin: 5px 0;
+        }
+
+        .explanation-reality {
             margin-bottom: 30px;
         }
 
-        .contact-icon {
-            width: 50px;
-            height: 50px;
-            background-color: var(--primary);
+        .reality-intro {
+            font-size: 17px;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+        }
+
+        .problem-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .problem-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            text-align: left;
+            transition: var(--transition);
+            font-size: 14px;
+        }
+
+        .problem-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .problem-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .explanation-pitch {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .pitch-header {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 18px;
+        }
+
+        .pitch-chain {
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            padding: 18px;
+            background: linear-gradient(135deg, rgba(74, 107, 255, 0.1), rgba(51, 217, 178, 0.1));
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .pitch-benefits {
+            text-align: left;
+        }
+
+        .pitch-benefits p {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-dark);
+            font-size: 15px;
+        }
+
+        .pitch-benefits ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .pitch-benefits li {
+            padding: 6px 0;
+            color: var(--text-dark);
+            font-size: 14px;
+        }
+
+        .explanation-closer {
+            margin-top: 30px;
+            font-size: 17px;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        /* Modern Contact Card */
+        .modern-contact-card {
+            flex: 0 0 450px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
-            border-radius: 50%;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .card-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .card-header h3 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+
+        .card-body {
+            padding: 35px;
+        }
+
+        .contact-item {
+            margin-bottom: 30px;
+        }
+
+        .contact-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .contact-label i {
+            font-size: 16px;
+        }
+
+        .contact-value {
+            font-size: 18px;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+            font-weight: 500;
+            word-break: break-all;
+        }
+
+        .contact-meta {
+            font-size: 14px;
+            color: var(--secondary);
+            font-weight: 500;
+        }
+
+        .contact-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: 2px solid var(--primary);
+            background: transparent;
+            color: var(--primary);
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            font-family: inherit;
+        }
+
+        .action-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 107, 255, 0.3);
+        }
+
+        .action-btn i {
+            font-size: 14px;
+        }
+
+        .action-btn.copied {
+            background: var(--secondary);
+            border-color: var(--secondary);
+            color: white;
+        }
+
+        .send-btn:hover, .call-btn:hover {
+            background: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .contact-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.1), transparent);
+            margin: 35px 0;
+        }
+
+        .download-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .download-btn {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            margin-right: 20px;
-        }
-
-        .contact-details h3 {
-            font-size: 18px;
-            margin-bottom: 5px;
-        }
-
-        .contact-form form {
-            background-color: var(--light);
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 10px 20px var(--shadow);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
+            gap: 10px;
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-size: 15px;
             font-weight: 600;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 12px 15px;
-            background-color: var(--light);
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
-            font-size: 16px;
+            cursor: pointer;
             transition: var(--transition);
+            text-decoration: none;
+            border: none;
+            font-family: inherit;
         }
 
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary);
+        .primary-download {
+            background: var(--primary);
+            color: white;
         }
 
-        textarea.form-input {
-            min-height: 150px;
-            resize: vertical;
+        .primary-download:hover {
+            background: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(74, 107, 255, 0.3);
         }
+
+        .secondary-download {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .secondary-download:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .social-section {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .social-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--light);
+            color: var(--text-dark);
+            font-size: 18px;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .social-link:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .social-link.linkedin:hover {
+            background: #0077b5;
+            color: white;
+        }
+
+        .social-link.github:hover {
+            background: #333;
+            color: white;
+        }
+
+        .social-link.instagram:hover {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            color: white;
+        }
+
+        .response-time {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            background: rgba(51, 217, 178, 0.1);
+            border-radius: 8px;
+            color: var(--secondary);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .response-time i {
+            font-size: 16px;
+        }
+
+        /* Dark Mode Adjustments */
+        .dark-mode .contact-explanation {
+            background: linear-gradient(135deg, rgba(108, 92, 231, 0.1), rgba(0, 184, 148, 0.1));
+        }
+
+        .dark-mode .problem-item {
+            background: var(--light);
+        }
+
+        .dark-mode .explanation-pitch {
+            background: var(--light);
+        }
+
+        .dark-mode .modern-contact-card {
+            background: var(--light);
+        }
+
+        .dark-mode .secondary-download {
+            background: var(--light);
+        }
+
+        .dark-mode .social-link {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-dark);
+        }
+
+        /* Responsive Design */
+
+        /* Tablet and smaller - Stack vertically */
+        @media screen and (max-width: 992px) {
+            .contact-replacement-container {
+                flex-direction: column;
+                gap: 40px;
+            }
+
+            .modern-contact-card {
+                flex: 1;
+                width: 100%;
+                max-width: 600px;
+                margin: 0 auto;
+                position: static;
+            }
+
+            .contact-explanation {
+                width: 100%;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .contact-replacement-container {
+                gap: 30px;
+            }
+
+            .contact-explanation {
+                padding: 30px 20px;
+            }
+
+            .explanation-title {
+                font-size: 22px;
+            }
+
+            .explanation-imagination p {
+                font-size: 14px;
+            }
+
+            .reality-intro {
+                font-size: 16px;
+            }
+
+            .problem-item {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+
+            .pitch-header {
+                font-size: 18px;
+            }
+
+            .pitch-chain {
+                font-size: 15px;
+                padding: 15px;
+            }
+
+            .pitch-benefits {
+                font-size: 14px;
+            }
+
+            .explanation-closer {
+                font-size: 16px;
+            }
+
+            .card-header {
+                padding: 25px 20px;
+            }
+
+            .card-icon {
+                font-size: 36px;
+            }
+
+            .card-header h3 {
+                font-size: 20px;
+            }
+
+            .card-body {
+                padding: 25px 20px;
+            }
+
+            .contact-value {
+                font-size: 16px;
+            }
+
+            .download-section {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-actions {
+                flex-direction: column;
+            }
+
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media screen and (max-width: 576px) {
+            .explanation-emoji {
+                font-size: 36px;
+            }
+
+            .explanation-title {
+                font-size: 20px;
+            }
+
+            .problem-item {
+                font-size: 13px;
+            }
+
+            .pitch-chain {
+                font-size: 14px;
+            }
+
+            .contact-value {
+                font-size: 15px;
+                word-break: break-word;
+            }
+
+            .download-btn {
+                font-size: 14px;
+                padding: 12px 16px;
+            }
+        }
+
+        /* Copy Animation */
+        @keyframes copySuccess {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .action-btn.copying {
+            animation: copySuccess 0.3s ease;
+        }
+
+
 
         /* Footer */
         footer {
@@ -2553,7 +3021,7 @@
                         <div class="education-degree">Bachelor of Computer Applications</div>
                         <div class="education-institution">N.C. College</div>
                         <div class="education-details">Completed: September 2021</div>
-                        <div class="education-details">CGPA: 7.09</div>
+                        <div class="education-details">CGPA: 6.74</div>
                     </div>
 
                     <div class="education-card" data-aos="fade-up" data-aos-delay="200">
@@ -2750,73 +3218,155 @@
         <section id="contact">
             <div class="container">
                 <h2 class="section-title" data-aos="fade-up">Get In Touch</h2>
-                <div class="contact-container">
-                    <div class="contact-info" data-aos="fade-right" data-aos-duration="1000">
-                        <div class="contact-info-item">
-                            <div class="contact-icon">
-                                <i class="fas fa-map-marker-alt"></i>
-                            </div>
-                            <div class="contact-details">
-                                <h3>Location</h3>
-                                <p>Bengaluru, India</p>
+
+                <div class="contact-replacement-container" data-aos="fade-up" data-aos-duration="1000">
+                    <!-- Humorous Explanation -->
+                    <div class="contact-explanation">
+                        <div class="explanation-emoji">🎪</div>
+                        <h3 class="explanation-title">The Contact Form That Could've Been</h3>
+
+                        <div class="explanation-imagination">
+                            <p><em>*Imagine a beautiful contact form here*</em></p>
+                            <p><em>*With smooth animations and real-time validation*</em></p>
+                            <p><em>*Maybe even a fancy captcha*</em></p>
+                            <p><em>*Progressive enhancement, accessibility compliant*</em></p>
+                            <p><em>*The works.*</em></p>
+                        </div>
+
+                        <div class="explanation-reality">
+                            <p class="reality-intro">Well, I <strong>CAN</strong> build it. But here's the thing:</p>
+
+                            <div class="problem-list">
+                                <div class="problem-item">
+                                    <span class="problem-icon">🔐</span>
+                                    <span>Public GitHub repo + API keys = Bad time</span>
+                                </div>
+                                <div class="problem-item">
+                                    <span class="problem-icon">📧</span>
+                                    <span>Free hosting + Email server = Not happening</span>
+                                </div>
+                                <div class="problem-item">
+                                    <span class="problem-icon">🚨</span>
+                                    <span>Security best practices + Static site = You see the problem</span>
+                                </div>
+                                <div class="problem-item">
+                                    <span class="problem-icon">💸</span>
+                                    <span>Third-party services + Free tiers = Why though?</span>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="contact-info-item">
-                            <div class="contact-icon">
-                                <i class="fas fa-envelope"></i>
+                        <div class="explanation-pitch">
+                            <div class="pitch-header">💡 HERE'S AN IDEA:</div>
+
+                            <div class="pitch-chain">
+                                Hire me → I get paid → I upgrade to proper hosting →
+                                You get that fancy contact form (and way more) →
+                                Everyone wins! 🎉
                             </div>
-                            <div class="contact-details">
-                                <h3>Email</h3>
-                                <p><a href="mailto:tapas.patra0406@gmail.com" style="text-decoration: none; color: inherit;">tapas.patra0406@gmail.com</a></p>
+
+                            <div class="pitch-benefits">
+                                <p>I'll finally have the budget to add:</p>
+                                <ul>
+                                    <li>✅ Secure backend with proper authentication</li>
+                                    <li>✅ Real-time notifications (WebSockets, baby!)</li>
+                                    <li>✅ Maybe even a chatbot (I've been wanting to try that)</li>
+                                    <li>✅ All the enterprise-grade bells and whistles</li>
+                                </ul>
                             </div>
                         </div>
 
-                        <div class="contact-info-item">
-                            <div class="contact-icon">
-                                <i class="fas fa-phone-alt"></i>
-                            </div>
-                            <div class="contact-details">
-                                <h3>Phone</h3>
-                                <p><a href="tel:+918249124954" style="text-decoration: none; color: inherit;">+91 8249124954</a></p>
-                            </div>
-                        </div>
-
-                        <div class="contact-info-item">
-                            <div class="contact-icon">
-                                <i class="fas fa-globe"></i>
-                            </div>
-                            <div class="contact-details">
-                                <h3>Portfolio</h3>
-                                <p>https://tapas-patra.github.io</p>
-                            </div>
+                        <div class="explanation-closer">
+                            <p>🤝 Until then, let's keep it simple like it's 1999:</p>
                         </div>
                     </div>
 
-                    <div class="contact-form" data-aos="fade-left" data-aos-duration="1000">
-                        <form>
-                            <div class="form-group">
-                                <label for="name">Name</label>
-                                <input type="text" id="name" class="form-input" placeholder="Your Name">
+                    <!-- Contact Card -->
+                    <div class="modern-contact-card">
+                        <div class="card-header">
+                            <div class="card-icon">📬</div>
+                            <h3>LET'S CONNECT</h3>
+                        </div>
+
+                        <div class="card-body">
+                            <!-- Email -->
+                            <div class="contact-item">
+                                <div class="contact-label">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>Email</span>
+                                </div>
+                                <div class="contact-value">tapas.patra0406@gmail.com</div>
+                                <div class="contact-actions">
+                                    <button class="action-btn copy-btn" onclick="copyToClipboard('tapas.patra0406@gmail.com', this)" title="Copy Email">
+                                        <i class="fas fa-copy"></i> Copy
+                                    </button>
+                                    <a href="mailto:tapas.patra0406@gmail.com" class="action-btn send-btn" title="Send Email">
+                                        <i class="fas fa-paper-plane"></i> Send
+                                    </a>
+                                </div>
                             </div>
 
-                            <div class="form-group">
-                                <label for="email">Email</label>
-                                <input type="email" id="email" class="form-input" placeholder="Your Email">
+                            <!-- Phone -->
+                            <div class="contact-item">
+                                <div class="contact-label">
+                                    <i class="fas fa-phone-alt"></i>
+                                    <span>Phone</span>
+                                </div>
+                                <div class="contact-value">+91 8249124954</div>
+                                <div class="contact-actions">
+                                    <button class="action-btn copy-btn" onclick="copyToClipboard('+91 8249124954', this)" title="Copy Number">
+                                        <i class="fas fa-copy"></i> Copy
+                                    </button>
+                                    <a href="tel:+918249124954" class="action-btn call-btn" title="Call Now">
+                                        <i class="fas fa-phone"></i> Call
+                                    </a>
+                                </div>
                             </div>
 
-                            <div class="form-group">
-                                <label for="subject">Subject</label>
-                                <input type="text" id="subject" class="form-input" placeholder="Subject">
+                            <!-- Location -->
+                            <div class="contact-item">
+                                <div class="contact-label">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>Location</span>
+                                </div>
+                                <div class="contact-value">Bengaluru, India</div>
+                                <div class="contact-meta">🌍 Remote-friendly</div>
                             </div>
 
-                            <div class="form-group">
-                                <label for="message">Message</label>
-                                <textarea id="message" class="form-input" placeholder="Your Message"></textarea>
+                            <!-- Divider -->
+                            <div class="contact-divider"></div>
+
+                            <!-- Download Buttons -->
+                            <div class="download-section">
+                                <a href="myresume.pdf" class="download-btn primary-download" download="Tapas_Kumar_Patra_Resume.pdf">
+                                    <i class="fas fa-file-pdf"></i>
+                                    <span>Download Resume</span>
+                                </a>
+                                <button class="download-btn secondary-download" onclick="downloadVCard()" title="Save Contact">
+                                    <i class="fas fa-address-card"></i>
+                                    <span>Save Contact</span>
+                                </button>
                             </div>
 
-                            <button type="submit" class="btn">Send Message</button>
-                        </form>
+                            <!-- Social Links -->
+                            <div class="social-section">
+                                <a href="https://www.linkedin.com/in/tapas-kumar-patra" target="_blank" class="social-link linkedin" title="LinkedIn">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                                <a href="https://github.com/tapas-patra" target="_blank" class="social-link github" title="GitHub">
+                                    <i class="fab fa-github"></i>
+                                </a>
+                                <a href="https://www.instagram.com/tapaspatra.dev" target="_blank" class="social-link instagram" title="Instagram">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                            </div>
+
+                            <!-- Response Time -->
+                            <div class="response-time">
+                                <i class="fas fa-clock"></i>
+                                <span>Usually replies within 24 hours</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2965,7 +3515,7 @@
         // Set last updated date with typing effect
         document.addEventListener('DOMContentLoaded', function() {
             const lastUpdatedElement = document.getElementById('last-updated-text');
-            const lastUpdatedDate = 'October 16, 2025';
+            const lastUpdatedDate = 'October 17, 2025';
 
             setTimeout(() => {
                 typeText(lastUpdatedElement, lastUpdatedDate, 80);
@@ -3125,14 +3675,88 @@
         });
 
         // Form Submission
-        const contactForm = document.querySelector('.contact-form form');
-        if (contactForm) {
-            contactForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                alert('Thank you for your message! This is a demo form, so no message was sent.');
-                contactForm.reset();
-            });
-        }
+        // ============================================
+// CONTACT SECTION FUNCTIONALITY
+// ============================================
+
+/**
+ * Copy text to clipboard with visual feedback
+ */
+function copyToClipboard(text, button) {
+    // Create temporary textarea
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+
+    // Select and copy
+    textarea.select();
+    textarea.setSelectionRange(0, 99999); // For mobile devices
+
+    try {
+        document.execCommand('copy');
+
+        // Visual feedback
+        const originalHTML = button.innerHTML;
+        const originalClass = button.className;
+
+        button.classList.add('copied', 'copying');
+        button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+
+        // Reset after 2 seconds
+        setTimeout(() => {
+            button.className = originalClass;
+            button.innerHTML = originalHTML;
+        }, 2000);
+
+    } catch (err) {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy. Please copy manually: ' + text);
+    }
+
+    // Clean up
+    document.body.removeChild(textarea);
+}
+
+/**
+ * Generate and download vCard for contact
+ */
+function downloadVCard() {
+    const vCardData = `BEGIN:VCARD
+VERSION:3.0
+FN:Tapas Kumar Patra
+N:Patra;Tapas;Kumar;;
+TITLE:Senior Automation Engineer
+ORG:Wipro Technologies
+EMAIL;TYPE=INTERNET:tapas.patra0406@gmail.com
+TEL;TYPE=CELL:+918249124954
+ADR;TYPE=WORK:;;Bengaluru;Karnataka;;India
+URL:https://tapas-patra.github.io
+URL;TYPE=LinkedIn:https://www.linkedin.com/in/tapas-kumar-patra
+URL;TYPE=GitHub:https://github.com/tapas-patra
+NOTE:Senior Automation Engineer & Backend Developer with 4 years of experience. Expert in Python, FastAPI, Django, Test Automation, and AI/ML.
+END:VCARD`;
+
+    // Create blob and download
+    const blob = new Blob([vCardData], { type: 'text/vcard;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'Tapas_Kumar_Patra_Contact.vcf';
+
+    // Trigger download
+    document.body.appendChild(link);
+    link.click();
+
+    // Clean up
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    // Optional: Show success message
+    console.log('vCard downloaded successfully!');
+}
+
 
         // Mode Toggle (UI / CLI)
         const uiToCliBtn = document.getElementById('ui-to-cli-btn');
