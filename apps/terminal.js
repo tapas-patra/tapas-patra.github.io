@@ -102,7 +102,7 @@ measurable impact, and shipping fast.
       contact: () => `\x1b[1mContact\x1b[0m
   \x1b[36mEmail:\x1b[0m     tapas.patra0406@gmail.com
   \x1b[36mGitHub:\x1b[0m    github.com/tapas-patra
-  \x1b[36mLinkedIn:\x1b[0m  linkedin.com/in/tapas-patra
+  \x1b[36mLinkedIn:\x1b[0m  www.linkedin.com/in/tapas-kumar-patra/
   \x1b[36mLocation:\x1b[0m  Bengaluru, India (IST, UTC+5:30)`,
     };
 

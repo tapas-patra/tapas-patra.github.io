@@ -3,7 +3,7 @@
 const CONTACT_METHODS = [
   { type: 'email',    icon: '\u2709\uFE0F', label: 'Email',    value: 'tapas.patra0406@gmail.com', href: 'mailto:tapas.patra0406@gmail.com?subject=Reaching%20out%20from%20TapasOS' },
   { type: 'github',   icon: '\uD83D\uDC31', label: 'GitHub',   value: 'github.com/tapas-patra',    href: 'https://github.com/tapas-patra' },
-  { type: 'linkedin', icon: '\uD83D\uDD17', label: 'LinkedIn', value: 'linkedin.com/in/tapas-patra', href: 'https://linkedin.com/in/tapas-patra' },
+  { type: 'linkedin', icon: '\uD83D\uDD17', label: 'LinkedIn', value: 'www.linkedin.com/in/tapas-kumar-patra/', href: 'https://www.linkedin.com/in/tapas-kumar-patra/' },
 ];
 
 export function init(container) {
@@ -58,7 +58,7 @@ export function init(container) {
                   <span class="contact-action-label">Send Email</span>
                   <span class="contact-action-desc">Opens your email client</span>
                 </a>
-                <a class="contact-action-card" href="https://linkedin.com/in/tapas-patra" target="_blank" rel="noopener">
+                <a class="contact-action-card" href="https://www.linkedin.com/in/tapas-kumar-patra/" target="_blank" rel="noopener">
                   <span class="contact-action-icon">\uD83D\uDD17</span>
                   <span class="contact-action-label">Connect on LinkedIn</span>
                   <span class="contact-action-desc">Professional profile</span>
