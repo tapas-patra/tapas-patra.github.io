@@ -1,6 +1,6 @@
 // TapasOS Service Worker — Cache-first for static, network-first for data
 
-const CACHE_NAME = 'tapasos-v3';
+const CACHE_NAME = 'tapasos-v4';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

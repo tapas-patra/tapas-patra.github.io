@@ -69,7 +69,7 @@
   <div id="context-menu"></div>
 
   <!-- Mobile Redirect -->
-  <div id="mobile-banner" style="display:none;position:fixed;inset:0;z-index:20000;background:var(--bg-deep);color:var(--text-primary);font-family:'DM Sans',sans-serif;"></div>
+  <div id="mobile-banner" style="position:fixed;inset:0;z-index:20000;background:var(--bg-deep);color:var(--text-primary);font-family:'DM Sans',sans-serif;"></div>
 
   <!-- Main Script -->
   <script type="module">
@@ -78,18 +78,21 @@
     import { initDesktop, openDefaults } from './os/desktop.js';
     import { initAdmin } from './os/admin.js';
 
-    // Mobile detection — < 768px shows mobile layout
-    if (window.innerWidth < 768) {
-      document.getElementById('boot-screen').style.display = 'none';
-      document.getElementById('menubar').style.display = 'none';
-      document.getElementById('desktop').style.display = 'none';
-      document.getElementById('dock').style.display = 'none';
+    const mobileQuery = window.matchMedia('(max-width: 767px)');
+    let desktopInitialized = false;
+    let mobileInitialized = false;
+
+    async function activateMobile() {
+      if (mobileInitialized) return;
+      mobileInitialized = true;
       const banner = document.getElementById('mobile-banner');
-      banner.style.display = 'block';
       const { initMobileApp } = await import('./mobile/nav.js');
       initMobileApp(banner);
-    } else {
-      // Desktop boot sequence
+    }
+
+    async function activateDesktop() {
+      if (desktopInitialized) return;
+      desktopInitialized = true;
       initMenubar();
       initDesktop();
       initAdmin();
@@ -97,9 +100,25 @@
       openDefaults();
     }
 
+    // Initial load
+    if (mobileQuery.matches) {
+      await activateMobile();
+    } else {
+      await activateDesktop();
+    }
+
+    // Handle viewport changes (DevTools responsive mode, orientation)
+    mobileQuery.addEventListener('change', async (e) => {
+      if (e.matches) {
+        await activateMobile();
+      } else {
+        await activateDesktop();
+      }
+    });
+
     // Register Service Worker (with version bust)
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js?v=3').catch(() => {});
+      navigator.serviceWorker.register('/sw.js?v=4').catch(() => {});
     }
   </script>
 </body>
