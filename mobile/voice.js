@@ -24,6 +24,8 @@ let boundarySupported = null; // null=unknown, true/false after first utterance
 
 // Orb reactive animation
 let orbPulseTimer = null;
+let orbVibrateId = null;
+let vibrateIntensity = 0;  // 0 = gentle tremble, 1 = full voice kick
 
 export function initVoice(container) {
   detectSTTTier();
@@ -268,6 +270,7 @@ function speakText(text) {
   isSpeaking = true;
   setOrbState('speaking');
   setStatus('Speaking...');
+  startVibrationLoop();
 
   // Build subtitle word spans
   const allWords = text.split(/\s+/).filter(w => w.length > 0);
@@ -393,51 +396,75 @@ function highlightWord(idx) {
 }
 
 // ── Reactive Orb Animation ──
-// Random wavy border-radius generator
-function randBlob() {
-  const r = () => Math.floor(35 + Math.random() * 30); // 35-65%
-  return `${r()}% ${100-r()}% ${r()}% ${100-r()}% / ${r()}% ${r()}% ${100-r()}% ${100-r()}%`;
+
+// Generate a random wavy border-radius
+// spread: how wild the deformation is (0 = subtle, 1 = extreme)
+function randBlob(spread = 0.5) {
+  const base = 50;
+  const range = 15 + spread * 25; // 15-40% deviation from circle
+  const r = () => Math.floor(base - range + Math.random() * range * 2);
+  return `${r()}% ${r()}% ${r()}% ${r()}% / ${r()}% ${r()}% ${r()}% ${r()}%`;
 }
 
-function pulseOrb() {
-  const inner = document.getElementById('voice-orb-inner');
-  const rings = document.querySelectorAll('.voice-orb-ring');
-  if (!inner) return;
+// Continuous vibration loop — runs every frame while speaking
+function startVibrationLoop() {
+  if (orbVibrateId) return; // already running
 
-  // Random intensity per beat
-  const intensity = 0.8 + Math.random() * 0.5; // 0.8 - 1.3
-  const scale = 1 + (intensity - 0.8) * 0.4;   // 1.0 - 1.2
-  const glow = Math.floor(30 + intensity * 40);  // 30 - 82
+  function vibrate() {
+    if (!isSpeaking) { orbVibrateId = null; return; }
 
-  inner.style.transform = `scale(${scale})`;
-  inner.style.boxShadow = `0 0 ${glow}px rgba(0,229,255,${0.3 + intensity * 0.2}), 0 0 ${glow * 1.5}px rgba(124,58,237,${0.1 + intensity * 0.1})`;
-  inner.style.borderRadius = randBlob();
+    const inner = document.getElementById('voice-orb-inner');
+    const rings = document.querySelectorAll('.voice-orb-ring');
+    if (!inner) { orbVibrateId = null; return; }
 
-  // Pulse rings with slight random variation + wavy shape
-  rings.forEach((ring, i) => {
-    const ringScale = 1 + (intensity - 0.8) * (0.3 - i * 0.08);
-    ring.style.transform = `scale(${ringScale})`;
-    ring.style.opacity = `${0.3 + intensity * 0.2 - i * 0.08}`;
-    ring.style.borderRadius = randBlob();
-  });
+    // Decay intensity toward baseline tremble
+    vibrateIntensity = Math.max(0, vibrateIntensity - 0.04);
 
-  // Return to baseline
-  clearTimeout(orbPulseTimer);
-  orbPulseTimer = setTimeout(() => {
-    if (!isSpeaking) return;
-    inner.style.transform = 'scale(1)';
-    inner.style.boxShadow = '0 0 30px rgba(0,229,255,0.3), 0 0 60px rgba(124,58,237,0.15)';
-    // Let CSS animation handle the border-radius morph
-    inner.style.borderRadius = '';
+    // Base tremble (always active) + intensity spike from word beats
+    const tremble = 0.15 + vibrateIntensity * 0.85; // 0.15 baseline, up to 1.0
+
+    // Core deformation
+    const spread = tremble;
+    const scale = 1 + tremble * 0.2;
+    const glow = Math.floor(25 + tremble * 60);
+    const rotate = (Math.random() - 0.5) * tremble * 6; // slight wobble rotation
+
+    inner.style.borderRadius = randBlob(spread);
+    inner.style.transform = `scale(${scale}) rotate(${rotate}deg)`;
+    inner.style.boxShadow = `0 0 ${glow}px rgba(0,229,255,${0.25 + tremble * 0.3}), 0 0 ${glow * 1.6}px rgba(124,58,237,${0.08 + tremble * 0.15})`;
+
+    // Rings follow with dampened intensity
     rings.forEach((ring, i) => {
-      ring.style.transform = 'scale(1)';
-      ring.style.opacity = `${0.4 - i * 0.1}`;
-      ring.style.borderRadius = '';
+      const ringTremble = tremble * (0.7 - i * 0.15);
+      const ringScale = 1 + ringTremble * 0.15;
+      ring.style.borderRadius = randBlob(ringTremble);
+      ring.style.transform = `scale(${ringScale})`;
+      ring.style.opacity = `${0.2 + ringTremble * 0.4}`;
     });
-  }, 180);
+
+    orbVibrateId = requestAnimationFrame(vibrate);
+  }
+
+  orbVibrateId = requestAnimationFrame(vibrate);
+}
+
+function stopVibrationLoop() {
+  if (orbVibrateId) {
+    cancelAnimationFrame(orbVibrateId);
+    orbVibrateId = null;
+  }
+  vibrateIntensity = 0;
+}
+
+// Called on each word boundary — spikes the vibration intensity
+function pulseOrb() {
+  vibrateIntensity = 0.6 + Math.random() * 0.4; // spike to 0.6-1.0
+  // Start loop if not already running
+  if (!orbVibrateId && isSpeaking) startVibrationLoop();
 }
 
 function resetOrbPulse() {
+  stopVibrationLoop();
   clearTimeout(orbPulseTimer);
   const inner = document.getElementById('voice-orb-inner');
   if (inner) {
@@ -687,13 +714,14 @@ function injectStyles() {
       50% { transform:scale(1.08); }
     }
 
-    /* Speaking — JS-driven reactive animation, base morph continues */
+    /* Speaking — fully JS-driven vibration, disable CSS animations */
     .orb-speaking .voice-orb-inner {
-      box-shadow:0 0 30px rgba(0,229,255,0.3), 0 0 60px rgba(124,58,237,0.15);
-      animation:blobMorph 4s ease-in-out infinite;
+      animation:none;
+      transition:none;
     }
     .orb-speaking .voice-orb-ring {
-      /* Rings keep wavy shape but no ripple — JS drives scale/opacity */
+      animation:none;
+      transition:none;
     }
 
     /* Subtitle area */
