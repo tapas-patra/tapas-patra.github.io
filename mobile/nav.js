@@ -74,7 +74,7 @@ async function renderAbout(container) {
       <div class="mobile-page-header">
         <div style="font-size:48px;">👤</div>
         <div class="mobile-page-title">Tapas Kumar Patra</div>
-        <div class="mobile-page-sub">Senior Software Engineer</div>
+        <div class="mobile-page-sub">SDET II at Setu by Pine Labs</div>
         <div class="mobile-page-loc">Bengaluru, India</div>
       </div>
       <div class="mobile-section">

@@ -30,7 +30,7 @@ export function initVoice(container) {
       <div class="voice-content">
         <div class="voice-identity">
           <div class="voice-name">Tapas Kumar Patra</div>
-          <div class="voice-title">Senior Software Engineer</div>
+          <div class="voice-title">SDET II at Setu by Pine Labs</div>
         </div>
 
         <div class="voice-orb-area">
@@ -54,6 +54,17 @@ export function initVoice(container) {
 
         <div class="voice-tier-banner" id="voice-tier-banner" style="display:none;">
           Voice not available — switched to chat.
+        </div>
+
+        <div class="voice-quick-actions" id="voice-quick-actions">
+          <button class="voice-action-btn" id="voice-open-chat">
+            <span class="voice-action-icon">💬</span>
+            <span>Chat</span>
+          </button>
+          <button class="voice-action-btn" id="voice-open-classic">
+            <span class="voice-action-icon">🌐</span>
+            <span>Classic View</span>
+          </button>
         </div>
       </div>
     </div>
@@ -104,6 +115,16 @@ function bindEvents(container) {
       hideStarters();
       processQuery(chip.textContent);
     }
+  });
+
+  // Quick action buttons
+  container.querySelector('#voice-open-chat')?.addEventListener('click', () => {
+    const chatTab = document.querySelector('.mobile-nav-item[data-tab="chat"]');
+    if (chatTab) chatTab.click();
+  });
+
+  container.querySelector('#voice-open-classic')?.addEventListener('click', () => {
+    window.location.href = 'classic.html';
   });
 }
 
@@ -520,6 +541,24 @@ function injectStyles() {
       border-radius:8px; padding:8px 16px; font-size:12px;
       color:var(--text-muted); text-align:center; margin-top:12px;
     }
+
+    /* Quick actions */
+    .voice-quick-actions {
+      display:flex; gap:12px; margin-top:16px; justify-content:center;
+    }
+    .voice-action-btn {
+      display:flex; align-items:center; gap:6px;
+      background:var(--glass); border:1px solid var(--glass-border);
+      color:var(--text-primary); padding:10px 18px; border-radius:24px;
+      font-size:13px; font-family:var(--font-body); cursor:pointer;
+      transition:background 0.2s, border-color 0.2s, transform 0.15s;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .voice-action-btn:active {
+      background:var(--glass-hover); border-color:var(--cyan);
+      transform:scale(0.96);
+    }
+    .voice-action-icon { font-size:16px; }
   `;
   document.head.appendChild(s);
 }
