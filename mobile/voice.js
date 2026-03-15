@@ -393,6 +393,12 @@ function highlightWord(idx) {
 }
 
 // ── Reactive Orb Animation ──
+// Random wavy border-radius generator
+function randBlob() {
+  const r = () => Math.floor(35 + Math.random() * 30); // 35-65%
+  return `${r()}% ${100-r()}% ${r()}% ${100-r()}% / ${r()}% ${r()}% ${100-r()}% ${100-r()}%`;
+}
+
 function pulseOrb() {
   const inner = document.getElementById('voice-orb-inner');
   const rings = document.querySelectorAll('.voice-orb-ring');
@@ -405,12 +411,14 @@ function pulseOrb() {
 
   inner.style.transform = `scale(${scale})`;
   inner.style.boxShadow = `0 0 ${glow}px rgba(0,229,255,${0.3 + intensity * 0.2}), 0 0 ${glow * 1.5}px rgba(124,58,237,${0.1 + intensity * 0.1})`;
+  inner.style.borderRadius = randBlob();
 
-  // Pulse rings with slight random variation
+  // Pulse rings with slight random variation + wavy shape
   rings.forEach((ring, i) => {
     const ringScale = 1 + (intensity - 0.8) * (0.3 - i * 0.08);
     ring.style.transform = `scale(${ringScale})`;
     ring.style.opacity = `${0.3 + intensity * 0.2 - i * 0.08}`;
+    ring.style.borderRadius = randBlob();
   });
 
   // Return to baseline
@@ -419,9 +427,12 @@ function pulseOrb() {
     if (!isSpeaking) return;
     inner.style.transform = 'scale(1)';
     inner.style.boxShadow = '0 0 30px rgba(0,229,255,0.3), 0 0 60px rgba(124,58,237,0.15)';
+    // Let CSS animation handle the border-radius morph
+    inner.style.borderRadius = '';
     rings.forEach((ring, i) => {
       ring.style.transform = 'scale(1)';
       ring.style.opacity = `${0.4 - i * 0.1}`;
+      ring.style.borderRadius = '';
     });
   }, 180);
 }
@@ -432,10 +443,12 @@ function resetOrbPulse() {
   if (inner) {
     inner.style.transform = '';
     inner.style.boxShadow = '';
+    inner.style.borderRadius = '';
   }
   document.querySelectorAll('.voice-orb-ring').forEach(ring => {
     ring.style.transform = '';
     ring.style.opacity = '';
+    ring.style.borderRadius = '';
   });
 }
 
@@ -597,45 +610,76 @@ function injectStyles() {
     }
 
     .voice-orb-inner {
-      width:80px; height:80px; border-radius:50%;
+      width:80px; height:80px;
+      border-radius:30% 70% 70% 30% / 30% 30% 70% 70%;
       background:radial-gradient(circle at 40% 40%, rgba(0,229,255,0.4), rgba(124,58,237,0.3));
       box-shadow:0 0 30px rgba(0,229,255,0.2), 0 0 60px rgba(124,58,237,0.1);
-      transition:transform 0.12s ease-out, box-shadow 0.12s ease-out;
+      transition:transform 0.12s ease-out, box-shadow 0.12s ease-out, border-radius 0.4s ease-in-out;
+      animation:blobMorph 6s ease-in-out infinite;
+    }
+
+    @keyframes blobMorph {
+      0%   { border-radius:30% 70% 70% 30% / 30% 30% 70% 70%; }
+      25%  { border-radius:58% 42% 36% 64% / 43% 65% 35% 57%; }
+      50%  { border-radius:40% 60% 54% 46% / 62% 36% 64% 38%; }
+      75%  { border-radius:64% 36% 48% 52% / 35% 58% 42% 65%; }
+      100% { border-radius:30% 70% 70% 30% / 30% 30% 70% 70%; }
     }
 
     .voice-orb-ring {
-      position:absolute; border-radius:50%; border:1px solid rgba(0,229,255,0.15);
-      transition:transform 0.12s ease-out, opacity 0.12s ease-out;
+      position:absolute; border:1px solid rgba(0,229,255,0.15);
+      transition:transform 0.12s ease-out, opacity 0.12s ease-out, border-radius 0.5s ease-in-out;
     }
-    .ring-1 { width:100px; height:100px; top:10px; left:10px; }
-    .ring-2 { width:110px; height:110px; top:5px; left:5px; opacity:0.5; }
-    .ring-3 { width:120px; height:120px; top:0; left:0; opacity:0.3; }
+    .ring-1 { width:100px; height:100px; top:10px; left:10px; animation:wavyRing1 7s ease-in-out infinite; }
+    .ring-2 { width:110px; height:110px; top:5px; left:5px; opacity:0.5; animation:wavyRing2 8s ease-in-out infinite; }
+    .ring-3 { width:120px; height:120px; top:0; left:0; opacity:0.3; animation:wavyRing3 9s ease-in-out infinite; }
 
-    /* Idle state — gentle pulse */
+    @keyframes wavyRing1 {
+      0%   { border-radius:40% 60% 55% 45% / 55% 40% 60% 45%; }
+      33%  { border-radius:55% 45% 40% 60% / 40% 60% 45% 55%; }
+      66%  { border-radius:45% 55% 60% 40% / 60% 45% 55% 40%; }
+      100% { border-radius:40% 60% 55% 45% / 55% 40% 60% 45%; }
+    }
+    @keyframes wavyRing2 {
+      0%   { border-radius:55% 45% 42% 58% / 45% 58% 42% 55%; }
+      33%  { border-radius:42% 58% 55% 45% / 58% 42% 55% 45%; }
+      66%  { border-radius:58% 42% 45% 55% / 42% 55% 45% 58%; }
+      100% { border-radius:55% 45% 42% 58% / 45% 58% 42% 55%; }
+    }
+    @keyframes wavyRing3 {
+      0%   { border-radius:48% 52% 60% 40% / 52% 40% 60% 48%; }
+      33%  { border-radius:60% 40% 48% 52% / 40% 52% 48% 60%; }
+      66%  { border-radius:40% 60% 52% 48% / 60% 48% 52% 40%; }
+      100% { border-radius:48% 52% 60% 40% / 52% 40% 60% 48%; }
+    }
+
+    /* Idle state — gentle pulse + blob morph */
     .orb-idle .voice-orb-inner {
-      animation:orbPulse 3s ease-in-out infinite;
+      animation:blobMorph 6s ease-in-out infinite, orbPulse 3s ease-in-out infinite;
     }
     @keyframes orbPulse {
       0%,100% { transform:scale(1); box-shadow:0 0 30px rgba(0,229,255,0.2); }
       50% { transform:scale(1.05); box-shadow:0 0 50px rgba(0,229,255,0.35); }
     }
 
-    /* Listening — expanded, fast ripple */
+    /* Listening — expanded, fast wavy ripple */
     .orb-listening .voice-orb-inner {
       transform:scale(1.15);
       box-shadow:0 0 40px rgba(0,229,255,0.5), 0 0 80px rgba(0,229,255,0.2);
+      animation:blobMorph 3s ease-in-out infinite;
     }
-    .orb-listening .ring-1 { animation:ripple 1.2s ease-out infinite; }
-    .orb-listening .ring-2 { animation:ripple 1.2s ease-out 0.3s infinite; }
-    .orb-listening .ring-3 { animation:ripple 1.2s ease-out 0.6s infinite; }
-    @keyframes ripple {
-      0% { transform:scale(1); opacity:0.5; }
-      100% { transform:scale(1.5); opacity:0; }
+    .orb-listening .ring-1 { animation:wavyRipple 1.2s ease-out infinite; }
+    .orb-listening .ring-2 { animation:wavyRipple 1.2s ease-out 0.3s infinite; }
+    .orb-listening .ring-3 { animation:wavyRipple 1.2s ease-out 0.6s infinite; }
+    @keyframes wavyRipple {
+      0% { transform:scale(1); opacity:0.5; border-radius:40% 60% 55% 45% / 55% 40% 60% 45%; }
+      50% { border-radius:55% 45% 40% 60% / 40% 60% 45% 55%; }
+      100% { transform:scale(1.5); opacity:0; border-radius:45% 55% 60% 40% / 60% 45% 55% 40%; }
     }
 
-    /* Thinking — different pulse color */
+    /* Thinking — different pulse color, faster morph */
     .orb-thinking .voice-orb-inner {
-      animation:orbThink 1s ease-in-out infinite;
+      animation:blobMorph 2s ease-in-out infinite, orbThink 1s ease-in-out infinite;
       background:radial-gradient(circle at 40% 40%, rgba(124,58,237,0.5), rgba(0,229,255,0.3));
     }
     @keyframes orbThink {
@@ -643,13 +687,13 @@ function injectStyles() {
       50% { transform:scale(1.08); }
     }
 
-    /* Speaking — JS-driven reactive animation, base glow only */
+    /* Speaking — JS-driven reactive animation, base morph continues */
     .orb-speaking .voice-orb-inner {
       box-shadow:0 0 30px rgba(0,229,255,0.3), 0 0 60px rgba(124,58,237,0.15);
-      animation:none;
+      animation:blobMorph 4s ease-in-out infinite;
     }
     .orb-speaking .voice-orb-ring {
-      animation:none;
+      /* Rings keep wavy shape but no ripple — JS drives scale/opacity */
     }
 
     /* Subtitle area */
