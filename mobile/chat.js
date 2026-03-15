@@ -1,6 +1,6 @@
 // Mobile Chat — fallback layout when voice is unavailable
 
-const API_BASE = window.location.hostname === 'localhost'
+const API_BASE = window.location.hostname === 'localhost' && window.location.port === '8000'
   ? 'http://localhost:8000'
   : 'https://portfolio-bot-5pwk.onrender.com';
 

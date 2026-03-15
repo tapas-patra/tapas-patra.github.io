@@ -1,6 +1,6 @@
-// Mobile Voice Interface — orb, STT (3-tier), TTS, transcript
+// Mobile Voice Interface — orb, STT (3-tier), TTS with subtitle sync, reactive orb
 
-const API_BASE = window.location.hostname === 'localhost'
+const API_BASE = window.location.hostname === 'localhost' && window.location.port === '8000'
   ? 'http://localhost:8000'
   : 'https://portfolio-bot-5pwk.onrender.com';
 
@@ -16,9 +16,14 @@ let isListening = false;
 let isSpeaking = false;
 let sessionHistory = [];
 let ttsUtterances = [];
-let audioCtx = null;
-let analyser = null;
-let orbAnimId = null;
+
+// Subtitle tracking
+let subtitleWords = [];    // array of <span> elements
+let wordCursor = 0;        // current word being spoken
+let boundarySupported = null; // null=unknown, true/false after first utterance
+
+// Orb reactive animation
+let orbPulseTimer = null;
 
 export function initVoice(container) {
   detectSTTTier();
@@ -36,7 +41,7 @@ export function initVoice(container) {
         <div class="voice-orb-area">
           <div class="voice-status" id="voice-status">Tap to speak</div>
           <div class="voice-orb" id="voice-orb">
-            <div class="voice-orb-inner"></div>
+            <div class="voice-orb-inner" id="voice-orb-inner"></div>
             <div class="voice-orb-ring ring-1"></div>
             <div class="voice-orb-ring ring-2"></div>
             <div class="voice-orb-ring ring-3"></div>
@@ -45,7 +50,7 @@ export function initVoice(container) {
 
         <div class="voice-transcript" id="voice-transcript">
           <div class="voice-transcript-in" id="voice-transcript-in"></div>
-          <div class="voice-transcript-out" id="voice-transcript-out"></div>
+          <div class="voice-subtitle" id="voice-subtitle"></div>
         </div>
 
         <div class="voice-starters" id="voice-starters">
@@ -86,8 +91,6 @@ function detectSTTTier() {
     recognition.interimResults = true;
     recognition.lang = 'en-US';
   } else {
-    // Tier 2 (whisper.js) would be loaded lazily on first tap
-    // For now, fall to tier 3 (chat) since whisper.js is a large dependency
     sttTier = 3;
   }
 }
@@ -117,7 +120,6 @@ function bindEvents(container) {
     }
   });
 
-  // Quick action buttons
   container.querySelector('#voice-open-chat')?.addEventListener('click', () => {
     const chatTab = document.querySelector('.mobile-nav-item[data-tab="chat"]');
     if (chatTab) chatTab.click();
@@ -131,7 +133,6 @@ function bindEvents(container) {
 // ── Listening ──
 function startListening() {
   if (sttTier === 3) {
-    // No voice — show banner, switch to chat nav
     document.getElementById('voice-tier-banner').style.display = 'block';
     return;
   }
@@ -247,18 +248,18 @@ async function processQuery(text) {
 
     sessionHistory.push({ role: 'assistant', content: fullText });
     const cleanText = stripMarkdown(fullText);
-    showTranscriptOut(cleanText);
     speakText(cleanText);
   } catch {
-    showTranscriptOut("Sorry, I couldn't connect. Try again or use the chat.");
+    showSubtitle("Sorry, I couldn't connect. Try again or use the chat.");
     setOrbState('idle');
     setStatus('Tap to speak');
   }
 }
 
-// ── TTS ──
+// ── TTS with subtitle sync + reactive orb ──
 function speakText(text) {
   if (!('speechSynthesis' in window)) {
+    showSubtitle(text);
     setOrbState('idle');
     setStatus('Tap to speak');
     return;
@@ -268,7 +269,17 @@ function speakText(text) {
   setOrbState('speaking');
   setStatus('Speaking...');
 
-  // Chunk into sentences for faster perceived start
+  // Build subtitle word spans
+  const allWords = text.split(/\s+/).filter(w => w.length > 0);
+  const subtitleEl = document.getElementById('voice-subtitle');
+  subtitleEl.innerHTML = allWords.map((w, i) =>
+    `<span class="sub-word" data-idx="${i}">${esc(w)} </span>`
+  ).join('');
+  subtitleEl.style.opacity = '1';
+  subtitleWords = Array.from(subtitleEl.querySelectorAll('.sub-word'));
+  wordCursor = 0;
+
+  // Chunk into sentences
   const sentences = text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [text];
 
   window.speechSynthesis.cancel();
@@ -286,31 +297,159 @@ function speakText(text) {
     || voices.find(v => v.lang.startsWith('en'))
     || null;
 
+  // Track word ranges per sentence
+  let sentenceWordStart = 0;
+
   sentences.forEach((sentence, i) => {
-    const utterance = new SpeechSynthesisUtterance(sentence.trim());
+    const trimmed = sentence.trim();
+    if (!trimmed) return;
+    const wordsInSentence = trimmed.split(/\s+/).filter(w => w.length > 0).length;
+    const myStartIdx = sentenceWordStart;
+
+    const utterance = new SpeechSynthesisUtterance(trimmed);
     utterance.rate = 1.15;
     utterance.pitch = 0.95;
     if (preferred) utterance.voice = preferred;
 
+    let sentenceBoundaryFired = false;
+
+    // Word-by-word highlight via onboundary
+    utterance.onboundary = (e) => {
+      if (e.name === 'word') {
+        if (boundarySupported === null) boundarySupported = true;
+        sentenceBoundaryFired = true;
+        highlightWord(wordCursor);
+        pulseOrb();
+        wordCursor++;
+      }
+    };
+
+    // Sentence-level fallback for browsers without onboundary
+    utterance.onstart = () => {
+      setTimeout(() => {
+        if (!sentenceBoundaryFired && boundarySupported !== true) {
+          boundarySupported = false;
+          // Animate words one by one with estimated timing
+          const avgWordDuration = (trimmed.length / wordsInSentence) * 55; // ~55ms per char
+          for (let w = 0; w < wordsInSentence; w++) {
+            setTimeout(() => {
+              highlightWord(myStartIdx + w);
+              pulseOrb();
+            }, w * avgWordDuration);
+          }
+        }
+      }, 150);
+    };
+
+    // Last sentence: clean up on end
     if (i === sentences.length - 1) {
       utterance.onend = () => {
         isSpeaking = false;
+        // Mark all words as spoken
+        subtitleWords.forEach(el => {
+          el.classList.remove('sub-word-active');
+          el.classList.add('sub-word-spoken');
+        });
+        resetOrbPulse();
         setOrbState('idle');
         setStatus('Tap to speak');
         fadeTranscripts();
       };
     }
 
+    sentenceWordStart += wordsInSentence;
     ttsUtterances.push(utterance);
     window.speechSynthesis.speak(utterance);
+  });
+}
+
+function highlightWord(idx) {
+  if (idx < 0 || idx >= subtitleWords.length) return;
+
+  // Remove active from previous words, mark as spoken
+  subtitleWords.forEach((el, i) => {
+    if (i < idx) {
+      el.classList.remove('sub-word-active');
+      el.classList.add('sub-word-spoken');
+    } else if (i === idx) {
+      el.classList.add('sub-word-active');
+      el.classList.remove('sub-word-spoken');
+    } else {
+      el.classList.remove('sub-word-active', 'sub-word-spoken');
+    }
+  });
+
+  // Auto-scroll to keep active word visible
+  const subtitleEl = document.getElementById('voice-subtitle');
+  const activeEl = subtitleWords[idx];
+  if (subtitleEl && activeEl) {
+    const containerRect = subtitleEl.getBoundingClientRect();
+    const wordRect = activeEl.getBoundingClientRect();
+    // If word is below the visible area or near bottom, scroll
+    if (wordRect.top > containerRect.bottom - 20 || wordRect.bottom > containerRect.bottom) {
+      activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+}
+
+// ── Reactive Orb Animation ──
+function pulseOrb() {
+  const inner = document.getElementById('voice-orb-inner');
+  const rings = document.querySelectorAll('.voice-orb-ring');
+  if (!inner) return;
+
+  // Random intensity per beat
+  const intensity = 0.8 + Math.random() * 0.5; // 0.8 - 1.3
+  const scale = 1 + (intensity - 0.8) * 0.4;   // 1.0 - 1.2
+  const glow = Math.floor(30 + intensity * 40);  // 30 - 82
+
+  inner.style.transform = `scale(${scale})`;
+  inner.style.boxShadow = `0 0 ${glow}px rgba(0,229,255,${0.3 + intensity * 0.2}), 0 0 ${glow * 1.5}px rgba(124,58,237,${0.1 + intensity * 0.1})`;
+
+  // Pulse rings with slight random variation
+  rings.forEach((ring, i) => {
+    const ringScale = 1 + (intensity - 0.8) * (0.3 - i * 0.08);
+    ring.style.transform = `scale(${ringScale})`;
+    ring.style.opacity = `${0.3 + intensity * 0.2 - i * 0.08}`;
+  });
+
+  // Return to baseline
+  clearTimeout(orbPulseTimer);
+  orbPulseTimer = setTimeout(() => {
+    if (!isSpeaking) return;
+    inner.style.transform = 'scale(1)';
+    inner.style.boxShadow = '0 0 30px rgba(0,229,255,0.3), 0 0 60px rgba(124,58,237,0.15)';
+    rings.forEach((ring, i) => {
+      ring.style.transform = 'scale(1)';
+      ring.style.opacity = `${0.4 - i * 0.1}`;
+    });
+  }, 180);
+}
+
+function resetOrbPulse() {
+  clearTimeout(orbPulseTimer);
+  const inner = document.getElementById('voice-orb-inner');
+  if (inner) {
+    inner.style.transform = '';
+    inner.style.boxShadow = '';
+  }
+  document.querySelectorAll('.voice-orb-ring').forEach(ring => {
+    ring.style.transform = '';
+    ring.style.opacity = '';
   });
 }
 
 function stopSpeaking() {
   window.speechSynthesis.cancel();
   isSpeaking = false;
+  resetOrbPulse();
   setOrbState('idle');
   setStatus('Tap to speak');
+  // Mark all spoken
+  subtitleWords.forEach(el => {
+    el.classList.remove('sub-word-active');
+    el.classList.add('sub-word-spoken');
+  });
 }
 
 // ── Orb States ──
@@ -332,11 +471,10 @@ function showTranscriptIn(text) {
   if (el) { el.textContent = text; el.style.opacity = '1'; }
 }
 
-function showTranscriptOut(text) {
-  const el = document.getElementById('voice-transcript-out');
+function showSubtitle(text) {
+  const el = document.getElementById('voice-subtitle');
   if (el) {
-    // Truncate for display
-    el.textContent = text.length > 200 ? text.slice(0, 200) + '...' : text;
+    el.textContent = text;
     el.style.opacity = '1';
   }
 }
@@ -344,7 +482,7 @@ function showTranscriptOut(text) {
 function fadeTranscripts() {
   setTimeout(() => {
     const inEl = document.getElementById('voice-transcript-in');
-    const outEl = document.getElementById('voice-transcript-out');
+    const outEl = document.getElementById('voice-subtitle');
     if (inEl) inEl.style.opacity = '0';
     if (outEl) outEl.style.opacity = '0';
   }, 8000);
@@ -358,20 +496,22 @@ function hideStarters() {
 // ── Markdown Stripping ──
 function stripMarkdown(text) {
   return text
-    .replace(/^#{1,6}\s+/gm, '')          // headings
-    .replace(/\*{1,3}([^*]+)\*{1,3}/g, '$1') // bold/italic
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/\*{1,3}([^*]+)\*{1,3}/g, '$1')
     .replace(/_{1,3}([^_]+)_{1,3}/g, '$1')
-    .replace(/`([^`]+)`/g, '$1')           // inline code
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // links
-    .replace(/^>\s+/gm, '')               // blockquotes
-    .replace(/^[-*+]\s+/gm, '')           // list markers
-    .replace(/^\d+\.\s+/gm, '')           // numbered lists
-    .replace(/[-*_]{3,}/g, '')            // horizontal rules
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/^>\s+/gm, '')
+    .replace(/^[-*+]\s+/gm, '')
+    .replace(/^\d+\.\s+/gm, '')
+    .replace(/[-*_]{3,}/g, '')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 }
 
 // ── Helpers ──
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
 function getSessionId() {
   let id = sessionStorage.getItem('tapasos-session');
   if (!id) { id = crypto.randomUUID(); sessionStorage.setItem('tapasos-session', id); }
@@ -460,12 +600,12 @@ function injectStyles() {
       width:80px; height:80px; border-radius:50%;
       background:radial-gradient(circle at 40% 40%, rgba(0,229,255,0.4), rgba(124,58,237,0.3));
       box-shadow:0 0 30px rgba(0,229,255,0.2), 0 0 60px rgba(124,58,237,0.1);
-      transition:transform 0.3s ease, box-shadow 0.3s ease;
+      transition:transform 0.12s ease-out, box-shadow 0.12s ease-out;
     }
 
     .voice-orb-ring {
       position:absolute; border-radius:50%; border:1px solid rgba(0,229,255,0.15);
-      transition:transform 0.3s ease, opacity 0.3s ease;
+      transition:transform 0.12s ease-out, opacity 0.12s ease-out;
     }
     .ring-1 { width:100px; height:100px; top:10px; left:10px; }
     .ring-2 { width:110px; height:110px; top:5px; left:5px; opacity:0.5; }
@@ -503,27 +643,44 @@ function injectStyles() {
       50% { transform:scale(1.08); }
     }
 
-    /* Speaking — waveform-like animation */
+    /* Speaking — JS-driven reactive animation, base glow only */
     .orb-speaking .voice-orb-inner {
-      box-shadow:0 0 50px rgba(0,229,255,0.5), 0 0 100px rgba(124,58,237,0.2);
+      box-shadow:0 0 30px rgba(0,229,255,0.3), 0 0 60px rgba(124,58,237,0.15);
+      animation:none;
     }
-    .orb-speaking .ring-1 { animation:speakRing 0.6s ease-in-out infinite alternate; }
-    .orb-speaking .ring-2 { animation:speakRing 0.6s ease-in-out 0.15s infinite alternate; }
-    .orb-speaking .ring-3 { animation:speakRing 0.6s ease-in-out 0.3s infinite alternate; }
-    @keyframes speakRing {
-      0% { transform:scale(1); opacity:0.4; }
-      100% { transform:scale(1.2); opacity:0.15; }
+    .orb-speaking .voice-orb-ring {
+      animation:none;
     }
 
-    /* Transcript */
-    .voice-transcript { text-align:center; min-height:60px; max-width:320px; }
+    /* Subtitle area */
+    .voice-transcript {
+      text-align:center; max-width:340px; width:100%;
+      display:flex; flex-direction:column; gap:6px;
+    }
     .voice-transcript-in {
-      font-size:14px; color:var(--text-primary); margin-bottom:6px;
+      font-size:14px; color:var(--text-primary);
       opacity:0; transition:opacity 0.5s ease;
     }
-    .voice-transcript-out {
-      font-size:13px; color:var(--text-muted); line-height:1.5;
+    .voice-subtitle {
+      font-size:14px; line-height:1.7; color:var(--text-dim);
       opacity:0; transition:opacity 0.5s ease;
+      max-height:120px; overflow-y:auto; scroll-behavior:smooth;
+      padding:4px 0;
+      scrollbar-width:none;
+    }
+    .voice-subtitle::-webkit-scrollbar { display:none; }
+
+    /* Word highlighting */
+    .sub-word {
+      transition:color 0.15s ease, text-shadow 0.15s ease;
+      color:var(--text-dim);
+    }
+    .sub-word-active {
+      color:var(--cyan);
+      text-shadow:0 0 8px rgba(0,229,255,0.3);
+    }
+    .sub-word-spoken {
+      color:var(--text-muted);
     }
 
     /* Starters */
