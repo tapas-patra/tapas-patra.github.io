@@ -2,7 +2,7 @@ name: Keep Render Warm
 
 on:
   schedule:
-    # Every 14 minutes, 06:00-23:00 IST (00:30-17:30 UTC)
+    # Every 14 minutes, 06:00-01:00 IST (00:30-19:30 UTC)
     - cron: '*/14 * * * *'
   workflow_dispatch:
 
@@ -21,19 +21,19 @@ jobs:
           echo "Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
           echo "IST Time: $(TZ='Asia/Kolkata' date '+%Y-%m-%d %H:%M:%S IST')"
 
-      - name: Check IST time window (06:00-23:00)
+      - name: Check IST time window (06:00-01:00)
         id: check-time
         run: |
           IST_HOUR=$(TZ="Asia/Kolkata" date +%H)
           IST_TIME=$(TZ="Asia/Kolkata" date '+%H:%M:%S')
           echo "=== Time Check ==="
           echo "IST time: $IST_TIME (hour: $IST_HOUR)"
-          echo "Active window: 06:00 - 23:00 IST"
-          if [[ "$IST_HOUR" -ge 6 && "$IST_HOUR" -lt 23 ]]; then
+          echo "Active window: 06:00 - 01:00 IST (sleep: 01:00 - 06:00)"
+          if [[ "$IST_HOUR" -ge 6 || "$IST_HOUR" -lt 1 ]]; then
             echo "Result: INSIDE active window"
             echo "in_window=true" >> "$GITHUB_OUTPUT"
           else
-            echo "Result: OUTSIDE active window - skipping ping"
+            echo "Result: OUTSIDE active window (01:00-06:00 IST) - skipping ping"
             echo "in_window=false" >> "$GITHUB_OUTPUT"
           fi
 
