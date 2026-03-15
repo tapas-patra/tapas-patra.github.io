@@ -10,7 +10,7 @@ let cascadeOffset = 0;
 
 // ── App Registry ──
 const APP_REGISTRY = [
-  { id: 'ai-assistant', title: 'Tapas.ai',          icon: '\uD83E\uDD16', dock: true, default: true,  width: 760, height: 560 },
+  { id: 'ai-assistant', title: 'Tapas.ai',          icon: '\uD83E\uDD16', dock: true, default: false, width: 760, height: 560 },
   { id: 'projects',     title: 'Projects.finder',    icon: '\uD83D\uDCC2', dock: true, default: false, width: 800, height: 560 },
   { id: 'skills',       title: 'Skills.app',         icon: '\u26A1',       dock: true, default: false, width: 700, height: 500 },
   { id: 'activity',     title: 'Activity.monitor',   icon: '\uD83D\uDCC8', dock: true, default: false, width: 820, height: 540 },
