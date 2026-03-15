@@ -109,7 +109,7 @@ async function sendMessage(text) {
             const d = line.slice(6);
             if (d === '[DONE]') continue;
             try { fullText += JSON.parse(d).token || ''; } catch { fullText += d; }
-            textEl.textContent = fullText;
+            textEl.textContent = stripMarkdown(fullText);
             messages.scrollTop = messages.scrollHeight;
           }
         }
@@ -117,7 +117,7 @@ async function sendMessage(text) {
     } else {
       const data = await resp.json();
       fullText = data.response || data.content || '';
-      addMsg(messages, 'ai', fullText);
+      addMsg(messages, 'ai', stripMarkdown(fullText));
     }
 
     sessionHistory.push({ role: 'assistant', content: fullText });
@@ -142,6 +142,21 @@ function addMsg(container, type, text) {
   container.appendChild(el);
   container.scrollTop = container.scrollHeight;
   return el;
+}
+
+function stripMarkdown(text) {
+  return text
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/\*{1,3}([^*]+)\*{1,3}/g, '$1')
+    .replace(/_{1,3}([^_]+)_{1,3}/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/^>\s+/gm, '')
+    .replace(/^[-*+]\s+/gm, '')
+    .replace(/^\d+\.\s+/gm, '')
+    .replace(/[-*_]{3,}/g, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
 }
 
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
