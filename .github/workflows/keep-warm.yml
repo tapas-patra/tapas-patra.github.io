@@ -1,0 +1,37 @@
+name: Keep Render Warm
+
+on:
+  schedule:
+    # Every 14 minutes, 06:00-23:00 IST (00:30-17:30 UTC)
+    # Cron doesn't support ranges with intervals cleanly, so we run every 14 min
+    # and check the hour in the job
+    - cron: '*/14 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check IST time window (06:00-23:00)
+        id: check-time
+        run: |
+          IST_HOUR=$(TZ="Asia/Kolkata" date +%H)
+          echo "IST hour: $IST_HOUR"
+          if [ "$IST_HOUR" -ge 6 ] && [ "$IST_HOUR" -lt 23 ]; then
+            echo "in_window=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "in_window=false" >> "$GITHUB_OUTPUT"
+            echo "Outside active hours (06:00-23:00 IST). Skipping."
+          fi
+
+      - name: Ping Render /health
+        if: steps.check-time.outputs.in_window == 'true'
+        run: |
+          START=$(date +%s%N)
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "${{ secrets.RENDER_API_URL }}/health" || echo "000")
+          END=$(date +%s%N)
+          LATENCY=$(( (END - START) / 1000000 ))
+          echo "Status: $STATUS | Latency: ${LATENCY}ms"
+          if [ "$STATUS" != "200" ]; then
+            echo "::warning::Render health check returned $STATUS"
+          fi

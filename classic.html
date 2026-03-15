@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tapas Kumar Patra — Portfolio</title>
+  <meta name="description" content="Senior Software Engineer — Python, FastAPI, AI/ML, Test Automation. 19 awards, 4+ years experience.">
+  <meta name="author" content="Tapas Kumar Patra">
+  <meta property="og:title" content="Tapas Kumar Patra — Portfolio">
+  <meta property="og:description" content="Senior Software Engineer — Backend, AI/ML, Automation. 19 awards.">
+  <meta property="og:image" content="https://tapas-patra.github.io/images/og-image.jpeg">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0B1120;
+      --bg2: #111827;
+      --bg3: #1F2937;
+      --border: rgba(255,255,255,0.08);
+      --text: #F1F5F9;
+      --text2: #94A3B8;
+      --text3: #475569;
+      --accent: #38BDF8;
+      --accent2: #818CF8;
+      --green: #34D399;
+      --amber: #FBBF24;
+      --font: 'Inter', -apple-system, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+    img { max-width: 100%; display: block; }
+
+    /* Nav */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(11,17,32,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border); padding: 0 24px;
+    }
+    .nav-inner { max-width: 960px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+    .nav-brand { font-weight: 800; font-size: 18px; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .nav-links { display: flex; gap: 24px; }
+    .nav-links a { color: var(--text2); font-size: 13px; font-weight: 500; text-decoration: none; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-os { font-size: 12px; font-family: var(--mono); padding: 5px 14px; border: 1px solid var(--border); border-radius: 6px; color: var(--accent); transition: all 0.2s; }
+    .nav-os:hover { background: rgba(56,189,248,0.1); text-decoration: none; }
+
+    /* Hero */
+    .hero { padding: 80px 0 60px; text-align: center; }
+    .hero-avatar { width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--border); margin: 0 auto 24px; object-fit: cover; }
+    .hero h1 { font-size: 36px; font-weight: 800; margin-bottom: 8px; }
+    .hero .subtitle { font-size: 16px; color: var(--text2); margin-bottom: 6px; }
+    .hero .location { font-size: 13px; color: var(--text3); font-family: var(--mono); margin-bottom: 24px; }
+    .hero .status { display: inline-block; font-size: 12px; color: var(--green); border: 1px solid rgba(52,211,153,0.3); padding: 4px 14px; border-radius: 20px; }
+    .hero-stats { display: flex; justify-content: center; gap: 40px; margin-top: 32px; }
+    .hero-stat { text-align: center; }
+    .hero-stat-num { font-size: 28px; font-weight: 800; color: var(--accent); }
+    .hero-stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
+    .hero-links { display: flex; justify-content: center; gap: 12px; margin-top: 28px; }
+    .hero-links a { padding: 10px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; transition: all 0.2s; }
+    .btn-primary { background: var(--accent); color: #0B1120; }
+    .btn-primary:hover { background: #7DD3FC; text-decoration: none; }
+    .btn-outline { border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: var(--bg3); text-decoration: none; }
+
+    /* Sections */
+    section { padding: 60px 0; }
+    .section-title { font-size: 24px; font-weight: 700; margin-bottom: 32px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+
+    /* About */
+    .about p { color: var(--text2); margin-bottom: 16px; font-size: 15px; }
+
+    /* Skills grid */
+    .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .skill-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+    .skill-card h3 { font-size: 13px; color: var(--accent); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .skill-card li { list-style: none; font-size: 13px; color: var(--text2); padding: 3px 0; }
+
+    /* Timeline */
+    .timeline-item { position: relative; padding-left: 28px; margin-bottom: 40px; }
+    .timeline-item::before { content: ''; position: absolute; left: 0; top: 8px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+    .timeline-item::after { content: ''; position: absolute; left: 4px; top: 22px; width: 2px; height: calc(100% - 12px); background: var(--border); }
+    .timeline-item:last-child::after { display: none; }
+    .timeline-date { font-size: 12px; font-family: var(--mono); color: var(--text3); margin-bottom: 4px; }
+    .timeline-title { font-size: 16px; font-weight: 700; }
+    .timeline-company { font-size: 14px; color: var(--accent2); margin-bottom: 10px; }
+    .timeline-item p, .timeline-item li { font-size: 13px; color: var(--text2); line-height: 1.7; }
+    .timeline-item ul { padding-left: 18px; margin-top: 6px; }
+    .timeline-item strong { color: var(--text); }
+    .timeline-sub { font-size: 14px; font-weight: 600; color: var(--text); margin-top: 14px; margin-bottom: 4px; }
+
+    /* Awards grid */
+    .awards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+    .award-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; display: flex; gap: 14px; align-items: flex-start; }
+    .award-card img { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+    .award-card h3 { font-size: 13px; font-weight: 600; }
+    .award-card .times { font-size: 11px; color: var(--amber); font-family: var(--mono); }
+    .award-card p { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+    /* Education */
+    .edu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+    .edu-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+    .edu-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .edu-card .inst { font-size: 13px; color: var(--accent2); margin-bottom: 8px; }
+    .edu-card p { font-size: 12px; color: var(--text3); }
+
+    /* Projects (auto-loaded from data.json) */
+    .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .project-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 20px; transition: border-color 0.2s; display: block; color: inherit; }
+    .project-card:hover { border-color: var(--accent); text-decoration: none; }
+    .project-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+    .project-card .desc { font-size: 13px; color: var(--text2); margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .project-card .meta { display: flex; gap: 12px; font-size: 11px; color: var(--text3); font-family: var(--mono); }
+
+    /* GitHub stats bar */
+    .gh-languages { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; }
+    .gh-lang { font-size: 12px; color: var(--text2); display: flex; align-items: center; gap: 6px; }
+    .gh-lang-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    /* Resume */
+    .resume-box { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 32px; text-align: center; }
+    .resume-box p { color: var(--text2); font-size: 14px; margin-bottom: 20px; }
+    .resume-actions { display: flex; justify-content: center; gap: 12px; }
+
+    /* Contact */
+    .contact-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+    .contact-item { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; display: flex; align-items: center; gap: 14px; font-size: 14px; }
+    .contact-icon { font-size: 20px; flex-shrink: 0; }
+
+    /* Footer */
+    footer { text-align: center; padding: 40px 24px; border-top: 1px solid var(--border); color: var(--text3); font-size: 12px; }
+    footer a { color: var(--accent); }
+
+    /* Loading skeleton */
+    .skeleton { background: linear-gradient(90deg, var(--bg2) 25%, var(--bg3) 50%, var(--bg2) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; height: 120px; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* Mobile */
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 28px; }
+      .hero-stats { gap: 24px; }
+      .nav-links { display: none; }
+      .skills-grid, .awards-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <span class="nav-brand">Tapas Kumar Patra</span>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#skills">Skills</a>
+      <a href="#experience">Experience</a>
+      <a href="#projects">Projects</a>
+      <a href="#awards">Awards</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a href="/" class="nav-os">TapasOS &rsaquo;</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <img src="images/me.png" alt="Tapas Kumar Patra" class="hero-avatar">
+    <h1>Tapas Kumar Patra</h1>
+    <div class="subtitle">Senior Software Engineer</div>
+    <div class="location">Bengaluru, India &middot; IST (UTC+5:30)</div>
+    <div class="status">Open to new opportunities</div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-num">19</div><div class="hero-stat-label">Awards</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">4+</div><div class="hero-stat-label">Years Exp</div></div>
+      <div class="hero-stat"><div class="hero-stat-num" id="stat-repos">—</div><div class="hero-stat-label">Repos</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">2x</div><div class="hero-stat-label">Outstanding</div></div>
+    </div>
+    <div class="hero-links">
+      <a href="#projects" class="btn-primary">View Projects</a>
+      <a href="#contact" class="btn-outline">Contact Me</a>
+    </div>
+  </div>
+</section>
+
+<!-- About -->
+<section id="about">
+  <div class="container">
+    <h2 class="section-title">About Me</h2>
+    <div class="about">
+      <p>I'm a Senior Software Engineer with deep expertise in backend systems, AI/ML integration, test automation, and developer tooling. I build production systems that solve real problems — from RAG-powered chatbots to enterprise testing platforms.</p>
+      <p>Currently at Wipro Technologies on the Ford account, I've architected end-to-end automation frameworks, built 6+ production tools using Python/FastAPI/Django, and led cross-functional teams of 16-20 engineers. My work has reduced manual testing by 60% and improved test coverage by 35%.</p>
+      <p>I care about clean architecture, measurable impact, and shipping fast. I'm currently pursuing my M.Tech in Software Systems from BITS Pilani alongside my professional role.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Skills -->
+<section id="skills">
+  <div class="container">
+    <h2 class="section-title">Skills</h2>
+    <div class="skills-grid">
+      <div class="skill-card">
+        <h3>Languages</h3>
+        <ul id="skills-languages">
+          <li>Python</li><li>JavaScript</li><li>TypeScript</li><li>Java</li><li>SQL</li><li>Bash</li>
+        </ul>
+      </div>
+      <div class="skill-card">
+        <h3>Backend</h3>
+        <ul><li>FastAPI</li><li>Django</li><li>Node.js / Express</li><li>REST APIs</li><li>GraphQL</li><li>WebSockets</li></ul>
+      </div>
+      <div class="skill-card">
+        <h3>AI / ML</h3>
+        <ul><li>RAG Pipelines</li><li>LLM Integration</li><li>Embeddings</li><li>Prompt Engineering</li><li>Vector Databases</li></ul>
+      </div>
+      <div class="skill-card">
+        <h3>Databases</h3>
+        <ul><li>PostgreSQL</li><li>Supabase (pgvector)</li><li>MongoDB</li><li>Redis</li></ul>
+      </div>
+      <div class="skill-card">
+        <h3>Testing</h3>
+        <ul><li>Selenium</li><li>Appium</li><li>Pytest</li><li>Playwright</li><li>TestRail</li></ul>
+      </div>
+      <div class="skill-card">
+        <h3>Cloud &amp; DevOps</h3>
+        <ul><li>AWS</li><li>Docker</li><li>GitHub Actions</li><li>Cloudflare Workers</li><li>Render / Vercel</li></ul>
+      </div>
+      <div class="skill-card">
+        <h3>Automotive</h3>
+        <ul><li>Android Automotive OS</li><li>QNX Platform</li><li>CAN Protocol</li><li>AUTOSAR &amp; ECU</li></ul>
+      </div>
+      <div class="skill-card">
+        <h3>Tools</h3>
+        <ul><li>Git</li><li>VS Code</li><li>Jira</li><li>Postman</li><li>Linux</li><li>Agile / Scrum</li></ul>
+      </div>
+    </div>
+    <!-- GitHub language breakdown (auto-filled) -->
+    <div id="gh-lang-bar" style="margin-top:24px;display:none;">
+      <h3 style="font-size:13px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">GitHub Language Breakdown</h3>
+      <div style="height:6px;border-radius:3px;overflow:hidden;display:flex;" id="gh-lang-bar-inner"></div>
+      <div class="gh-languages" id="gh-lang-labels"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Experience -->
+<section id="experience">
+  <div class="container">
+    <h2 class="section-title">Experience</h2>
+
+    <div class="timeline-item">
+      <div class="timeline-date">December 2025 — Present</div>
+      <div class="timeline-title">Senior Automation Engineer</div>
+      <div class="timeline-company">Wipro Technologies (Ford Account)</div>
+      <p>Promoted to Senior Engineer for exceptional contributions to automation architecture and backend tool development.</p>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-date">October 2021 — December 2025</div>
+      <div class="timeline-title">Automation Engineer</div>
+      <div class="timeline-company">Wipro Technologies (Ford Account)</div>
+      <div class="timeline-sub">Automation Framework Engineering</div>
+      <ul>
+        <li>Architected end-to-end Python automation framework for Android Automotive infotainment — <strong>60% reduction</strong> in manual testing, <strong>35% improvement</strong> in test coverage</li>
+        <li>Authored <strong>1000+ automated test scripts</strong> using Selenium, Appium, and Slash Framework with DDT (YAML)</li>
+        <li>Built <strong>UI-Autogen</strong> (PySide6): auto-generates 300-500 UI properties and unit tests, <strong>40% faster</strong> bootstrapping</li>
+        <li>Module owner — peer reviews for <strong>50+ scripts/month</strong></li>
+      </ul>
+      <div class="timeline-sub">Backend &amp; Full-Stack Tools</div>
+      <ul>
+        <li><strong>TestRail Insight</strong>: Django + PostgreSQL app aggregating <strong>8,000+ test runs</strong> for real-time dashboards</li>
+        <li><strong>RTM Helper</strong> (PySide2): automated traceability for <strong>6,000+ test cases</strong>, eliminated 100% manual RTM</li>
+        <li><strong>Rail-Bridge</strong>: migrated <strong>4,000-5,000 test cases</strong> between TestRail instances</li>
+        <li><strong>Test-Crafter</strong>: bulk creation tool saving QA teams <strong>1-2 hours daily</strong></li>
+      </ul>
+      <div class="timeline-sub">Leadership</div>
+      <ul>
+        <li>Led cross-functional teams of <strong>16-20 engineers</strong> — sprint planning, release deliverables</li>
+        <li>Mentored <strong>6 junior engineers</strong> through structured knowledge transfer</li>
+        <li>Managed <strong>200+ defects/quarter</strong> in Jira across Android Automotive and QNX SYNC 4</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Awards -->
+<section id="awards">
+  <div class="container">
+    <h2 class="section-title">Awards &amp; Recognition</h2>
+    <p style="color:var(--text2);font-size:14px;margin-bottom:20px;"><strong style="color:var(--text);">19 Performance Awards</strong> (2021-2025) &middot; Two consecutive <strong style="color:var(--amber);">5/5 Outstanding Performance Ratings</strong></p>
+    <div class="awards-grid">
+      <div class="award-card">
+        <img src="images/awards/rookie-rockstar.png" alt="Rookie Rockstar">
+        <div><h3>Rookie Rockstar — Campus</h3><div class="times">1x</div><p>Exceptional expertise and problem-solving in multi-dependent radio automation</p></div>
+      </div>
+      <div class="award-card">
+        <img src="images/awards/extraordinary.png" alt="Extraordinaire">
+        <div><h3>Extraordinaire</h3><div class="times">2x</div><p>Exceptional contributions to automation framework development</p></div>
+      </div>
+      <div class="award-card">
+        <img src="images/awards/inspiring.png" alt="Inspiring Performance">
+        <div><h3>Inspiring Performance</h3><div class="times">3x</div><p>Outstanding backend tool development and team collaboration</p></div>
+      </div>
+      <div class="award-card">
+        <img src="images/awards/victory_league.png" alt="Victory League">
+        <div><h3>Victory League</h3><div class="times">1x</div><p>Leading successful project deliveries and milestones</p></div>
+      </div>
+      <div class="award-card">
+        <img src="images/awards/beyond_call_of_duty.png" alt="Beyond the Call of Duty">
+        <div><h3>Beyond the Call of Duty</h3><div class="times">3x</div><p>Going above and beyond in solving critical technical challenges</p></div>
+      </div>
+      <div class="award-card">
+        <img src="images/awards/demonstrating_stewardship.png" alt="Demonstrating Stewardship">
+        <div><h3>Demonstrating Stewardship</h3><div class="times">2x</div><p>Exemplary leadership and mentoring contributions</p></div>
+      </div>
+      <div class="award-card">
+        <img src="images/awards/being_responsive.png" alt="Being Responsive">
+        <div><h3>Being Responsive</h3><div class="times">2x</div><p>Exceptional responsiveness and agility in adapting to changing requirements</p></div>
+      </div>
+      <div class="award-card">
+        <img src="images/awards/always_communicating.png" alt="Always Communicating">
+        <div><h3>Always Communicating</h3><div class="times">5x</div><p>Transparent, proactive communication and knowledge sharing across teams</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Education -->
+<section id="education">
+  <div class="container">
+    <h2 class="section-title">Education</h2>
+    <div class="edu-grid">
+      <div class="edu-card">
+        <h3>M.Tech in Software Systems</h3>
+        <div class="inst">BITS Pilani (WILP)</div>
+        <p>Work Integrated Learning Program — alongside professional role since 2021</p>
+      </div>
+      <div class="edu-card">
+        <h3>Bachelor of Computer Applications</h3>
+        <div class="inst">N.C. College</div>
+        <p>Completed September 2021 &middot; CGPA: 6.74</p>
+      </div>
+      <div class="edu-card">
+        <h3>Higher Secondary (12th)</h3>
+        <div class="inst">Completed 2018</div>
+        <p>Percentage: 64.83%</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Projects (auto-populated from data.json) -->
+<section id="projects">
+  <div class="container">
+    <h2 class="section-title">Projects <span id="project-count" style="font-size:14px;color:var(--text3);font-weight:400;"></span></h2>
+    <div class="projects-grid" id="projects-grid">
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Resume -->
+<section id="resume">
+  <div class="container">
+    <h2 class="section-title">Resume</h2>
+    <div class="resume-box">
+      <p>Download or view my latest resume for a comprehensive overview of my experience, skills, and achievements.</p>
+      <div class="resume-actions">
+        <a href="myresume.pdf" download="Tapas_Kumar_Patra_Resume.pdf" class="btn-primary" style="display:inline-block;">Download PDF</a>
+        <a href="myresume.pdf" target="_blank" class="btn-outline" style="display:inline-block;">View Online</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact">
+  <div class="container">
+    <h2 class="section-title">Contact</h2>
+    <div class="contact-grid">
+      <a class="contact-item" href="mailto:tapas.patra0406@gmail.com?subject=From%20Portfolio">
+        <span class="contact-icon">&#9993;</span>
+        <span>tapas.patra0406@gmail.com</span>
+      </a>
+      <a class="contact-item" href="https://github.com/tapas-patra" target="_blank" rel="noopener">
+        <span class="contact-icon">&#128025;</span>
+        <span>github.com/tapas-patra</span>
+      </a>
+      <a class="contact-item" href="https://linkedin.com/in/tapas-patra" target="_blank" rel="noopener">
+        <span class="contact-icon">&#128279;</span>
+        <span>linkedin.com/in/tapas-patra</span>
+      </a>
+    </div>
+    <p style="text-align:center;color:var(--text3);font-size:12px;font-family:var(--mono);margin-top:20px;">Bengaluru, India &middot; IST (UTC+5:30)</p>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>&copy; 2026 Tapas Kumar Patra &middot; <a href="/">Experience TapasOS</a></p>
+    <p style="margin-top:6px;" id="last-updated"></p>
+  </div>
+</footer>
+
+<script>
+// Auto-populate projects, languages, and stats from data.json
+(async () => {
+  try {
+    const resp = await fetch('data.json');
+    const data = await resp.json();
+
+    // Repo count stat
+    const repos = data.github?.all_repos || [];
+    const el = document.getElementById('stat-repos');
+    if (el) el.textContent = data.github?.total_repos || repos.length || '—';
+
+    // Projects grid
+    const grid = document.getElementById('projects-grid');
+    const countEl = document.getElementById('project-count');
+    if (repos.length > 0) {
+      if (countEl) countEl.textContent = `(${repos.length})`;
+      grid.innerHTML = repos.slice(0, 20).map(r => `
+        <a class="project-card" href="${r.url}" target="_blank" rel="noopener">
+          <h3>${esc(r.name)}</h3>
+          <div class="desc">${esc(r.description || 'No description')}</div>
+          <div class="meta">
+            ${r.language ? `<span>${esc(r.language)}</span>` : ''}
+            ${r.stars > 0 ? `<span>&#11088; ${r.stars}</span>` : ''}
+            ${r.updated_at ? `<span>${timeAgo(r.updated_at)}</span>` : ''}
+          </div>
+        </a>
+      `).join('');
+    } else {
+      grid.innerHTML = '<p style="color:var(--text3);font-size:13px;">Projects auto-sync from GitHub nightly. Check back soon.</p>';
+    }
+
+    // Language bar
+    const langs = data.github?.languages || {};
+    const langKeys = Object.keys(langs);
+    if (langKeys.length > 0) {
+      const total = Object.values(langs).reduce((a, b) => a + b, 0);
+      const colors = { JavaScript: '#F7DF1E', Python: '#3572A5', TypeScript: '#3178C6', HTML: '#E34C26', CSS: '#563D7C', Shell: '#89E051', Java: '#B07219', Jupyter: '#DA5B0B' };
+      const barInner = document.getElementById('gh-lang-bar-inner');
+      const labels = document.getElementById('gh-lang-labels');
+      document.getElementById('gh-lang-bar').style.display = 'block';
+
+      langKeys.sort((a, b) => langs[b] - langs[a]);
+      barInner.innerHTML = langKeys.map(l => {
+        const pct = ((langs[l] / total) * 100).toFixed(1);
+        const color = colors[l] || '#6B8FA3';
+        return `<div style="width:${pct}%;background:${color};"></div>`;
+      }).join('');
+      labels.innerHTML = langKeys.slice(0, 8).map(l => {
+        const pct = ((langs[l] / total) * 100).toFixed(1);
+        const color = colors[l] || '#6B8FA3';
+        return `<span class="gh-lang"><span class="gh-lang-dot" style="background:${color}"></span>${l} ${pct}%</span>`;
+      }).join('');
+    }
+
+    // Last updated
+    if (data.meta?.last_updated) {
+      const d = new Date(data.meta.last_updated);
+      document.getElementById('last-updated').textContent = `Data last synced: ${d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}`;
+    }
+  } catch { /* data.json not available yet */ }
+})();
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function timeAgo(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const days = Math.floor(diff / 86400000);
+  if (days < 1) return 'today';
+  if (days < 30) return days + 'd ago';
+  if (days < 365) return Math.floor(days / 30) + 'mo ago';
+  return Math.floor(days / 365) + 'y ago';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "profile": {
+    "name": "Tapas Kumar Patra",
+    "title": "Senior Software Engineer",
+    "location": "Bengaluru, India",
+    "github": "https://github.com/tapas-patra"
+  },
+  "github": {
+    "pinned_repos": [],
+    "all_repos": [],
+    "languages": {},
+    "commit_weeks": [],
+    "streak_days": 0,
+    "committed_today": false,
+    "total_commits_year": 0,
+    "total_repos": 0
+  },
+  "meta": {
+    "last_updated": "2026-03-15T00:00:00.000Z",
+    "generator": "manual-seed"
+  }
+}

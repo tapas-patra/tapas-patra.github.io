@@ -1,0 +1,29 @@
+name: Reindex RAG Context
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'context/**'
+  workflow_dispatch:
+
+jobs:
+  reindex:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger RAG reindex on Render
+        run: |
+          echo "Context files changed — triggering RAG reindex..."
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 120 \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.ADMIN_REINDEX_TOKEN }}" \
+            -d '{"sources": ["all"]}' \
+            "${{ secrets.RENDER_API_URL }}/admin/reindex" \
+            || echo "000")
+          echo "Reindex response: $STATUS"
+          if [ "$STATUS" = "200" ]; then
+            echo "RAG reindex completed successfully"
+          else
+            echo "::warning::RAG reindex returned $STATUS"
+          fi
