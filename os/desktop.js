@@ -413,14 +413,11 @@ function initContextMenu() {
   const menu = document.getElementById('context-menu');
   const desktop = document.getElementById('desktop');
 
+  // Desktop background right-click
   desktop.addEventListener('contextmenu', (e) => {
-    // Only show on desktop background, not on windows
     if (e.target.closest('.window') || e.target.closest('#dock')) return;
     e.preventDefault();
-
-    menu.innerHTML = '';
-
-    const items = [
+    showContextMenu(e, [
       { label: 'About TapasOS', action: () => showAboutDialog() },
       { label: 'App Launcher', shortcut: '\u2318Space', action: () => openSpotlight() },
       { type: 'separator' },
@@ -431,40 +428,122 @@ function initContextMenu() {
       })),
       { type: 'separator' },
       { label: 'Refresh Desktop', shortcut: '\u2318R', action: () => location.reload() },
-    ];
+    ]);
+  });
 
-    items.forEach(item => {
-      if (item.type === 'separator') {
-        const sep = document.createElement('div');
-        sep.className = 'context-menu-separator';
-        menu.appendChild(sep);
-      } else {
-        const el = document.createElement('div');
-        el.className = 'context-menu-item';
-        el.innerHTML = `
-          ${item.icon ? `<span>${item.icon}</span>` : ''}
-          <span>${item.label}</span>
-          ${item.shortcut ? `<span class="context-menu-shortcut">${item.shortcut}</span>` : ''}
-        `;
-        el.addEventListener('click', () => {
-          menu.classList.remove('visible');
-          item.action();
-        });
-        menu.appendChild(el);
+  // Dock right-click
+  document.getElementById('dock').addEventListener('contextmenu', (e) => {
+    const dockItem = e.target.closest('.dock-item');
+    e.preventDefault();
+
+    if (dockItem) {
+      // Right-click on a specific dock icon
+      const appId = dockItem.dataset.app;
+      const appDef = APP_REGISTRY.find(a => a.id === appId);
+      const isOpen = windows.has(appId);
+      const isMinimized = isOpen && windows.get(appId).state === 'minimized';
+
+      const items = [
+        { label: appDef.title, disabled: true, icon: appDef.icon },
+        { type: 'separator' },
+        { label: isOpen ? 'Show' : 'Open', action: () => openApp(appId) },
+      ];
+      if (isOpen && !isMinimized) {
+        items.push({ label: 'Minimize', action: () => minimizeWindow(appId) });
       }
-    });
+      if (isOpen) {
+        items.push({ label: 'Close', action: () => closeWindow(appId) });
+      }
+      items.push({ type: 'separator' });
+      items.push({ label: 'Close All Windows', action: () => closeAllWindows() });
+      showContextMenu(e, items);
+    } else {
+      // Right-click on dock background
+      showContextMenu(e, [
+        { label: 'Open All Apps', action: () => APP_REGISTRY.forEach(a => openApp(a.id)) },
+        { label: 'Minimize All', action: () => minimizeAllWindows() },
+        { type: 'separator' },
+        { label: 'Close All Windows', action: () => closeAllWindows() },
+      ]);
+    }
+  });
 
-    menu.style.left = Math.min(e.clientX, window.innerWidth - 220) + 'px';
-    menu.style.top = Math.min(e.clientY, window.innerHeight - menu.scrollHeight - 10) + 'px';
-    menu.classList.add('visible');
+  // Window titlebar right-click
+  desktop.addEventListener('contextmenu', (e) => {
+    const titlebar = e.target.closest('.window-titlebar');
+    if (!titlebar) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const win = titlebar.closest('.window');
+    const appId = win.dataset.appId;
+    const appDef = APP_REGISTRY.find(a => a.id === appId);
+    const winData = windows.get(appId);
+
+    showContextMenu(e, [
+      { label: appDef ? appDef.title : appId, disabled: true, icon: appDef?.icon },
+      { type: 'separator' },
+      { label: 'Minimize', action: () => minimizeWindow(appId) },
+      { label: winData?.state === 'maximized' ? 'Restore' : 'Maximize', action: () => toggleMaximize(appId) },
+      { type: 'separator' },
+      { label: 'Close', shortcut: '\u2318W', action: () => closeWindow(appId) },
+      { type: 'separator' },
+      { label: 'Close All Windows', action: () => closeAllWindows() },
+    ]);
   });
 
   document.addEventListener('click', () => menu.classList.remove('visible'));
   document.addEventListener('contextmenu', (e) => {
-    if (!e.target.closest('#desktop') || e.target.closest('.window') || e.target.closest('#dock')) {
+    if (!e.target.closest('#desktop') && !e.target.closest('#dock')) {
       menu.classList.remove('visible');
     }
   });
+}
+
+function showContextMenu(e, items) {
+  const menu = document.getElementById('context-menu');
+  menu.innerHTML = '';
+
+  items.forEach(item => {
+    if (item.type === 'separator') {
+      const sep = document.createElement('div');
+      sep.className = 'context-menu-separator';
+      menu.appendChild(sep);
+    } else {
+      const el = document.createElement('div');
+      el.className = 'context-menu-item' + (item.disabled ? ' disabled' : '');
+      el.innerHTML = `
+        ${item.icon ? `<span>${item.icon}</span>` : ''}
+        <span>${item.label}</span>
+        ${item.shortcut ? `<span class="context-menu-shortcut">${item.shortcut}</span>` : ''}
+      `;
+      if (!item.disabled) {
+        el.addEventListener('click', () => {
+          menu.classList.remove('visible');
+          item.action();
+        });
+      }
+      menu.appendChild(el);
+    }
+  });
+
+  menu.style.left = Math.min(e.clientX, window.innerWidth - 220) + 'px';
+  menu.style.top = Math.min(e.clientY, window.innerHeight - menu.scrollHeight - 10) + 'px';
+  menu.classList.add('visible');
+}
+
+function closeAllWindows() {
+  for (const appId of [...windows.keys()]) {
+    closeWindow(appId);
+  }
+}
+
+function minimizeAllWindows() {
+  for (const [appId, winData] of windows.entries()) {
+    if (winData.state !== 'minimized') {
+      minimizeWindow(appId);
+    }
+  }
 }
 
 function showAboutDialog() {
