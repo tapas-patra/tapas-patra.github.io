@@ -16,6 +16,7 @@ let isListening = false;
 let isSpeaking = false;
 let sessionHistory = [];
 let ttsUtterances = [];
+const MAX_HISTORY = 10;
 
 // Subtitle tracking
 let subtitleWords = [];    // array of <span> elements
@@ -208,7 +209,7 @@ async function processQuery(text) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        messages: sessionHistory,
+        messages: sessionHistory.slice(-MAX_HISTORY),
         session_id: getSessionId(),
       }),
     });

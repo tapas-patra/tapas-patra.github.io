@@ -12,6 +12,7 @@ const STARTERS = [
 
 let sessionHistory = [];
 let isStreaming = false;
+const MAX_HISTORY = 10;
 
 export function initChat(container) {
   injectStyles();
@@ -100,7 +101,7 @@ async function sendMessage(text) {
     const resp = await fetch(`${API_BASE}/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: sessionHistory, session_id: getSessionId() }),
+      body: JSON.stringify({ messages: sessionHistory.slice(-MAX_HISTORY), session_id: getSessionId() }),
     });
 
     typing.remove();

@@ -1,8 +1,10 @@
 // Tapas.ai — AI Assistant Chat App
 
-const API_BASE = window.location.hostname === 'localhost'
+const API_BASE = window.location.hostname === 'localhost' && window.location.port === '8000'
   ? 'http://localhost:8000'
   : 'https://portfolio-bot-5pwk.onrender.com';
+
+const MAX_HISTORY = 10; // Keep last N messages to avoid 422 payload too large
 
 const STARTER_PROMPTS = [
   "What's your strongest skill?",
@@ -109,11 +111,13 @@ async function sendMessage(text) {
 
   // Stream AI response
   try {
+    // Send only recent history to avoid 422 payload errors
+    const recentHistory = sessionHistory.slice(-MAX_HISTORY);
     const response = await fetch(`${API_BASE}/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        messages: sessionHistory,
+        messages: recentHistory,
         session_id: getSessionId(),
       }),
     });
