@@ -38,7 +38,7 @@ const COMMANDS = {
   neofetch: () => NEOFETCH,
 
   whoami: () => `\x1b[1mTapas Kumar Patra\x1b[0m
-Senior Software Engineer | Bengaluru, India
+SDET II at Setu by Pine Labs | Bengaluru, India
 Building things that matter, one commit at a time.`,
 
   date: () => new Date().toString(),
@@ -51,13 +51,14 @@ Building things that matter, one commit at a time.`,
     const section = (args[0] || '').toLowerCase();
     const sections = {
       about: () => `\x1b[1mTapas Kumar Patra\x1b[0m
-Senior Software Engineer | Bengaluru, India
+SDET II at Setu by Pine Labs | Bengaluru, India
 
 I build production systems that solve real problems — from RAG-powered
 chatbots to enterprise testing platforms. I care about clean architecture,
 measurable impact, and shipping fast.
 
-\x1b[36mStatus:\x1b[0m Open to new opportunities
+\x1b[36mRole:\x1b[0m   SDET II @ Setu by Pine Labs (Jan 2026)
+\x1b[36mPrev:\x1b[0m   Software Engineer @ Wipro (2021-2025)
 \x1b[36mEmail:\x1b[0m  tapas.patra0406@gmail.com
 \x1b[36mGitHub:\x1b[0m github.com/tapas-patra`,
 
