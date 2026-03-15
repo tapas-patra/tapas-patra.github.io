@@ -28,7 +28,7 @@ jobs:
         if: steps.check-time.outputs.in_window == 'true'
         run: |
           START=$(date +%s%N)
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "https://portfolio-bot-5pwk.onrender.com/health" || echo "000")
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "${{ secrets.RENDER_API_URL }}/health" || echo "000")
           END=$(date +%s%N)
           LATENCY=$(( (END - START) / 1000000 ))
           echo "Status: $STATUS | Latency: ${LATENCY}ms"

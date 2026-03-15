@@ -19,7 +19,7 @@ jobs:
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer ${{ secrets.ADMIN_REINDEX_TOKEN }}" \
             -d '{"sources": ["all"]}' \
-            "https://portfolio-bot-5pwk.onrender.com/admin/reindex" \
+            "${{ secrets.RENDER_API_URL }}/admin/reindex" \
             || echo "000")
           echo "Reindex response: $STATUS"
           if [ "$STATUS" = "200" ]; then
