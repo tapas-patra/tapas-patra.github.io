@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tapas Kumar Patra — Portfolio</title>
-  <meta name="description" content="Senior Software Engineer — Python, FastAPI, AI/ML, Test Automation. 19 awards, 4+ years experience.">
+  <meta name="description" content="SDET II at Setu by Pine Labs — Python, FastAPI, AI/ML, Test Automation. 19 awards, 5+ years experience.">
   <meta name="author" content="Tapas Kumar Patra">
   <meta property="og:title" content="Tapas Kumar Patra — Portfolio">
-  <meta property="og:description" content="Senior Software Engineer — Backend, AI/ML, Automation. 19 awards.">
+  <meta property="og:description" content="SDET II at Setu by Pine Labs — Backend, AI/ML, Automation. 19 awards.">
   <meta property="og:image" content="https://tapas-patra.github.io/images/og-image.jpeg">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -57,13 +57,26 @@
     .hero h1 { font-size: 36px; font-weight: 800; margin-bottom: 8px; }
     .hero .subtitle { font-size: 16px; color: var(--text2); margin-bottom: 6px; }
     .hero .location { font-size: 13px; color: var(--text3); font-family: var(--mono); margin-bottom: 24px; }
-    .hero .status { display: inline-block; font-size: 12px; color: var(--green); border: 1px solid rgba(52,211,153,0.3); padding: 4px 14px; border-radius: 20px; }
+
+    /* Experience clock */
+    .exp-clock {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 13px; color: var(--accent); font-family: var(--mono);
+      background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.2);
+      padding: 6px 18px; border-radius: 20px; margin-bottom: 24px;
+    }
+    .exp-clock-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--green);
+      animation: clockPulse 2s ease-in-out infinite;
+    }
+    @keyframes clockPulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
     .hero-stats { display: flex; justify-content: center; gap: 40px; margin-top: 32px; }
     .hero-stat { text-align: center; }
     .hero-stat-num { font-size: 28px; font-weight: 800; color: var(--accent); }
     .hero-stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
     .hero-links { display: flex; justify-content: center; gap: 12px; margin-top: 28px; }
-    .hero-links a { padding: 10px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; transition: all 0.2s; }
+    .hero-links a { padding: 10px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
     .btn-primary { background: var(--accent); color: #0B1120; }
     .btn-primary:hover { background: #7DD3FC; text-decoration: none; }
     .btn-outline { border: 1px solid var(--border); color: var(--text); }
@@ -94,14 +107,76 @@
     .timeline-item ul { padding-left: 18px; margin-top: 6px; }
     .timeline-item strong { color: var(--text); }
     .timeline-sub { font-size: 14px; font-weight: 600; color: var(--text); margin-top: 14px; margin-bottom: 4px; }
+    .timeline-current { border-left: 2px solid var(--accent); padding-left: 26px; }
+    .timeline-current::before { box-shadow: 0 0 0 4px rgba(56,189,248,0.2); }
 
     /* Awards grid */
     .awards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
-    .award-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; display: flex; gap: 14px; align-items: flex-start; }
+    .award-card {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
+      padding: 16px; display: flex; gap: 14px; align-items: flex-start;
+      cursor: pointer; transition: border-color 0.2s, transform 0.15s;
+    }
+    .award-card:hover { border-color: var(--amber); transform: translateY(-2px); }
     .award-card img { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
     .award-card h3 { font-size: 13px; font-weight: 600; }
     .award-card .times { font-size: 11px; color: var(--amber); font-family: var(--mono); }
     .award-card p { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+    /* Award modal */
+    .award-modal-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.25s;
+    }
+    .award-modal-overlay.visible { opacity: 1; pointer-events: auto; }
+    .award-modal {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 16px;
+      max-width: 520px; width: calc(100% - 32px); max-height: 85vh; overflow: hidden;
+      display: flex; flex-direction: column;
+      transform: scale(0.92); transition: transform 0.25s;
+    }
+    .award-modal-overlay.visible .award-modal { transform: scale(1); }
+    .award-modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 20px 24px 16px; border-bottom: 1px solid var(--border);
+    }
+    .award-modal-header h3 { font-size: 18px; font-weight: 700; }
+    .award-modal-close {
+      width: 32px; height: 32px; border-radius: 50%; border: none;
+      background: var(--bg3); color: var(--text2); font-size: 18px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .award-modal-close:hover { background: rgba(255,255,255,0.15); }
+    .award-modal-body { padding: 24px; overflow-y: auto; }
+    .award-modal-image-wrap {
+      position: relative; border-radius: 10px; overflow: hidden;
+      background: var(--bg); margin-bottom: 20px;
+    }
+    .award-modal-image-wrap img {
+      width: 100%; display: block; object-fit: contain; max-height: 320px;
+    }
+    .award-modal-swipe {
+      display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    }
+    .award-modal-swipe::-webkit-scrollbar { display: none; }
+    .award-modal-swipe img {
+      flex: 0 0 100%; scroll-snap-align: center;
+      width: 100%; object-fit: contain; max-height: 320px;
+    }
+    .award-modal-dots {
+      display: flex; justify-content: center; gap: 6px; margin-top: 10px;
+    }
+    .award-modal-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--text3); transition: background 0.2s;
+    }
+    .award-modal-dot.active { background: var(--amber); }
+    .award-modal-info .times { font-size: 13px; color: var(--amber); font-family: var(--mono); margin-bottom: 8px; }
+    .award-modal-info p { font-size: 14px; color: var(--text2); line-height: 1.7; }
 
     /* Education */
     .edu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
@@ -110,7 +185,7 @@
     .edu-card .inst { font-size: 13px; color: var(--accent2); margin-bottom: 8px; }
     .edu-card p { font-size: 12px; color: var(--text3); }
 
-    /* Projects (auto-loaded from data.json) */
+    /* Projects */
     .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
     .project-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 20px; transition: border-color 0.2s; display: block; color: inherit; }
     .project-card:hover { border-color: var(--accent); text-decoration: none; }
@@ -126,12 +201,31 @@
     /* Resume */
     .resume-box { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 32px; text-align: center; }
     .resume-box p { color: var(--text2); font-size: 14px; margin-bottom: 20px; }
-    .resume-actions { display: flex; justify-content: center; gap: 12px; }
+    .resume-actions { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+    .resume-btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 12px 28px; border-radius: 10px; font-size: 14px; font-weight: 600;
+      transition: all 0.2s; text-decoration: none;
+    }
+    .resume-btn:hover { text-decoration: none; transform: translateY(-1px); }
+    .resume-btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #0B1120; box-shadow: 0 4px 15px rgba(56,189,248,0.25);
+    }
+    .resume-btn-primary:hover { box-shadow: 0 6px 20px rgba(56,189,248,0.35); }
+    .resume-btn-outline {
+      border: 1px solid var(--border); color: var(--text);
+      background: transparent;
+    }
+    .resume-btn-outline:hover { background: var(--bg3); border-color: var(--text3); }
+    .resume-btn svg { flex-shrink: 0; }
 
     /* Contact */
     .contact-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
-    .contact-item { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; display: flex; align-items: center; gap: 14px; font-size: 14px; }
+    .contact-item { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; display: flex; align-items: center; gap: 14px; font-size: 14px; transition: border-color 0.2s; }
+    .contact-item:hover { border-color: var(--accent); text-decoration: none; }
     .contact-icon { font-size: 20px; flex-shrink: 0; }
+    .contact-icon svg { width: 22px; height: 22px; fill: var(--text2); }
 
     /* Footer */
     footer { text-align: center; padding: 40px 24px; border-top: 1px solid var(--border); color: var(--text3); font-size: 12px; }
@@ -147,6 +241,7 @@
       .hero-stats { gap: 24px; }
       .nav-links { display: none; }
       .skills-grid, .awards-grid { grid-template-columns: 1fr; }
+      .resume-actions { flex-direction: column; align-items: center; }
     }
   </style>
 </head>
@@ -172,12 +267,15 @@
   <div class="container">
     <img src="images/me.png" alt="Tapas Kumar Patra" class="hero-avatar">
     <h1>Tapas Kumar Patra</h1>
-    <div class="subtitle">Senior Software Engineer</div>
+    <div class="subtitle">SDET II at Setu by Pine Labs</div>
     <div class="location">Bengaluru, India &middot; IST (UTC+5:30)</div>
-    <div class="status">Open to new opportunities</div>
+    <div class="exp-clock">
+      <span class="exp-clock-dot"></span>
+      <span id="exp-clock-text">Loading...</span>
+    </div>
     <div class="hero-stats">
       <div class="hero-stat"><div class="hero-stat-num">19</div><div class="hero-stat-label">Awards</div></div>
-      <div class="hero-stat"><div class="hero-stat-num">4+</div><div class="hero-stat-label">Years Exp</div></div>
+      <div class="hero-stat"><div class="hero-stat-num" id="stat-years">—</div><div class="hero-stat-label">Years Exp</div></div>
       <div class="hero-stat"><div class="hero-stat-num" id="stat-repos">—</div><div class="hero-stat-label">Repos</div></div>
       <div class="hero-stat"><div class="hero-stat-num">2x</div><div class="hero-stat-label">Outstanding</div></div>
     </div>
@@ -193,9 +291,9 @@
   <div class="container">
     <h2 class="section-title">About Me</h2>
     <div class="about">
-      <p>I'm a Senior Software Engineer with deep expertise in backend systems, AI/ML integration, test automation, and developer tooling. I build production systems that solve real problems — from RAG-powered chatbots to enterprise testing platforms.</p>
-      <p>Currently at Wipro Technologies on the Ford account, I've architected end-to-end automation frameworks, built 6+ production tools using Python/FastAPI/Django, and led cross-functional teams of 16-20 engineers. My work has reduced manual testing by 60% and improved test coverage by 35%.</p>
-      <p>I care about clean architecture, measurable impact, and shipping fast. I'm currently pursuing my M.Tech in Software Systems from BITS Pilani alongside my professional role.</p>
+      <p>I'm an SDET II at Setu by Pine Labs, a fintech company building payment infrastructure for India. I specialize in backend systems, AI/LLM integration, test automation, and developer tooling.</p>
+      <p>Previously at Wipro Technologies (4+ years), I architected end-to-end automation frameworks, built 6+ production tools using Python/FastAPI/Django, and led cross-functional teams. My work reduced manual testing by 60% and improved test coverage by 35%.</p>
+      <p>I also build AI-powered applications in my personal time — my flagship project is TapasOS, an AI-first portfolio disguised as a browser-based operating system with a RAG-powered chatbot. I completed my M.Tech in Software Systems from BITS Pilani alongside my professional role.</p>
     </div>
   </div>
 </section>
@@ -240,7 +338,6 @@
         <ul><li>Git</li><li>VS Code</li><li>Jira</li><li>Postman</li><li>Linux</li><li>Agile / Scrum</li></ul>
       </div>
     </div>
-    <!-- GitHub language breakdown (auto-filled) -->
     <div id="gh-lang-bar" style="margin-top:24px;display:none;">
       <h3 style="font-size:13px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">GitHub Language Breakdown</h3>
       <div style="height:6px;border-radius:3px;overflow:hidden;display:flex;" id="gh-lang-bar-inner"></div>
@@ -254,17 +351,17 @@
   <div class="container">
     <h2 class="section-title">Experience</h2>
 
-    <div class="timeline-item">
-      <div class="timeline-date">December 2025 — Present</div>
-      <div class="timeline-title">Senior Automation Engineer</div>
-      <div class="timeline-company">Wipro Technologies (Ford Account)</div>
-      <p>Promoted to Senior Engineer for exceptional contributions to automation architecture and backend tool development.</p>
+    <div class="timeline-item timeline-current">
+      <div class="timeline-date">January 2026 — Present</div>
+      <div class="timeline-title">SDET II</div>
+      <div class="timeline-company">Setu by Pine Labs</div>
+      <p>Building and scaling quality infrastructure at a fintech company powering payment solutions for India. Focus on backend testing, API automation, and CI/CD integration for payment infrastructure services.</p>
     </div>
 
     <div class="timeline-item">
       <div class="timeline-date">October 2021 — December 2025</div>
-      <div class="timeline-title">Automation Engineer</div>
-      <div class="timeline-company">Wipro Technologies (Ford Account)</div>
+      <div class="timeline-title">Software Engineer (Automation)</div>
+      <div class="timeline-company">Wipro Technologies &middot; Ford Motor Company Account</div>
       <div class="timeline-sub">Automation Framework Engineering</div>
       <ul>
         <li>Architected end-to-end Python automation framework for Android Automotive infotainment — <strong>60% reduction</strong> in manual testing, <strong>35% improvement</strong> in test coverage</li>
@@ -279,13 +376,15 @@
         <li><strong>Rail-Bridge</strong>: migrated <strong>4,000-5,000 test cases</strong> between TestRail instances</li>
         <li><strong>Test-Crafter</strong>: bulk creation tool saving QA teams <strong>1-2 hours daily</strong></li>
       </ul>
-      <div class="timeline-sub">Leadership</div>
+      <div class="timeline-sub">Leadership &amp; Recognition</div>
       <ul>
         <li>Led cross-functional teams of <strong>16-20 engineers</strong> — sprint planning, release deliverables</li>
         <li>Mentored <strong>6 junior engineers</strong> through structured knowledge transfer</li>
         <li>Managed <strong>200+ defects/quarter</strong> in Jira across Android Automotive and QNX SYNC 4</li>
+        <li>Received <strong>19 performance awards</strong> including 2x Outstanding Performance ratings</li>
       </ul>
     </div>
+
   </div>
 </section>
 
@@ -294,42 +393,36 @@
   <div class="container">
     <h2 class="section-title">Awards &amp; Recognition</h2>
     <p style="color:var(--text2);font-size:14px;margin-bottom:20px;"><strong style="color:var(--text);">19 Performance Awards</strong> (2021-2025) &middot; Two consecutive <strong style="color:var(--amber);">5/5 Outstanding Performance Ratings</strong></p>
-    <div class="awards-grid">
-      <div class="award-card">
-        <img src="images/awards/rookie-rockstar.png" alt="Rookie Rockstar">
-        <div><h3>Rookie Rockstar — Campus</h3><div class="times">1x</div><p>Exceptional expertise and problem-solving in multi-dependent radio automation</p></div>
+
+    <div style="margin-bottom:16px;">
+      <div style="font-size:13px;font-weight:600;color:var(--accent2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+        <span style="width:20px;height:1px;background:var(--accent2);display:inline-block;"></span>
+        Wipro Technologies (2021–2025)
+        <span style="flex:1;height:1px;background:var(--border);display:inline-block;"></span>
       </div>
-      <div class="award-card">
-        <img src="images/awards/extraordinary.png" alt="Extraordinaire">
-        <div><h3>Extraordinaire</h3><div class="times">2x</div><p>Exceptional contributions to automation framework development</p></div>
-      </div>
-      <div class="award-card">
-        <img src="images/awards/inspiring.png" alt="Inspiring Performance">
-        <div><h3>Inspiring Performance</h3><div class="times">3x</div><p>Outstanding backend tool development and team collaboration</p></div>
-      </div>
-      <div class="award-card">
-        <img src="images/awards/victory_league.png" alt="Victory League">
-        <div><h3>Victory League</h3><div class="times">1x</div><p>Leading successful project deliveries and milestones</p></div>
-      </div>
-      <div class="award-card">
-        <img src="images/awards/beyond_call_of_duty.png" alt="Beyond the Call of Duty">
-        <div><h3>Beyond the Call of Duty</h3><div class="times">3x</div><p>Going above and beyond in solving critical technical challenges</p></div>
-      </div>
-      <div class="award-card">
-        <img src="images/awards/demonstrating_stewardship.png" alt="Demonstrating Stewardship">
-        <div><h3>Demonstrating Stewardship</h3><div class="times">2x</div><p>Exemplary leadership and mentoring contributions</p></div>
-      </div>
-      <div class="award-card">
-        <img src="images/awards/being_responsive.png" alt="Being Responsive">
-        <div><h3>Being Responsive</h3><div class="times">2x</div><p>Exceptional responsiveness and agility in adapting to changing requirements</p></div>
-      </div>
-      <div class="award-card">
-        <img src="images/awards/always_communicating.png" alt="Always Communicating">
-        <div><h3>Always Communicating</h3><div class="times">5x</div><p>Transparent, proactive communication and knowledge sharing across teams</p></div>
+      <div class="awards-grid" id="awards-grid">
+        <!-- Awards are defined in JS below -->
       </div>
     </div>
   </div>
 </section>
+
+<!-- Award Modal -->
+<div class="award-modal-overlay" id="award-modal-overlay">
+  <div class="award-modal">
+    <div class="award-modal-header">
+      <h3 id="award-modal-title"></h3>
+      <button class="award-modal-close" id="award-modal-close">&times;</button>
+    </div>
+    <div class="award-modal-body">
+      <div class="award-modal-image-wrap" id="award-modal-images"></div>
+      <div class="award-modal-info">
+        <div class="times" id="award-modal-times"></div>
+        <p id="award-modal-desc"></p>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Education -->
 <section id="education">
@@ -339,7 +432,7 @@
       <div class="edu-card">
         <h3>M.Tech in Software Systems</h3>
         <div class="inst">BITS Pilani (WILP)</div>
-        <p>Work Integrated Learning Program — alongside professional role since 2021</p>
+        <p>Work Integrated Learning Program — completed alongside professional role (2021-2025)</p>
       </div>
       <div class="edu-card">
         <h3>Bachelor of Computer Applications</h3>
@@ -355,7 +448,7 @@
   </div>
 </section>
 
-<!-- Projects (auto-populated from data.json) -->
+<!-- Projects -->
 <section id="projects">
   <div class="container">
     <h2 class="section-title">Projects <span id="project-count" style="font-size:14px;color:var(--text3);font-weight:400;"></span></h2>
@@ -374,8 +467,14 @@
     <div class="resume-box">
       <p>Download or view my latest resume for a comprehensive overview of my experience, skills, and achievements.</p>
       <div class="resume-actions">
-        <a href="myresume.pdf" download="Tapas_Kumar_Patra_Resume.pdf" class="btn-primary" style="display:inline-block;">Download PDF</a>
-        <a href="myresume.pdf" target="_blank" class="btn-outline" style="display:inline-block;">View Online</a>
+        <a href="myresume.pdf" download="Tapas_Kumar_Patra_Resume.pdf" class="resume-btn resume-btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download PDF
+        </a>
+        <a href="myresume.pdf" target="_blank" class="resume-btn resume-btn-outline">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          View Online
+        </a>
       </div>
     </div>
   </div>
@@ -391,12 +490,12 @@
         <span>tapas.patra0406@gmail.com</span>
       </a>
       <a class="contact-item" href="https://github.com/tapas-patra" target="_blank" rel="noopener">
-        <span class="contact-icon">&#128025;</span>
+        <span class="contact-icon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg></span>
         <span>github.com/tapas-patra</span>
       </a>
-      <a class="contact-item" href="https://linkedin.com/in/tapas-patra" target="_blank" rel="noopener">
-        <span class="contact-icon">&#128279;</span>
-        <span>linkedin.com/in/tapas-patra</span>
+      <a class="contact-item" href="https://www.linkedin.com/in/tapas-kumar-patra/" target="_blank" rel="noopener">
+        <span class="contact-icon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></span>
+        <span>linkedin.com/in/tapas-kumar-patra</span>
       </a>
     </div>
     <p style="text-align:center;color:var(--text3);font-size:12px;font-family:var(--mono);margin-top:20px;">Bengaluru, India &middot; IST (UTC+5:30)</p>
@@ -411,18 +510,144 @@
 </footer>
 
 <script>
-// Auto-populate projects, languages, and stats from data.json
+// ── Experience Clock ──
+const EXP_START = new Date('2021-10-25T00:00:00+05:30');
+
+function updateExpClock() {
+  const now = new Date();
+  const diff = now - EXP_START;
+  const years = Math.floor(diff / (365.25 * 24 * 60 * 60 * 1000));
+  const remaining = diff - years * (365.25 * 24 * 60 * 60 * 1000);
+  const months = Math.floor(remaining / (30.44 * 24 * 60 * 60 * 1000));
+  const remaining2 = remaining - months * (30.44 * 24 * 60 * 60 * 1000);
+  const days = Math.floor(remaining2 / (24 * 60 * 60 * 1000));
+  const remaining3 = remaining2 - days * (24 * 60 * 60 * 1000);
+  const hours = Math.floor(remaining3 / (60 * 60 * 1000));
+  const remaining4 = remaining3 - hours * (60 * 60 * 1000);
+  const mins = Math.floor(remaining4 / (60 * 1000));
+  const secs = Math.floor((remaining4 - mins * 60 * 1000) / 1000);
+
+  const el = document.getElementById('exp-clock-text');
+  if (el) el.textContent = `${years}y ${months}m ${days}d ${pad(hours)}:${pad(mins)}:${pad(secs)} experience`;
+
+  const statEl = document.getElementById('stat-years');
+  if (statEl) statEl.textContent = `${years}+`;
+}
+
+function pad(n) { return n < 10 ? '0' + n : n; }
+
+updateExpClock();
+setInterval(updateExpClock, 1000);
+
+// ── Awards ──
+const AWARDS_DATA = [
+  {
+    name: 'Rookie Rockstar — Campus', times: '1x', desc: 'Recognized for exceptional expertise and problem-solving ability in multi-dependent radio automation during my first year at Wipro. This award is given to top-performing campus hires who demonstrate outstanding technical capabilities.',
+    images: ['images/awards/rookie-rockstar.png']
+  },
+  {
+    name: 'Extraordinaire', times: '2x', desc: 'Awarded twice for exceptional contributions to automation framework development and architecture. Recognized for designing scalable solutions that significantly improved team productivity and test coverage.',
+    images: ['images/awards/extraordinary.png']
+  },
+  {
+    name: 'Inspiring Performance', times: '3x', desc: 'Received three times for outstanding backend tool development and cross-team collaboration. Acknowledged for building production tools like TestRail Insight and RTM Helper that eliminated manual processes.',
+    images: ['images/awards/inspiring.png']
+  },
+  {
+    name: 'Victory League', times: '1x', desc: 'Awarded for leading successful project deliveries and hitting critical milestones on time. Recognized for coordinating cross-functional teams to deliver high-quality automation solutions.',
+    images: ['images/awards/victory_league.png']
+  },
+  {
+    name: 'Beyond the Call of Duty', times: '3x', desc: 'Received three times for going above and beyond in solving critical technical challenges. Recognized for volunteering on high-priority issues, building tools outside core responsibilities, and mentoring teammates.',
+    images: ['images/awards/beyond_call_of_duty.png']
+  },
+  {
+    name: 'Demonstrating Stewardship', times: '2x', desc: 'Awarded twice for exemplary leadership and mentoring contributions. Recognized for guiding 6+ junior engineers, conducting structured knowledge transfer sessions, and driving best practices across the team.',
+    images: ['images/awards/demonstrating_stewardship.png']
+  },
+  {
+    name: 'Being Responsive', times: '2x', desc: 'Received twice for exceptional responsiveness and agility in adapting to changing requirements. Recognized for quick turnarounds on critical bug fixes and proactive communication with stakeholders.',
+    images: ['images/awards/being_responsive.png']
+  },
+  {
+    name: 'Always Communicating', times: '5x', desc: 'Awarded five times — the most frequent recognition. Acknowledged for transparent, proactive communication and knowledge sharing across teams. Consistently praised for keeping stakeholders informed and documenting processes.',
+    images: ['images/awards/always_communicating.png']
+  }
+];
+
+// Render awards grid
+const awardsGrid = document.getElementById('awards-grid');
+AWARDS_DATA.forEach((award, idx) => {
+  const card = document.createElement('div');
+  card.className = 'award-card';
+  card.innerHTML = `
+    <img src="${award.images[0]}" alt="${esc(award.name)}">
+    <div>
+      <h3>${esc(award.name)}</h3>
+      <div class="times">${award.times}</div>
+      <p>${esc(award.desc.slice(0, 60))}...</p>
+    </div>
+  `;
+  card.addEventListener('click', () => openAwardModal(idx));
+  awardsGrid.appendChild(card);
+});
+
+// Award modal logic
+function openAwardModal(idx) {
+  const award = AWARDS_DATA[idx];
+  const overlay = document.getElementById('award-modal-overlay');
+  document.getElementById('award-modal-title').textContent = award.name;
+  document.getElementById('award-modal-times').textContent = `Received ${award.times}`;
+  document.getElementById('award-modal-desc').textContent = award.desc;
+
+  const imagesWrap = document.getElementById('award-modal-images');
+
+  if (award.images.length === 1) {
+    imagesWrap.innerHTML = `<img src="${award.images[0]}" alt="${esc(award.name)}">`;
+  } else {
+    imagesWrap.innerHTML = `
+      <div class="award-modal-swipe" id="award-swipe">
+        ${award.images.map(img => `<img src="${img}" alt="${esc(award.name)}">`).join('')}
+      </div>
+      <div class="award-modal-dots" id="award-dots">
+        ${award.images.map((_, i) => `<div class="award-modal-dot${i === 0 ? ' active' : ''}"></div>`).join('')}
+      </div>
+    `;
+
+    // Swipe dot tracking
+    const swipe = document.getElementById('award-swipe');
+    const dots = document.querySelectorAll('#award-dots .award-modal-dot');
+    swipe.addEventListener('scroll', () => {
+      const idx = Math.round(swipe.scrollLeft / swipe.offsetWidth);
+      dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    });
+  }
+
+  overlay.classList.add('visible');
+}
+
+document.getElementById('award-modal-close').addEventListener('click', closeAwardModal);
+document.getElementById('award-modal-overlay').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeAwardModal();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeAwardModal();
+});
+
+function closeAwardModal() {
+  document.getElementById('award-modal-overlay').classList.remove('visible');
+}
+
+// ── Auto-populate from data.json ──
 (async () => {
   try {
     const resp = await fetch('data.json');
     const data = await resp.json();
 
-    // Repo count stat
     const repos = data.github?.all_repos || [];
     const el = document.getElementById('stat-repos');
     if (el) el.textContent = data.github?.total_repos || repos.length || '—';
 
-    // Projects grid
     const grid = document.getElementById('projects-grid');
     const countEl = document.getElementById('project-count');
     if (repos.length > 0) {
@@ -442,30 +667,35 @@
       grid.innerHTML = '<p style="color:var(--text3);font-size:13px;">Projects auto-sync from GitHub nightly. Check back soon.</p>';
     }
 
-    // Language bar
     const langs = data.github?.languages || {};
     const langKeys = Object.keys(langs);
     if (langKeys.length > 0) {
-      const total = Object.values(langs).reduce((a, b) => a + b, 0);
-      const colors = { JavaScript: '#F7DF1E', Python: '#3572A5', TypeScript: '#3178C6', HTML: '#E34C26', CSS: '#563D7C', Shell: '#89E051', Java: '#B07219', Jupyter: '#DA5B0B' };
+      const defaultColors = { JavaScript: '#F7DF1E', Python: '#3572A5', TypeScript: '#3178C6', HTML: '#E34C26', CSS: '#563D7C', Shell: '#89E051', Java: '#B07219', Jupyter: '#DA5B0B', SQL: '#e38c00', YAML: '#cb171e' };
       const barInner = document.getElementById('gh-lang-bar-inner');
       const labels = document.getElementById('gh-lang-labels');
       document.getElementById('gh-lang-bar').style.display = 'block';
 
-      langKeys.sort((a, b) => langs[b] - langs[a]);
+      // Support both formats: plain numbers or objects with .percentage
+      const getPct = (l) => {
+        const v = langs[l];
+        return typeof v === 'object' ? (v.percentage || 0) : v;
+      };
+      const getColor = (l) => {
+        const v = langs[l];
+        return (typeof v === 'object' && v.color) ? v.color : (defaultColors[l] || '#6B8FA3');
+      };
+
+      langKeys.sort((a, b) => getPct(b) - getPct(a));
       barInner.innerHTML = langKeys.map(l => {
-        const pct = ((langs[l] / total) * 100).toFixed(1);
-        const color = colors[l] || '#6B8FA3';
-        return `<div style="width:${pct}%;background:${color};"></div>`;
+        const pct = getPct(l).toFixed(1);
+        return `<div style="width:${pct}%;background:${getColor(l)};"></div>`;
       }).join('');
       labels.innerHTML = langKeys.slice(0, 8).map(l => {
-        const pct = ((langs[l] / total) * 100).toFixed(1);
-        const color = colors[l] || '#6B8FA3';
-        return `<span class="gh-lang"><span class="gh-lang-dot" style="background:${color}"></span>${l} ${pct}%</span>`;
+        const pct = getPct(l).toFixed(1);
+        return `<span class="gh-lang"><span class="gh-lang-dot" style="background:${getColor(l)}"></span>${l} ${pct}%</span>`;
       }).join('');
     }
 
-    // Last updated
     if (data.meta?.last_updated) {
       const d = new Date(data.meta.last_updated);
       document.getElementById('last-updated').textContent = `Data last synced: ${d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}`;
