@@ -29,7 +29,7 @@ jobs:
           echo "=== Time Check ==="
           echo "IST time: $IST_TIME (hour: $IST_HOUR)"
           echo "Active window: 06:00 - 23:00 IST"
-          if [ "$IST_HOUR" -ge 6 ] && [ "$IST_HOUR" -lt 23 ]; then
+          if [[ "$IST_HOUR" -ge 6 && "$IST_HOUR" -lt 23 ]]; then
             echo "Result: INSIDE active window"
             echo "in_window=true" >> "$GITHUB_OUTPUT"
           else
