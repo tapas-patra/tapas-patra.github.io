@@ -274,17 +274,22 @@ function speakText(text) {
   window.speechSynthesis.cancel();
   ttsUtterances = [];
 
-  // Pick best voice
+  // Pick best male voice
   const voices = window.speechSynthesis.getVoices();
-  const preferred = voices.find(v => v.name.includes('Google') && v.lang.startsWith('en'))
+  const maleNames = ['Male', 'Daniel', 'Aaron', 'Alex', 'David', 'Guy', 'James', 'Mark', 'Rishi'];
+  const isMale = (v) => maleNames.some(n => v.name.includes(n));
+  const preferred =
+       voices.find(v => v.lang.startsWith('en') && isMale(v) && v.name.includes('Google'))
+    || voices.find(v => v.lang.startsWith('en') && isMale(v))
+    || voices.find(v => v.name.includes('Google') && v.lang.startsWith('en'))
     || voices.find(v => v.lang.startsWith('en') && v.localService)
     || voices.find(v => v.lang.startsWith('en'))
     || null;
 
   sentences.forEach((sentence, i) => {
     const utterance = new SpeechSynthesisUtterance(sentence.trim());
-    utterance.rate = 1.0;
-    utterance.pitch = 1.0;
+    utterance.rate = 1.15;
+    utterance.pitch = 0.95;
     if (preferred) utterance.voice = preferred;
 
     if (i === sentences.length - 1) {
