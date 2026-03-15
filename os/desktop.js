@@ -527,9 +527,28 @@ function showContextMenu(e, items) {
     }
   });
 
-  menu.style.left = Math.min(e.clientX, window.innerWidth - 220) + 'px';
-  menu.style.top = Math.min(e.clientY, window.innerHeight - menu.scrollHeight - 10) + 'px';
+  // Make visible off-screen to measure height
+  menu.style.left = '-9999px';
+  menu.style.top = '-9999px';
   menu.classList.add('visible');
+
+  const menuH = menu.offsetHeight;
+  const menuW = menu.offsetWidth || 220;
+  const winW = window.innerWidth;
+  const winH = window.innerHeight;
+
+  // If menu would overflow bottom, open above the click point
+  let top = e.clientY;
+  if (top + menuH + 10 > winH) {
+    top = e.clientY - menuH;
+  }
+  top = Math.max(4, Math.min(top, winH - menuH - 4));
+
+  let left = e.clientX;
+  left = Math.max(4, Math.min(left, winW - menuW - 4));
+
+  menu.style.left = left + 'px';
+  menu.style.top = top + 'px';
 }
 
 function closeAllWindows() {
