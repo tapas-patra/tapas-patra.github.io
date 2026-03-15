@@ -225,8 +225,9 @@ async function processQuery(text) {
     }
 
     sessionHistory.push({ role: 'assistant', content: fullText });
-    showTranscriptOut(fullText);
-    speakText(fullText);
+    const cleanText = stripMarkdown(fullText);
+    showTranscriptOut(cleanText);
+    speakText(cleanText);
   } catch {
     showTranscriptOut("Sorry, I couldn't connect. Try again or use the chat.");
     setOrbState('idle');
@@ -326,6 +327,22 @@ function fadeTranscripts() {
 function hideStarters() {
   const el = document.getElementById('voice-starters');
   if (el) el.style.display = 'none';
+}
+
+// ── Markdown Stripping ──
+function stripMarkdown(text) {
+  return text
+    .replace(/^#{1,6}\s+/gm, '')          // headings
+    .replace(/\*{1,3}([^*]+)\*{1,3}/g, '$1') // bold/italic
+    .replace(/_{1,3}([^_]+)_{1,3}/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')           // inline code
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // links
+    .replace(/^>\s+/gm, '')               // blockquotes
+    .replace(/^[-*+]\s+/gm, '')           // list markers
+    .replace(/^\d+\.\s+/gm, '')           // numbered lists
+    .replace(/[-*_]{3,}/g, '')            // horizontal rules
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
 }
 
 // ── Helpers ──
