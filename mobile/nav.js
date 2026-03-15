@@ -139,8 +139,8 @@ function renderContact(container) {
         <a class="mobile-contact-item" href="https://github.com/tapas-patra" target="_blank" rel="noopener">
           <span>🐱</span><span>github.com/tapas-patra</span>
         </a>
-        <a class="mobile-contact-item" href="https://linkedin.com/in/tapas-patra" target="_blank" rel="noopener">
-          <span>🔗</span><span>linkedin.com/in/tapas-patra</span>
+        <a class="mobile-contact-item" href="https://www.linkedin.com/in/tapas-kumar-patra/" target="_blank" rel="noopener">
+          <span>🔗</span><span>www.linkedin.com/in/tapas-kumar-patra/</span>
         </a>
       </div>
       <div style="text-align:center;color:var(--text-dim);font-size:11px;margin-top:24px;">
