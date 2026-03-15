@@ -310,7 +310,7 @@ function speakText(text) {
     const myStartIdx = sentenceWordStart;
 
     const utterance = new SpeechSynthesisUtterance(trimmed);
-    utterance.rate = 1.15;
+    utterance.rate = 1.08;
     utterance.pitch = 0.95;
     if (preferred) utterance.voice = preferred;
 
@@ -397,49 +397,78 @@ function highlightWord(idx) {
 
 // ── Reactive Orb Animation ──
 
-// Generate a random wavy border-radius
-// spread: how wild the deformation is (0 = subtle, 1 = extreme)
-function randBlob(spread = 0.5) {
-  const base = 50;
-  const range = 15 + spread * 25; // 15-40% deviation from circle
-  const r = () => Math.floor(base - range + Math.random() * range * 2);
-  return `${r()}% ${r()}% ${r()}% ${r()}% / ${r()}% ${r()}% ${r()}% ${r()}%`;
+// Generate 8 random radii for a blob shape
+// spread: how far from a circle (0 = nearly round, 1 = very wavy)
+function randRadii(spread = 0.5) {
+  const range = 6 + spread * 14; // 6-20% deviation
+  return Array.from({ length: 8 }, () => 50 + (Math.random() - 0.5) * range * 2);
 }
 
-// Continuous vibration loop — runs every frame while speaking
-function startVibrationLoop() {
-  if (orbVibrateId) return; // already running
+// Current and target radii for smooth interpolation
+let currentRadii = Array(8).fill(50);
+let targetRadii = Array(8).fill(50);
+let currentScale = 1;
+let targetScale = 1;
+let currentGlow = 25;
+let targetGlow = 25;
+let currentRotate = 0;
+let targetRotate = 0;
+let lastShapeChange = 0;
+const SHAPE_INTERVAL = 100; // ms between new target shapes
+const LERP_SPEED = 0.12;   // interpolation smoothness (0-1, lower = smoother)
 
-  function vibrate() {
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+function radiiToCSS(r) {
+  return `${r[0]}% ${r[1]}% ${r[2]}% ${r[3]}% / ${r[4]}% ${r[5]}% ${r[6]}% ${r[7]}%`;
+}
+
+// Continuous vibration loop — smooth interpolation between shapes
+function startVibrationLoop() {
+  if (orbVibrateId) return;
+
+  function vibrate(timestamp) {
     if (!isSpeaking) { orbVibrateId = null; return; }
 
     const inner = document.getElementById('voice-orb-inner');
     const rings = document.querySelectorAll('.voice-orb-ring');
     if (!inner) { orbVibrateId = null; return; }
 
-    // Decay intensity toward baseline tremble
-    vibrateIntensity = Math.max(0, vibrateIntensity - 0.04);
+    // Decay intensity gradually
+    vibrateIntensity = Math.max(0, vibrateIntensity - 0.02);
 
-    // Base tremble (always active) + intensity spike from word beats
-    const tremble = 0.15 + vibrateIntensity * 0.85; // 0.15 baseline, up to 1.0
+    const tremble = 0.1 + vibrateIntensity * 0.9; // 0.1 baseline, up to 1.0
 
-    // Core deformation
-    const spread = tremble;
-    const scale = 1 + tremble * 0.2;
-    const glow = Math.floor(25 + tremble * 60);
-    const rotate = (Math.random() - 0.5) * tremble * 6; // slight wobble rotation
+    // Pick a new target shape periodically
+    if (timestamp - lastShapeChange > SHAPE_INTERVAL) {
+      lastShapeChange = timestamp;
+      targetRadii = randRadii(tremble);
+      targetScale = 1 + tremble * 0.12;
+      targetGlow = 25 + tremble * 45;
+      targetRotate = (Math.random() - 0.5) * tremble * 4;
+    }
 
-    inner.style.borderRadius = randBlob(spread);
-    inner.style.transform = `scale(${scale}) rotate(${rotate}deg)`;
-    inner.style.boxShadow = `0 0 ${glow}px rgba(0,229,255,${0.25 + tremble * 0.3}), 0 0 ${glow * 1.6}px rgba(124,58,237,${0.08 + tremble * 0.15})`;
+    // Smoothly interpolate current values toward targets
+    for (let i = 0; i < 8; i++) {
+      currentRadii[i] = lerp(currentRadii[i], targetRadii[i], LERP_SPEED);
+    }
+    currentScale = lerp(currentScale, targetScale, LERP_SPEED);
+    currentGlow = lerp(currentGlow, targetGlow, LERP_SPEED);
+    currentRotate = lerp(currentRotate, targetRotate, LERP_SPEED);
 
-    // Rings follow with dampened intensity
+    // Apply to core
+    inner.style.borderRadius = radiiToCSS(currentRadii);
+    inner.style.transform = `scale(${currentScale.toFixed(3)}) rotate(${currentRotate.toFixed(2)}deg)`;
+    inner.style.boxShadow = `0 0 ${Math.floor(currentGlow)}px rgba(0,229,255,${(0.2 + tremble * 0.25).toFixed(2)}), 0 0 ${Math.floor(currentGlow * 1.5)}px rgba(124,58,237,${(0.06 + tremble * 0.12).toFixed(2)})`;
+
+    // Rings follow with dampened interpolation
     rings.forEach((ring, i) => {
-      const ringTremble = tremble * (0.7 - i * 0.15);
-      const ringScale = 1 + ringTremble * 0.15;
-      ring.style.borderRadius = randBlob(ringTremble);
-      ring.style.transform = `scale(${ringScale})`;
-      ring.style.opacity = `${0.2 + ringTremble * 0.4}`;
+      const damp = 0.6 - i * 0.15;
+      const ringRadii = currentRadii.map(r => lerp(50, r, damp));
+      const ringScale = lerp(1, currentScale, damp);
+      ring.style.borderRadius = radiiToCSS(ringRadii);
+      ring.style.transform = `scale(${ringScale.toFixed(3)})`;
+      ring.style.opacity = `${(0.2 + tremble * damp * 0.35).toFixed(2)}`;
     });
 
     orbVibrateId = requestAnimationFrame(vibrate);
@@ -454,12 +483,22 @@ function stopVibrationLoop() {
     orbVibrateId = null;
   }
   vibrateIntensity = 0;
+  currentRadii = Array(8).fill(50);
+  targetRadii = Array(8).fill(50);
+  currentScale = 1; targetScale = 1;
+  currentGlow = 25; targetGlow = 25;
+  currentRotate = 0; targetRotate = 0;
 }
 
 // Called on each word boundary — spikes the vibration intensity
 function pulseOrb() {
-  vibrateIntensity = 0.6 + Math.random() * 0.4; // spike to 0.6-1.0
-  // Start loop if not already running
+  vibrateIntensity = 0.5 + Math.random() * 0.5; // spike to 0.5-1.0
+  // Immediately pick a new dramatic target shape for the kick
+  targetRadii = randRadii(vibrateIntensity);
+  targetScale = 1 + vibrateIntensity * 0.15;
+  targetGlow = 30 + vibrateIntensity * 50;
+  targetRotate = (Math.random() - 0.5) * vibrateIntensity * 5;
+  lastShapeChange = performance.now();
   if (!orbVibrateId && isSpeaking) startVibrationLoop();
 }
 
@@ -714,14 +753,14 @@ function injectStyles() {
       50% { transform:scale(1.08); }
     }
 
-    /* Speaking — fully JS-driven vibration, disable CSS animations */
+    /* Speaking — JS-driven smooth vibration, no CSS keyframe animations */
     .orb-speaking .voice-orb-inner {
       animation:none;
-      transition:none;
+      transition:border-radius 0.1s ease, transform 0.1s ease, box-shadow 0.15s ease;
     }
     .orb-speaking .voice-orb-ring {
       animation:none;
-      transition:none;
+      transition:border-radius 0.12s ease, transform 0.1s ease, opacity 0.15s ease;
     }
 
     /* Subtitle area */
