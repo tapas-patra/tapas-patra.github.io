@@ -3,8 +3,6 @@ name: Keep Render Warm
 on:
   schedule:
     # Every 14 minutes, 06:00-23:00 IST (00:30-17:30 UTC)
-    # Cron doesn't support ranges with intervals cleanly, so we run every 14 min
-    # and check the hour in the job
     - cron: '*/14 * * * *'
   workflow_dispatch:
 
@@ -12,26 +10,92 @@ jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
+      - name: Validate secrets
+        run: |
+          echo "=== Secret Validation ==="
+          if [ -z "${{ secrets.RENDER_API_URL }}" ]; then
+            echo "::error::RENDER_API_URL secret is not set! Add it in repo Settings > Secrets > Actions."
+            exit 1
+          fi
+          echo "RENDER_API_URL: set ($(echo "${{ secrets.RENDER_API_URL }}" | wc -c | tr -d ' ') chars)"
+          echo "Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "IST Time: $(TZ='Asia/Kolkata' date '+%Y-%m-%d %H:%M:%S IST')"
+
       - name: Check IST time window (06:00-23:00)
         id: check-time
         run: |
           IST_HOUR=$(TZ="Asia/Kolkata" date +%H)
-          echo "IST hour: $IST_HOUR"
+          IST_TIME=$(TZ="Asia/Kolkata" date '+%H:%M:%S')
+          echo "=== Time Check ==="
+          echo "IST time: $IST_TIME (hour: $IST_HOUR)"
+          echo "Active window: 06:00 - 23:00 IST"
           if [ "$IST_HOUR" -ge 6 ] && [ "$IST_HOUR" -lt 23 ]; then
+            echo "Result: INSIDE active window"
             echo "in_window=true" >> "$GITHUB_OUTPUT"
           else
+            echo "Result: OUTSIDE active window - skipping ping"
             echo "in_window=false" >> "$GITHUB_OUTPUT"
-            echo "Outside active hours (06:00-23:00 IST). Skipping."
           fi
 
       - name: Ping Render /health
         if: steps.check-time.outputs.in_window == 'true'
         run: |
+          echo "=== Pinging Render Backend ==="
+          URL="${{ secrets.RENDER_API_URL }}/health"
+          echo "Target: $URL"
+          echo "Timeout: 30s"
+          echo ""
+
           START=$(date +%s%N)
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "${{ secrets.RENDER_API_URL }}/health" || echo "000")
+          HTTP_RESPONSE=$(curl -s -w "\n%{http_code}\n%{time_total}\n%{time_connect}\n%{time_starttransfer}" \
+            --max-time 30 \
+            "$URL" 2>&1) || CURL_EXIT=$?
           END=$(date +%s%N)
+
+          # Parse response
+          BODY=$(echo "$HTTP_RESPONSE" | head -n -4)
+          STATUS=$(echo "$HTTP_RESPONSE" | tail -4 | head -1)
+          TIME_TOTAL=$(echo "$HTTP_RESPONSE" | tail -3 | head -1)
+          TIME_CONNECT=$(echo "$HTTP_RESPONSE" | tail -2 | head -1)
+          TIME_TTFB=$(echo "$HTTP_RESPONSE" | tail -1)
           LATENCY=$(( (END - START) / 1000000 ))
-          echo "Status: $STATUS | Latency: ${LATENCY}ms"
-          if [ "$STATUS" != "200" ]; then
-            echo "::warning::Render health check returned $STATUS"
+
+          echo "=== Response ==="
+          echo "HTTP Status: $STATUS"
+          echo "Curl Exit Code: ${CURL_EXIT:-0}"
+          echo "Wall Latency: ${LATENCY}ms"
+          echo "Connect Time: ${TIME_CONNECT}s"
+          echo "TTFB: ${TIME_TTFB}s"
+          echo "Total Time: ${TIME_TOTAL}s"
+          echo ""
+          echo "=== Response Body ==="
+          echo "$BODY"
+          echo ""
+
+          # Determine if this was a cold start (>5s)
+          LATENCY_SEC=$(echo "$TIME_TOTAL" | cut -d'.' -f1)
+          if [ "${LATENCY_SEC:-0}" -ge 5 ]; then
+            echo "::warning::Cold start detected! Response took ${TIME_TOTAL}s (backend was likely sleeping)"
           fi
+
+          # Fail the workflow on errors
+          if [ "${CURL_EXIT:-0}" -ne 0 ]; then
+            echo ""
+            echo "::error::Curl failed with exit code ${CURL_EXIT}. Possible causes: DNS failure, network error, timeout, or invalid RENDER_API_URL secret."
+            exit 1
+          fi
+
+          if [ "$STATUS" = "000" ] || [ -z "$STATUS" ]; then
+            echo ""
+            echo "::error::No HTTP response received. The server may be down or RENDER_API_URL is incorrect."
+            exit 1
+          fi
+
+          if [ "$STATUS" != "200" ]; then
+            echo ""
+            echo "::error::Health check failed with HTTP $STATUS. Expected 200."
+            exit 1
+          fi
+
+          echo ""
+          echo "=== PING SUCCESSFUL ==="
