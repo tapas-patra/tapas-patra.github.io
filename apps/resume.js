@@ -1,8 +1,10 @@
 // Resume.app — PDF preview + AI resume tailoring
 
-const API_BASE = window.location.hostname === 'localhost'
+const API_BASE = window.location.hostname === 'localhost' && window.location.port === '8000'
   ? 'http://localhost:8000'
   : 'https://portfolio-bot-5pwk.onrender.com';
+
+let generatedPdfUrl = null;
 
 export function init(container) {
   injectStyles();
@@ -24,7 +26,7 @@ export function init(container) {
         </div>
       </div>
       <div class="resume-body">
-        <iframe class="resume-iframe" src="myresume.pdf" title="Resume PDF"></iframe>
+        <iframe class="resume-iframe" id="resume-iframe" src="myresume.pdf" title="Resume PDF"></iframe>
       </div>
       <div class="resume-drawer" id="resume-drawer">
         <div class="resume-drawer-header">
@@ -33,12 +35,20 @@ export function init(container) {
         </div>
         <div class="resume-drawer-body">
           <p class="resume-drawer-desc">
-            Paste a job description below. The AI will rewrite Tapas's resume tailored to this role.
-            Estimated time: ~15 seconds.
+            Paste a job description below. The AI will generate a tailored resume for this role and show you a preview.
           </p>
           <textarea class="resume-jd-input" id="resume-jd" placeholder="Paste job description here..." rows="8"></textarea>
           <button class="resume-btn resume-btn-submit" id="resume-submit" disabled>Generate Resume</button>
           <div class="resume-status" id="resume-status"></div>
+          <div class="resume-gen-actions" id="resume-gen-actions" style="display:none;">
+            <a class="resume-btn resume-btn-download-gen" id="resume-download-gen">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download Tailored Resume
+            </a>
+            <button class="resume-btn resume-btn-back" id="resume-back-original">
+              Back to Original
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -54,6 +64,10 @@ function bindResumeEvents(container) {
   const jdInput = container.querySelector('#resume-jd');
   const submitBtn = container.querySelector('#resume-submit');
   const status = container.querySelector('#resume-status');
+  const iframe = container.querySelector('#resume-iframe');
+  const genActions = container.querySelector('#resume-gen-actions');
+  const downloadGen = container.querySelector('#resume-download-gen');
+  const backBtn = container.querySelector('#resume-back-original');
 
   genBtn.addEventListener('click', () => {
     drawer.classList.toggle('open');
@@ -67,14 +81,16 @@ function bindResumeEvents(container) {
     submitBtn.disabled = jdInput.value.trim().length < 20;
   });
 
+  // Generate resume → preview in iframe
   submitBtn.addEventListener('click', async () => {
     const jd = jdInput.value.trim();
     if (jd.length < 20) return;
 
     submitBtn.disabled = true;
     submitBtn.textContent = 'Generating...';
-    status.textContent = 'AI is tailoring the resume. This takes ~15 seconds...';
+    status.textContent = 'AI is tailoring the resume. This may take ~15 seconds...';
     status.className = 'resume-status loading';
+    genActions.style.display = 'none';
 
     try {
       const resp = await fetch(`${API_BASE}/resume`, {
@@ -86,17 +102,25 @@ function bindResumeEvents(container) {
       if (!resp.ok) throw new Error(`Server error: ${resp.status}`);
 
       const blob = await resp.blob();
-      const url = URL.createObjectURL(blob);
 
-      // Auto-download
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'Tapas_Kumar_Patra_Resume_Tailored.pdf';
-      a.click();
-      URL.revokeObjectURL(url);
+      // Revoke previous generated URL
+      if (generatedPdfUrl) URL.revokeObjectURL(generatedPdfUrl);
 
-      status.textContent = 'Resume generated and downloaded!';
+      generatedPdfUrl = URL.createObjectURL(blob);
+
+      // Preview in iframe
+      iframe.src = generatedPdfUrl;
+
+      // Show download + back buttons
+      downloadGen.href = generatedPdfUrl;
+      downloadGen.download = 'Tapas_Kumar_Patra_Resume_Tailored.pdf';
+      genActions.style.display = 'flex';
+
+      status.textContent = 'Resume generated! Preview is shown above.';
       status.className = 'resume-status success';
+
+      // Collapse drawer after short delay so user sees the preview
+      setTimeout(() => drawer.classList.remove('open'), 800);
     } catch (err) {
       status.textContent = `Failed to generate resume. ${err.message}`;
       status.className = 'resume-status error';
@@ -104,6 +128,21 @@ function bindResumeEvents(container) {
 
     submitBtn.disabled = false;
     submitBtn.textContent = 'Generate Resume';
+  });
+
+  // Download the generated resume
+  downloadGen.addEventListener('click', (e) => {
+    if (!generatedPdfUrl) {
+      e.preventDefault();
+      return;
+    }
+  });
+
+  // Back to original resume
+  backBtn.addEventListener('click', () => {
+    iframe.src = 'myresume.pdf';
+    genActions.style.display = 'none';
+    status.textContent = '';
   });
 }
 
@@ -128,11 +167,11 @@ function injectStyles() {
       font-family:var(--font-body); cursor:pointer; border:none;
       transition:background 0.2s, color 0.2s; text-decoration:none;
     }
-    .resume-btn-download {
+    .resume-btn-download, .resume-btn-download-gen {
       background:var(--glass); border:1px solid var(--glass-border);
-      color:var(--text-primary);
+      color:var(--text-primary); text-decoration:none;
     }
-    .resume-btn-download:hover { background:var(--glass-hover); }
+    .resume-btn-download:hover, .resume-btn-download-gen:hover { background:var(--glass-hover); text-decoration:none; }
 
     .resume-btn-generate {
       background:var(--violet); color:#fff;
@@ -145,6 +184,12 @@ function injectStyles() {
     }
     .resume-btn-submit:disabled { opacity:0.3; cursor:default; }
     .resume-btn-submit:not(:disabled):hover { filter:brightness(1.1); }
+
+    .resume-btn-back {
+      background:var(--glass); border:1px solid var(--glass-border);
+      color:var(--text-muted);
+    }
+    .resume-btn-back:hover { background:var(--glass-hover); }
 
     .resume-body { flex:1; overflow:hidden; }
     .resume-iframe { width:100%; height:100%; border:none; background:#1a1a2e; }
@@ -183,6 +228,10 @@ function injectStyles() {
     .resume-status.loading { color:var(--text-muted); }
     .resume-status.success { color:var(--cyan); }
     .resume-status.error { color:var(--traffic-close); }
+
+    .resume-gen-actions {
+      display:flex; gap:8px; margin-top:10px; align-items:center;
+    }
   `;
   document.head.appendChild(s);
 }
