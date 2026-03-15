@@ -768,6 +768,22 @@ html, body {
   font-size: 13px;
 }
 
+/* ── Mobile Responsive ── */
+@media (max-width: 767px) {
+  #boot-screen,
+  #menubar,
+  #desktop,
+  #dock,
+  #context-menu,
+  .spotlight-overlay { display: none !important; }
+
+  #mobile-banner { display: block !important; }
+}
+
+@media (min-width: 768px) {
+  #mobile-banner { display: none !important; }
+}
+
 /* ── Reduced Motion ── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
