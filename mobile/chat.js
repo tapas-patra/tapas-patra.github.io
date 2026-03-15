@@ -26,6 +26,16 @@ export function initChat(container) {
           <div class="mchat-starters" id="mchat-starters">
             ${STARTERS.map(s => `<button class="mchat-starter">${s}</button>`).join('')}
           </div>
+          <div class="mchat-quick-actions">
+            <button class="mchat-action-btn" id="mchat-open-os">
+              <span class="mchat-action-icon">🖥️</span>
+              <span>TapasOS</span>
+            </button>
+            <button class="mchat-action-btn" id="mchat-open-classic">
+              <span class="mchat-action-icon">🌐</span>
+              <span>Classic View</span>
+            </button>
+          </div>
         </div>
       </div>
       <div class="mchat-input-area">
@@ -56,6 +66,14 @@ export function initChat(container) {
   starters.addEventListener('click', (e) => {
     const chip = e.target.closest('.mchat-starter');
     if (chip) sendMessage(chip.textContent);
+  });
+
+  container.querySelector('#mchat-open-os')?.addEventListener('click', () => {
+    window.location.href = '/';
+  });
+
+  container.querySelector('#mchat-open-classic')?.addEventListener('click', () => {
+    window.location.href = 'classic.html';
   });
 }
 
@@ -179,6 +197,18 @@ function injectStyles() {
     .mchat-welcome-sub { color:var(--text-muted); font-size:13px; }
     .mchat-starters { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:12px; }
     .mchat-starter { background:var(--glass); border:1px solid var(--glass-border); color:var(--text-primary); padding:8px 14px; border-radius:18px; font-size:12px; font-family:var(--font-body); cursor:pointer; }
+
+    .mchat-quick-actions { display:flex; gap:12px; margin-top:16px; justify-content:center; }
+    .mchat-action-btn {
+      display:flex; align-items:center; gap:6px;
+      background:var(--glass); border:1px solid var(--glass-border);
+      color:var(--text-primary); padding:10px 18px; border-radius:24px;
+      font-size:13px; font-family:var(--font-body); cursor:pointer;
+      transition:background 0.2s, border-color 0.2s, transform 0.15s;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .mchat-action-btn:active { background:var(--glass-hover); border-color:var(--cyan); transform:scale(0.96); }
+    .mchat-action-icon { font-size:16px; }
 
     .mchat-msg { display:flex; }
     .mchat-user { justify-content:flex-end; }
