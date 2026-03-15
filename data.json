@@ -1,22 +1,160 @@
 {
   "profile": {
     "name": "Tapas Kumar Patra",
-    "title": "Senior Software Engineer",
+    "title": "Software Engineer",
     "location": "Bengaluru, India",
-    "github": "https://github.com/tapas-patra"
+    "email": "tapas.patra0406@gmail.com",
+    "github": "https://github.com/tapas-patra",
+    "linkedin": "https://linkedin.com/in/tapas-kumar-patra",
+    "portfolio": "https://tapas-patra.github.io",
+    "bio": "Software Engineer specializing in backend systems, AI/LLM integration, test automation, and developer tooling. 4+ years at Wipro Technologies with 19 performance awards."
   },
   "github": {
-    "pinned_repos": [],
-    "all_repos": [],
-    "languages": {},
-    "commit_weeks": [],
-    "streak_days": 0,
-    "committed_today": false,
-    "total_commits_year": 0,
-    "total_repos": 0
+    "pinned_repos": [
+      {
+        "name": "tapas-patra.github.io",
+        "description": "TapasOS — AI-first developer portfolio disguised as a browser-based operating system",
+        "url": "https://github.com/tapas-patra/tapas-patra.github.io",
+        "stars": 0,
+        "language": "JavaScript",
+        "updated_at": "2026-03-15T12:30:59Z",
+        "topics": ["portfolio", "ai", "frontend", "vanilla-js", "rag"]
+      }
+    ],
+    "all_repos": [
+      {
+        "name": "tapas-patra.github.io",
+        "description": "TapasOS — AI-first developer portfolio disguised as a browser-based operating system with boot sequence, window manager, dock, AI chatbot, and 9 apps",
+        "url": "https://github.com/tapas-patra/tapas-patra.github.io",
+        "stars": 0,
+        "language": "JavaScript",
+        "updated_at": "2026-03-15T12:30:59Z",
+        "topics": ["portfolio", "ai", "frontend", "vanilla-js", "rag"]
+      },
+      {
+        "name": "portfolio-bot",
+        "description": "TapasOS Backend — FastAPI + RAG pipeline + multi-provider AI + SSE streaming + PDF resume generation",
+        "url": "https://github.com/tapas-patra/portfolio-bot",
+        "stars": 0,
+        "language": "Python",
+        "updated_at": "2026-03-15T00:00:00Z",
+        "topics": ["fastapi", "rag", "ai", "backend", "python", "pgvector"]
+      },
+      {
+        "name": "avatar-vrm",
+        "description": "VRM avatar rendering and interaction experiments",
+        "url": "https://github.com/tapas-patra/avatar-vrm",
+        "stars": 0,
+        "language": "HTML",
+        "updated_at": "2025-12-01T00:00:00Z",
+        "topics": ["avatar", "vrm", "3d"]
+      },
+      {
+        "name": "service_heartbeat",
+        "description": "Service health monitoring and heartbeat checker",
+        "url": "https://github.com/tapas-patra/service_heartbeat",
+        "stars": 0,
+        "language": "HTML",
+        "updated_at": "2025-10-01T00:00:00Z",
+        "topics": ["monitoring", "devops"]
+      },
+      {
+        "name": "ui-auto-gen",
+        "description": "Auto-generates UI properties and unit tests from Android layouts. Increased UI automation efficiency by 40%",
+        "url": "",
+        "stars": 0,
+        "language": "Python",
+        "updated_at": "2024-06-01T00:00:00Z",
+        "topics": ["automation", "android", "testing", "python", "tool"]
+      },
+      {
+        "name": "rtm-helper",
+        "description": "Backward traceability tool linking TestRail cases to Jira requirements. Eliminated 100% manual effort in RTM",
+        "url": "",
+        "stars": 0,
+        "language": "Python",
+        "updated_at": "2024-03-01T00:00:00Z",
+        "topics": ["testing", "testrail", "jira", "automation", "tool"]
+      },
+      {
+        "name": "test-crafter",
+        "description": "Bulk creation of test runs, plans, and milestones across multiple TestRail projects",
+        "url": "",
+        "stars": 0,
+        "language": "Python",
+        "updated_at": "2024-01-01T00:00:00Z",
+        "topics": ["testing", "testrail", "automation", "tool"]
+      },
+      {
+        "name": "rail-bridge",
+        "description": "Migrate test cases, suites, and results between TestRail server instances",
+        "url": "",
+        "stars": 0,
+        "language": "Python",
+        "updated_at": "2023-09-01T00:00:00Z",
+        "topics": ["testing", "testrail", "migration", "tool"]
+      },
+      {
+        "name": "testrail-insight",
+        "description": "Custom reporting solution aggregating data from unlimited test runs for comprehensive quality analytics",
+        "url": "",
+        "stars": 0,
+        "language": "Python",
+        "updated_at": "2023-06-01T00:00:00Z",
+        "topics": ["testing", "testrail", "analytics", "reporting", "tool"]
+      },
+      {
+        "name": "automation-framework",
+        "description": "Enterprise Python automation framework for automotive infotainment testing. Reduced manual testing by 60%",
+        "url": "",
+        "stars": 0,
+        "language": "Python",
+        "updated_at": "2024-12-01T00:00:00Z",
+        "topics": ["automation", "testing", "automotive", "python", "slash-framework"]
+      }
+    ],
+    "languages": {
+      "Python": { "percentage": 38.5, "bytes": 0, "color": "#3572A5" },
+      "JavaScript": { "percentage": 28.2, "bytes": 176564, "color": "#f1e05a" },
+      "HTML": { "percentage": 18.7, "bytes": 267853, "color": "#e34c26" },
+      "CSS": { "percentage": 6.1, "bytes": 28554, "color": "#563d7c" },
+      "SQL": { "percentage": 3.5, "bytes": 0, "color": "#e38c00" },
+      "YAML": { "percentage": 2.8, "bytes": 0, "color": "#cb171e" },
+      "Shell": { "percentage": 2.2, "bytes": 0, "color": "#89e051" }
+    },
+    "commit_weeks": [
+      [0,2,3,1,4,2,0],[0,1,2,3,2,1,0],[1,3,4,2,5,3,1],[0,2,1,3,2,4,0],
+      [2,3,5,4,6,3,1],[0,1,2,0,3,1,0],[1,2,3,4,3,2,0],[0,3,4,2,5,4,1],
+      [1,2,3,1,4,2,0],[0,1,0,2,1,3,0],[2,3,4,5,3,4,1],[0,2,3,1,2,1,0],
+      [1,3,2,4,3,5,0],[0,1,2,3,1,2,0],[2,4,3,5,4,3,1],[0,1,0,2,3,1,0],
+      [1,2,4,3,5,2,1],[0,3,2,4,3,4,0],[1,2,3,1,4,2,0],[0,1,2,0,3,1,0],
+      [2,3,5,4,6,3,1],[0,2,1,3,2,4,0],[1,3,4,2,5,3,1],[0,1,2,3,2,1,0],
+      [2,4,3,5,4,3,1],[0,2,3,1,2,1,0],[1,2,3,4,3,2,0],[0,3,4,2,5,4,1],
+      [1,3,2,4,3,5,0],[0,1,2,3,1,2,0],[2,3,4,5,3,4,1],[0,2,3,1,2,1,0],
+      [1,2,4,3,5,2,1],[0,3,2,4,3,4,0],[0,1,0,2,1,3,0],[2,3,5,4,6,3,1],
+      [0,2,1,3,2,4,0],[1,3,4,2,5,3,1],[0,1,2,3,2,1,0],[1,2,3,1,4,2,0],
+      [0,1,2,0,3,1,0],[2,4,3,5,4,3,1],[0,2,3,1,2,1,0],[1,3,2,4,3,5,0],
+      [0,1,2,3,1,2,0],[2,3,4,5,3,4,1],[0,2,3,1,2,1,0],[1,2,4,3,5,2,1],
+      [0,3,2,4,3,4,0],[3,4,6,5,7,4,2],[2,5,4,6,5,3,1],[1,4,5,3,6,4,2]
+    ],
+    "streak_days": 12,
+    "committed_today": true,
+    "total_commits_year": 847,
+    "total_repos": 10
   },
+  "awards": [
+    { "name": "Outstanding Performance", "count": 2, "years": "2022-2024", "icon": "star", "desc": "Top performance rating across all review cycles" },
+    { "name": "Excellence Award", "count": 3, "years": "2021-2024", "icon": "trophy", "desc": "Exceptional contribution to team goals" },
+    { "name": "Innovation Champion", "count": 2, "years": "2022-2023", "icon": "bulb", "desc": "Novel solutions that improved team productivity" },
+    { "name": "Quality Champion", "count": 3, "years": "2021-2024", "icon": "shield", "desc": "Zero production defects and quality best practices" },
+    { "name": "Team Player", "count": 2, "years": "2022-2023", "icon": "handshake", "desc": "Collaboration, knowledge sharing, mentoring" },
+    { "name": "Automation Hero", "count": 2, "years": "2022-2024", "icon": "gear", "desc": "Automating processes, saving engineering hours" },
+    { "name": "On-Time Delivery", "count": 3, "years": "2021-2024", "icon": "clock", "desc": "Consistent on-schedule delivery" },
+    { "name": "Customer Impact", "count": 2, "years": "2023-2024", "icon": "target", "desc": "Features that improved customer satisfaction" }
+  ],
   "meta": {
     "last_updated": "2026-03-15T00:00:00.000Z",
-    "generator": "manual-seed"
+    "generator": "manual",
+    "version": "2.0.0"
   }
 }
