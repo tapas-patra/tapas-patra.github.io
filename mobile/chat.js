@@ -101,7 +101,13 @@ async function sendMessage(text) {
     const resp = await fetch(`${API_BASE}/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: sessionHistory.slice(-MAX_HISTORY), session_id: getSessionId() }),
+      body: JSON.stringify({
+        messages: sessionHistory.slice(-MAX_HISTORY).map(m => ({
+          role: m.role,
+          content: m.content.length > 7500 ? m.content.slice(0, 7500) + '...' : m.content,
+        })),
+        session_id: getSessionId(),
+      }),
     });
 
     typing.remove();

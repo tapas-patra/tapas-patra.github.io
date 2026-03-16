@@ -111,8 +111,11 @@ async function sendMessage(text) {
 
   // Stream AI response
   try {
-    // Send only recent history to avoid 422 payload errors
-    const recentHistory = sessionHistory.slice(-MAX_HISTORY);
+    // Send only recent history, truncate long messages to avoid 422
+    const recentHistory = sessionHistory.slice(-MAX_HISTORY).map(m => ({
+      role: m.role,
+      content: m.content.length > 7500 ? m.content.slice(0, 7500) + '...' : m.content,
+    }));
     const response = await fetch(`${API_BASE}/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

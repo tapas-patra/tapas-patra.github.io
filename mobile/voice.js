@@ -209,7 +209,10 @@ async function processQuery(text) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        messages: sessionHistory.slice(-MAX_HISTORY),
+        messages: sessionHistory.slice(-MAX_HISTORY).map(m => ({
+          role: m.role,
+          content: m.content.length > 7500 ? m.content.slice(0, 7500) + '...' : m.content,
+        })),
         session_id: getSessionId(),
       }),
     });
