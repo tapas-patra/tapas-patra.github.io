@@ -173,16 +173,26 @@ function renderDonutChart(languages) {
   const legend = document.getElementById('activity-legend');
   if (!canvas || !legend) return;
 
-  const sorted = Object.entries(languages)
-    .sort((a, b) => b[1].percentage - a[1].percentage)
-    .slice(0, 8);
+  const allSorted = Object.entries(languages)
+    .sort((a, b) => b[1].percentage - a[1].percentage);
+
+  // Show top languages individually, group the rest as "Other"
+  const TOP = 10;
+  let sorted;
+  if (allSorted.length > TOP) {
+    const top = allSorted.slice(0, TOP);
+    const otherPct = allSorted.slice(TOP).reduce((sum, [, d]) => sum + d.percentage, 0);
+    sorted = [...top, ['Other', { percentage: Math.round(otherPct * 10) / 10 }]];
+  } else {
+    sorted = allSorted;
+  }
 
   if (sorted.length === 0) {
     legend.innerHTML = '<div class="activity-empty-small">No language data</div>';
     return;
   }
 
-  const colors = ['#00E5FF', '#7C3AED', '#A78BFA', '#27C93F', '#FFBD2E', '#FF5F56', '#3178c6', '#f1e05a'];
+  const colors = ['#00E5FF', '#7C3AED', '#A78BFA', '#27C93F', '#FFBD2E', '#FF5F56', '#3178c6', '#f1e05a', '#e44d26', '#42b883', '#8957e5', '#6B8FA3'];
   const ctx = canvas.getContext('2d');
   const cx = 90, cy = 90, outer = 80, inner = 50;
 
