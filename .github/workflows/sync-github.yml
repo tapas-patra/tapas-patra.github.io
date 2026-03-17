@@ -31,6 +31,11 @@ jobs:
           script: |
             const username = process.env.GITHUB_USERNAME;
 
+            // ── Repos to hide from Projects.finder (add repo names here) ──
+            const HIDDEN_REPOS = [
+              // 'repo-name-here',
+            ];
+
             // ── Fetch repos (try authenticated first for private repos, fall back to public) ──
             let allRepos = [];
             let page = 1;
@@ -66,8 +71,8 @@ jobs:
               console.log(`Fetched ${allRepos.length} public repos via user endpoint`);
             }
 
-            // Filter out forks
-            const ownRepos = allRepos.filter(r => !r.fork);
+            // Filter out forks and hidden repos
+            const ownRepos = allRepos.filter(r => !r.fork && !HIDDEN_REPOS.includes(r.name));
 
             // ── Fetch pinned repos via GraphQL ──
             let pinnedRepos = [];
