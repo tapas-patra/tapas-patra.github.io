@@ -290,10 +290,25 @@ function escapeHtml(str) {
 function formatMarkdown(text) {
   return text
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    // Code blocks
     .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
     .replace(/`([^`]+)`/g, '<code>$1</code>')
+    // Headings
+    .replace(/^#{1,6}\s+(.+)$/gm, '<strong>$1</strong>')
+    // Horizontal rules
+    .replace(/^[-*_]{3,}$/gm, '')
+    // Bold & italic
+    .replace(/\*\*\*([^*]+)\*\*\*/g, '<strong><em>$1</em></strong>')
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
     .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+    // Bullet lists
+    .replace(/^[-*+]\s+(.+)$/gm, '• $1')
+    // Numbered lists — strip the number prefix for clean look
+    .replace(/^\d+\.\s+(.+)$/gm, '• $1')
+    // Links [text](url) → just text
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    // Clean up multiple blank lines
+    .replace(/\n{3,}/g, '\n\n')
     .replace(/\n/g, '<br>');
 }
 
