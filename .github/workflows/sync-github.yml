@@ -33,7 +33,9 @@ jobs:
 
             // ── Repos to hide from Projects.finder (add repo names here) ──
             const HIDDEN_REPOS = [
-              // 'repo-name-here',
+              'flowerforyou',
+              'valentine',
+              'willyoubemine'
             ];
 
             // ── Fetch repos (try authenticated first for private repos, fall back to public) ──
