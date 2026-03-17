@@ -97,14 +97,20 @@ function renderContributionGraph(weeks) {
     return;
   }
 
-  const allDays = weeks.flatMap(w => w.days);
-
   let html = '<div class="contrib-grid">';
   weeks.forEach(week => {
+    // Support both formats: [{count, date}] or [0, 2, 3, ...]
+    const days = Array.isArray(week.days || week)
+      ? (week.days || week)
+      : [];
+
     html += '<div class="contrib-week">';
-    week.days.forEach(day => {
-      const level = getContribLevel(day.count);
-      html += `<div class="contrib-day level-${level}" title="${day.date}: ${day.count} contributions"></div>`;
+    days.forEach(day => {
+      const count = typeof day === 'number' ? day : (day.count || 0);
+      const date = typeof day === 'object' ? day.date : '';
+      const level = getContribLevel(count);
+      const title = date ? `${date}: ${count} contributions` : `${count} contributions`;
+      html += `<div class="contrib-day level-${level}" title="${title}"></div>`;
     });
     html += '</div>';
   });
