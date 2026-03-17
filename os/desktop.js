@@ -140,7 +140,7 @@ async function loadAppContent(appId) {
   try {
     const mod = await import(`../apps/${appId}.js`);
     if (mod.init) {
-      mod.init(document.getElementById(`app-body-${appId}`));
+      await mod.init(document.getElementById(`app-body-${appId}`));
     }
   } catch {
     // App module not built yet — show placeholder
