@@ -14,8 +14,19 @@
         "url": "https://github.com/tapas-patra/tapas-patra.github.io",
         "stars": 0,
         "language": "JavaScript",
-        "updated_at": "2026-03-17T19:15:38Z",
-        "topics": []
+        "updated_at": "2026-03-17T19:50:43Z",
+        "topics": [],
+        "is_private": false
+      },
+      {
+        "name": "portfolio-bot",
+        "description": null,
+        "url": null,
+        "stars": 0,
+        "language": "Python",
+        "updated_at": "2026-03-17T17:53:21Z",
+        "topics": [],
+        "is_private": true
       },
       {
         "name": "tapas-data",
@@ -24,7 +35,118 @@
         "stars": 0,
         "language": "HTML",
         "updated_at": "2026-03-17T17:49:54Z",
-        "topics": []
+        "topics": [],
+        "is_private": false
+      },
+      {
+        "name": "testpilot",
+        "description": null,
+        "url": null,
+        "stars": 0,
+        "language": "Python",
+        "updated_at": "2026-03-15T04:44:03Z",
+        "topics": [],
+        "is_private": true
+      },
+      {
+        "name": "SecureOverlay",
+        "description": null,
+        "url": null,
+        "stars": 0,
+        "language": "C#",
+        "updated_at": "2025-11-22T12:34:19Z",
+        "topics": [],
+        "is_private": true
+      },
+      {
+        "name": "lokium",
+        "description": null,
+        "url": null,
+        "stars": 0,
+        "language": "HTML",
+        "updated_at": "2025-11-15T21:05:31Z",
+        "topics": [],
+        "is_private": true
+      },
+      {
+        "name": "ping-keeper-backend",
+        "description": null,
+        "url": null,
+        "stars": 0,
+        "language": "Python",
+        "updated_at": "2025-09-30T10:27:52Z",
+        "topics": [],
+        "is_private": true
+      },
+      {
+        "name": "keep-alive-system",
+        "description": "Free hosting platforms (Render, Heroku, Railway) automatically put inactive instances to sleep after 15 minutes of inactivity, causing cold start delays when the next request arrives. We need to design a reliable, scalable system that continuously pings these services to keep them active and responsive.",
+        "url": null,
+        "stars": 0,
+        "language": "JavaScript",
+        "updated_at": "2025-09-28T17:30:25Z",
+        "topics": [],
+        "is_private": true
+      },
+      {
+        "name": "pocketpad",
+        "description": null,
+        "url": null,
+        "stars": 0,
+        "language": "HTML",
+        "updated_at": "2025-09-26T22:12:37Z",
+        "topics": [],
+        "is_private": true
+      },
+      {
+        "name": "UIAutoGen",
+        "description": "An application that automatically generates UI properties for Android environments, significantly speeding up the automation process.",
+        "url": null,
+        "stars": 0,
+        "language": "Python",
+        "updated_at": "2025-09-26T11:36:50Z",
+        "topics": [],
+        "is_private": true
+      },
+      {
+        "name": "Testrail-Insight",
+        "description": "TestRailInsight - your ultimate solution for generating in-depth,customized test reports without the constraints of traditional tools.If you have ever felt restricted by TestRail's limitations, TestRailInsight is here to elevate your testing experience",
+        "url": null,
+        "stars": 0,
+        "language": null,
+        "updated_at": "2025-09-26T10:51:19Z",
+        "topics": [],
+        "is_private": true
+      },
+      {
+        "name": "Test-Crafter",
+        "description": "A tool that helps in creating runs, plans, and milestones across different projects simultaneously, streamlining the test management process.",
+        "url": null,
+        "stars": 0,
+        "language": "HTML",
+        "updated_at": "2025-09-26T10:49:42Z",
+        "topics": [],
+        "is_private": true
+      },
+      {
+        "name": "Rail-Bridge",
+        "description": "A tool that facilitates the transfer of test cases between two TestRail servers, improving workflow and saving significant time for QA teams.",
+        "url": null,
+        "stars": 0,
+        "language": "Python",
+        "updated_at": "2025-09-26T10:10:23Z",
+        "topics": [],
+        "is_private": true
+      },
+      {
+        "name": "RTM-Helper",
+        "description": "A tool designed to assist in requirement traceability matrix creation and management, linking requirements, test cases, and test results efficiently.",
+        "url": null,
+        "stars": 0,
+        "language": "Python",
+        "updated_at": "2025-09-26T09:56:14Z",
+        "topics": [],
+        "is_private": true
       },
       {
         "name": "avatar-vrm",
@@ -33,7 +155,8 @@
         "stars": 0,
         "language": "HTML",
         "updated_at": "2025-06-13T05:07:52Z",
-        "topics": []
+        "topics": [],
+        "is_private": false
       },
       {
         "name": "service_heartbeat",
@@ -42,13 +165,74 @@
         "stars": 0,
         "language": "HTML",
         "updated_at": "2025-05-26T21:44:20Z",
-        "topics": []
+        "topics": [],
+        "is_private": false
+      },
+      {
+        "name": "wegokarna",
+        "description": null,
+        "url": null,
+        "stars": 0,
+        "language": "HTML",
+        "updated_at": "2025-04-12T13:13:28Z",
+        "topics": [],
+        "is_private": true
+      },
+      {
+        "name": "voice-command-system",
+        "description": null,
+        "url": null,
+        "stars": 0,
+        "language": "JavaScript",
+        "updated_at": "2025-04-08T21:10:44Z",
+        "topics": [],
+        "is_private": true
+      },
+      {
+        "name": "remote-client-service",
+        "description": null,
+        "url": null,
+        "stars": 0,
+        "language": "Python",
+        "updated_at": "2025-04-08T19:26:09Z",
+        "topics": [],
+        "is_private": true
+      },
+      {
+        "name": "valentine",
+        "description": null,
+        "url": null,
+        "stars": 0,
+        "language": "JavaScript",
+        "updated_at": "2025-04-06T18:34:41Z",
+        "topics": [],
+        "is_private": true
+      },
+      {
+        "name": "willyoubemine",
+        "description": null,
+        "url": null,
+        "stars": 0,
+        "language": "JavaScript",
+        "updated_at": "2024-08-11T16:02:27Z",
+        "topics": [],
+        "is_private": true
+      },
+      {
+        "name": "flowerforyou",
+        "description": null,
+        "url": null,
+        "stars": 0,
+        "language": "CSS",
+        "updated_at": "2024-08-11T15:59:02Z",
+        "topics": [],
+        "is_private": true
       }
     ],
     "languages": {
       "JavaScript": {
-        "bytes": 749199,
-        "percentage": 3.8
+        "bytes": 756004,
+        "percentage": 3.9
       },
       "HTML": {
         "bytes": 2356196,
@@ -1775,19 +1959,19 @@
             "date": "2026-03-17"
           },
           {
-            "count": 0,
+            "count": 1,
             "date": "2026-03-18"
           }
         ]
       }
     ],
-    "streak_days": 0,
-    "committed_today": false,
-    "total_commits_year": 157,
+    "streak_days": 4,
+    "committed_today": true,
+    "total_commits_year": 158,
     "total_repos": 22
   },
   "meta": {
-    "last_updated": "2026-03-17T19:22:40.320Z",
+    "last_updated": "2026-03-17T19:50:51.592Z",
     "generator": "TapasOS sync-github.yml"
   }
 }
