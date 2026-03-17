@@ -31,23 +31,42 @@ jobs:
           script: |
             const username = process.env.GITHUB_USERNAME;
 
-            // ── Fetch all public repos ──
-            // Fetch all repos (public + private) using authenticated user endpoint
+            // ── Fetch repos (try authenticated first for private repos, fall back to public) ──
             let allRepos = [];
             let page = 1;
-            while (true) {
-              const { data: repos } = await github.rest.repos.listForAuthenticatedUser({
-                type: 'all',
-                sort: 'updated',
-                per_page: 100,
-                page,
-              });
-              if (repos.length === 0) break;
-              allRepos = allRepos.concat(repos);
-              page++;
+            try {
+              while (true) {
+                const { data: repos } = await github.rest.repos.listForAuthenticatedUser({
+                  type: 'owner',
+                  sort: 'updated',
+                  per_page: 100,
+                  page,
+                });
+                if (repos.length === 0) break;
+                allRepos = allRepos.concat(repos);
+                page++;
+              }
+              console.log(`Fetched ${allRepos.length} repos via authenticated endpoint`);
+            } catch (e) {
+              console.log(`Authenticated endpoint failed (${e.status}), falling back to public repos`);
+              allRepos = [];
+              page = 1;
+              while (true) {
+                const { data: repos } = await github.rest.repos.listForUser({
+                  username,
+                  type: 'owner',
+                  sort: 'updated',
+                  per_page: 100,
+                  page,
+                });
+                if (repos.length === 0) break;
+                allRepos = allRepos.concat(repos);
+                page++;
+              }
+              console.log(`Fetched ${allRepos.length} public repos via user endpoint`);
             }
 
-            // Filter out forks, keep both public and private
+            // Filter out forks
             const ownRepos = allRepos.filter(r => !r.fork);
 
             // ── Fetch pinned repos via GraphQL ──
