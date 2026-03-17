@@ -14,7 +14,7 @@
         "url": "https://github.com/tapas-patra/tapas-patra.github.io",
         "stars": 0,
         "language": "JavaScript",
-        "updated_at": "2026-03-17T19:55:40Z",
+        "updated_at": "2026-03-17T19:58:54Z",
         "topics": [],
         "is_private": false
       },
@@ -197,54 +197,24 @@
         "updated_at": "2025-04-08T19:26:09Z",
         "topics": [],
         "is_private": true
-      },
-      {
-        "name": "valentine",
-        "description": null,
-        "url": null,
-        "stars": 0,
-        "language": "JavaScript",
-        "updated_at": "2025-04-06T18:34:41Z",
-        "topics": [],
-        "is_private": true
-      },
-      {
-        "name": "willyoubemine",
-        "description": null,
-        "url": null,
-        "stars": 0,
-        "language": "JavaScript",
-        "updated_at": "2024-08-11T16:02:27Z",
-        "topics": [],
-        "is_private": true
-      },
-      {
-        "name": "flowerforyou",
-        "description": null,
-        "url": null,
-        "stars": 0,
-        "language": "CSS",
-        "updated_at": "2024-08-11T15:59:02Z",
-        "topics": [],
-        "is_private": true
       }
     ],
     "languages": {
       "JavaScript": {
-        "bytes": 756004,
-        "percentage": 3.9
+        "bytes": 727213,
+        "percentage": 3.7
       },
       "HTML": {
-        "bytes": 2356196,
-        "percentage": 12
+        "bytes": 2327824,
+        "percentage": 11.9
       },
       "CSS": {
-        "bytes": 222190,
-        "percentage": 1.1
+        "bytes": 177296,
+        "percentage": 0.9
       },
       "Python": {
         "bytes": 14224987,
-        "percentage": 72.5
+        "percentage": 72.9
       },
       "PLpgSQL": {
         "bytes": 33510,
@@ -1959,7 +1929,7 @@
             "date": "2026-03-17"
           },
           {
-            "count": 2,
+            "count": 3,
             "date": "2026-03-18"
           }
         ]
@@ -1967,11 +1937,11 @@
     ],
     "streak_days": 4,
     "committed_today": true,
-    "total_commits_year": 159,
-    "total_repos": 22
+    "total_commits_year": 160,
+    "total_repos": 19
   },
   "meta": {
-    "last_updated": "2026-03-17T19:55:49.476Z",
+    "last_updated": "2026-03-17T19:59:06.230Z",
     "generator": "TapasOS sync-github.yml"
   }
 }
