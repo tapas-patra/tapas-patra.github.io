@@ -49,7 +49,7 @@ export async function init(container) {
 
 async function loadProjects() {
   try {
-    const resp = await fetch('data.json');
+    const resp = await fetch('data.json?t=' + Date.now());
     const data = await resp.json();
     const repos = data.github?.all_repos || [];
     const pinned = data.github?.pinned_repos || [];
@@ -64,6 +64,7 @@ async function loadProjects() {
       updated_at: r.updated_at,
       topics: r.topics || [],
       is_pinned: pinnedNames.has(r.name),
+      is_private: r.is_private || false,
     }));
 
     // Build category sidebar
@@ -143,11 +144,15 @@ function renderProjects() {
 function renderProjectCard(p) {
   const langColor = getLanguageColor(p.language);
   const timeAgo = formatTimeAgo(p.updated_at);
+  const tag = p.is_private ? 'div' : 'a';
+  const href = p.is_private ? '' : ` href="${p.url}" target="_blank" rel="noopener"`;
+  const privateClick = p.is_private ? ` onclick="showPrivatePrompt('${escapeHtml(p.name)}')"` : '';
   return `
-    <a class="finder-card" href="${p.url}" target="_blank" rel="noopener">
+    <${tag} class="finder-card${p.is_private ? ' finder-card-private' : ''}"${href}${privateClick}>
       <div class="finder-card-header">
-        <span class="finder-card-icon">\uD83D\uDCC1</span>
+        <span class="finder-card-icon">${p.is_private ? '\uD83D\uDD12' : '\uD83D\uDCC1'}</span>
         ${p.is_pinned ? '<span class="finder-pin" title="Pinned">\uD83D\uDCCC</span>' : ''}
+        ${p.is_private ? '<span class="finder-private-badge">Private</span>' : ''}
       </div>
       <div class="finder-card-name">${escapeHtml(p.name)}</div>
       <div class="finder-card-desc">${escapeHtml(p.description)}</div>
@@ -156,22 +161,25 @@ function renderProjectCard(p) {
         ${p.stars > 0 ? `<span class="finder-stars">\u2B50 ${p.stars}</span>` : ''}
         <span class="finder-time">${timeAgo}</span>
       </div>
-    </a>
+    </${tag}>
   `;
 }
 
 function renderProjectRow(p) {
   const langColor = getLanguageColor(p.language);
   const timeAgo = formatTimeAgo(p.updated_at);
+  const tag = p.is_private ? 'div' : 'a';
+  const href = p.is_private ? '' : ` href="${p.url}" target="_blank" rel="noopener"`;
+  const privateClick = p.is_private ? ` onclick="showPrivatePrompt('${escapeHtml(p.name)}')"` : '';
   return `
-    <a class="finder-row" href="${p.url}" target="_blank" rel="noopener">
-      <span class="finder-row-icon">\uD83D\uDCC1</span>
-      <span class="finder-row-name">${p.is_pinned ? '\uD83D\uDCCC ' : ''}${escapeHtml(p.name)}</span>
+    <${tag} class="finder-row${p.is_private ? ' finder-row-private' : ''}"${href}${privateClick}>
+      <span class="finder-row-icon">${p.is_private ? '\uD83D\uDD12' : '\uD83D\uDCC1'}</span>
+      <span class="finder-row-name">${p.is_pinned ? '\uD83D\uDCCC ' : ''}${escapeHtml(p.name)}${p.is_private ? ' <span class="finder-private-badge-sm">Private</span>' : ''}</span>
       <span class="finder-row-desc">${escapeHtml(p.description)}</span>
       ${p.language ? `<span class="finder-row-lang"><span class="finder-lang-dot" style="background:${langColor}"></span>${p.language}</span>` : '<span></span>'}
       <span class="finder-row-stars">${p.stars > 0 ? '\u2B50 ' + p.stars : ''}</span>
       <span class="finder-row-time">${timeAgo}</span>
-    </a>
+    </${tag}>
   `;
 }
 
@@ -228,6 +236,31 @@ function escapeHtml(str) {
   d.textContent = str || '';
   return d.innerHTML;
 }
+
+// Global — called from inline onclick on private repo cards
+window.showPrivatePrompt = function(repoName) {
+  // Remove existing prompt if any
+  document.querySelector('.finder-private-overlay')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'finder-private-overlay';
+  overlay.innerHTML = `
+    <div class="finder-private-dialog">
+      <div class="finder-private-icon">\uD83D\uDD12</div>
+      <div class="finder-private-title">${repoName}</div>
+      <div class="finder-private-msg">This is a private repository.<br>Admin access required to view the source code.</div>
+      <div class="finder-private-hint">Interested? Reach out to discuss.</div>
+      <div class="finder-private-actions">
+        <a class="finder-private-btn" href="mailto:tapas.patra0406@gmail.com?subject=Access request: ${repoName}">Request Access</a>
+        <button class="finder-private-btn finder-private-close">Close</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  overlay.querySelector('.finder-private-close').addEventListener('click', () => overlay.remove());
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+};
 
 function injectStyles() {
   if (document.getElementById('finder-styles')) return;
@@ -312,6 +345,49 @@ function injectStyles() {
     .finder-row-lang { display:flex; align-items:center; gap:4px; color:var(--text-dim); font-size:11px; }
     .finder-row-stars { color:var(--text-dim); font-size:11px; text-align:right; }
     .finder-row-time { color:var(--text-dim); font-size:10px; text-align:right; }
+
+    /* Private repo styles */
+    .finder-card-private, .finder-row-private { cursor:pointer; }
+    .finder-card-private { border-style:dashed; }
+    .finder-private-badge {
+      font-size:9px; background:rgba(255,95,86,0.15); color:#FF5F56; padding:2px 7px;
+      border-radius:8px; font-weight:600; letter-spacing:0.3px;
+    }
+    .finder-private-badge-sm {
+      font-size:8px; background:rgba(255,95,86,0.15); color:#FF5F56; padding:1px 5px;
+      border-radius:6px; font-weight:600; vertical-align:middle; margin-left:4px;
+    }
+
+    /* Private repo dialog overlay */
+    .finder-private-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px);
+      display:flex; align-items:center; justify-content:center; z-index:9999;
+      animation:fadeIn 0.2s ease;
+    }
+    .finder-private-dialog {
+      background:var(--bg-surface, #1a1a2e); border:1px solid var(--glass-border, rgba(255,255,255,0.1));
+      border-radius:14px; padding:28px 32px; text-align:center; max-width:340px; width:90%;
+      box-shadow:0 20px 60px rgba(0,0,0,0.5);
+    }
+    .finder-private-icon { font-size:36px; margin-bottom:10px; }
+    .finder-private-title {
+      font-size:16px; font-weight:700; color:var(--text-primary, #e8f4f8); margin-bottom:8px;
+      font-family:var(--font-mono, monospace);
+    }
+    .finder-private-msg { font-size:13px; color:var(--text-muted, #6b8fa3); line-height:1.5; margin-bottom:6px; }
+    .finder-private-hint { font-size:11px; color:var(--text-dim, #3d5a6e); margin-bottom:18px; }
+    .finder-private-actions { display:flex; gap:8px; justify-content:center; }
+    .finder-private-btn {
+      padding:7px 18px; border-radius:8px; font-size:12px; font-family:var(--font-body, sans-serif);
+      cursor:pointer; text-decoration:none; border:1px solid var(--glass-border, rgba(255,255,255,0.1));
+      color:var(--text-primary, #e8f4f8); background:var(--glass, rgba(255,255,255,0.05));
+      transition:background 0.2s, border-color 0.2s;
+    }
+    .finder-private-btn:first-child {
+      background:var(--violet, #7c3aed); border-color:var(--violet, #7c3aed); color:#fff;
+    }
+    .finder-private-btn:hover { border-color:var(--cyan, #00e5ff); }
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
   `;
   document.head.appendChild(s);
 }

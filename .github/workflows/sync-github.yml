@@ -185,9 +185,6 @@ jobs:
             }
 
             // ── Build data.json ──
-            // Only expose public repos in the JSON (private repo names stay hidden)
-            const publicRepos = ownRepos.filter(r => !r.private);
-
             const data = {
               profile: {
                 name: 'Tapas Kumar Patra',
@@ -197,14 +194,15 @@ jobs:
               },
               github: {
                 pinned_repos: pinnedRepos,
-                all_repos: publicRepos.map(r => ({
+                all_repos: ownRepos.map(r => ({
                   name: r.name,
                   description: r.description,
-                  url: r.html_url,
+                  url: r.private ? null : r.html_url,
                   stars: r.stargazers_count,
                   language: r.language,
                   updated_at: r.updated_at,
                   topics: r.topics || [],
+                  is_private: r.private || false,
                 })),
                 languages,
                 commit_weeks: commitWeeks,
