@@ -1,91 +1,271 @@
-// Awards.app — Trophy shelf
+// Awards.app — fetches from tapas-data/awards.yaml
 
-const AWARDS = [
-  { name: 'Outstanding Performance',     count: 2, years: '2022–2024', icon: '\uD83C\uDF1F', desc: 'Top performance rating across all review cycles. Recognized for consistent delivery of high-impact projects.' },
-  { name: 'Excellence Award',            count: 3, years: '2021–2024', icon: '\uD83C\uDFC6', desc: 'Awarded for exceptional contribution to team goals and going above and beyond regular responsibilities.' },
-  { name: 'Innovation Champion',         count: 2, years: '2022–2023', icon: '\uD83D\uDCA1', desc: 'Recognized for introducing novel solutions and tools that improved team productivity significantly.' },
-  { name: 'Quality Champion',            count: 3, years: '2021–2024', icon: '\uD83D\uDEE1\uFE0F', desc: 'Awarded for maintaining zero production defects and establishing quality best practices.' },
-  { name: 'Team Player',                 count: 2, years: '2022–2023', icon: '\uD83E\uDD1D', desc: 'Recognized by peers for collaboration, knowledge sharing, and mentoring junior team members.' },
-  { name: 'Automation Hero',             count: 2, years: '2022–2024', icon: '\u2699\uFE0F', desc: 'Recognized for automating manual processes and saving significant engineering hours.' },
-  { name: 'On-Time Delivery',            count: 3, years: '2021–2024', icon: '\u23F0', desc: 'Consistently delivered projects on or ahead of schedule without compromising quality.' },
-  { name: 'Customer Impact',             count: 2, years: '2023–2024', icon: '\uD83C\uDFAF', desc: 'Recognized for building features that directly improved customer satisfaction metrics.' },
-];
+const AWARDS_YAML_URL = 'https://tapas-patra.github.io/tapas-data/awards.yaml';
 
-const TOTAL_AWARDS = AWARDS.reduce((sum, a) => sum + a.count, 0);
+let awardsData = null;
 
-export function init(container) {
+export async function init(container) {
   injectStyles();
 
   container.innerHTML = `
     <div class="awards-container">
-      <div class="awards-summary">
-        <span class="awards-summary-number">${TOTAL_AWARDS}</span> awards
-        <span class="awards-summary-sep">\u00B7</span> 4 years
-        <span class="awards-summary-sep">\u00B7</span> 2\u00D7 Outstanding Performance Rating
+      <div class="awards-loading">Loading awards...</div>
+    </div>
+  `;
+
+  try {
+    const text = await fetch(AWARDS_YAML_URL + '?t=' + Date.now()).then(r => r.text());
+    awardsData = parseAwardsYaml(text);
+  } catch {
+    awardsData = null;
+  }
+
+  if (!awardsData || awardsData.organizations.length === 0) {
+    container.querySelector('.awards-container').innerHTML =
+      '<div class="awards-empty">Could not load awards data.</div>';
+    return;
+  }
+
+  const allAwards = awardsData.organizations.flatMap(o => o.awards);
+
+  container.querySelector('.awards-container').innerHTML = `
+    <div class="awards-header">
+      <div class="awards-title">Awards & Recognition</div>
+      <div class="awards-subtitle">
+        <strong>${awardsData.summary.total} Performance Awards</strong> (${awardsData.summary.period})
+        &middot; ${awardsData.summary.highlight}
       </div>
-      <div class="awards-grid">
-        ${AWARDS.map(a => `
-          <div class="award-card">
-            <div class="award-card-icon">${a.icon}</div>
-            <div class="award-card-name">${a.name}</div>
-            <div class="award-card-meta">
-              <span class="award-count">\u00D7${a.count}</span>
-              <span class="award-years">${a.years}</span>
+    </div>
+
+    ${awardsData.organizations.map(org => `
+      <div class="awards-org-section">
+        <div class="awards-org">
+          <span class="awards-org-line"></span>
+          ${esc(org.name)} (${esc(org.period)})
+          <span class="awards-org-line awards-org-line-fill"></span>
+        </div>
+        <div class="awards-grid">
+          ${org.awards.map(a => `
+            <div class="award-card" data-id="${a.id}">
+              <img class="award-card-img" src="${a.image}" alt="${esc(a.name)}">
+              <div class="award-card-body">
+                <div class="award-card-name">${esc(a.name)}</div>
+                <div class="award-card-times">${a.times}x</div>
+                <div class="award-card-desc">${esc(a.desc.slice(0, 60))}...</div>
+              </div>
             </div>
-            <div class="award-card-desc">${a.desc}</div>
+          `).join('')}
+        </div>
+      </div>
+    `).join('')}
+
+    <div class="award-modal-overlay" id="award-modal-overlay">
+      <div class="award-modal">
+        <div class="award-modal-header">
+          <div class="award-modal-title" id="award-modal-title"></div>
+          <button class="award-modal-close" id="award-modal-close">&times;</button>
+        </div>
+        <div class="award-modal-body">
+          <div class="award-modal-image" id="award-modal-image"></div>
+          <div class="award-modal-info">
+            <div class="award-modal-times" id="award-modal-times"></div>
+            <div class="award-modal-desc" id="award-modal-desc"></div>
           </div>
-        `).join('')}
+        </div>
       </div>
     </div>
   `;
+
+  // Card clicks
+  container.querySelector('.awards-container').addEventListener('click', (e) => {
+    const card = e.target.closest('.award-card');
+    if (card) {
+      const award = allAwards.find(a => a.id === card.dataset.id);
+      if (award) openModal(container, award);
+    }
+  });
+
+  // Close modal
+  container.querySelector('#award-modal-close').addEventListener('click', () => closeModal(container));
+  container.querySelector('#award-modal-overlay').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeModal(container);
+  });
 }
 
+function openModal(container, award) {
+  const overlay = container.querySelector('#award-modal-overlay');
+  container.querySelector('#award-modal-title').textContent = award.name;
+  container.querySelector('#award-modal-times').textContent = `Received ${award.times}x`;
+  container.querySelector('#award-modal-desc').textContent = award.desc;
+  container.querySelector('#award-modal-image').innerHTML =
+    `<img src="${award.image}" alt="${esc(award.name)}">`;
+  overlay.classList.add('visible');
+}
+
+function closeModal(container) {
+  container.querySelector('#award-modal-overlay').classList.remove('visible');
+}
+
+function esc(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// ── Minimal YAML parser for awards.yaml structure ──
+function parseAwardsYaml(text) {
+  const result = {
+    summary: { total: 0, period: '', highlight: '' },
+    organizations: []
+  };
+
+  // Parse summary
+  const totalMatch = text.match(/^\s*total:\s*(\d+)/m);
+  const periodMatch = text.match(/^\s*period:\s*"?([^"\n]+)"?/m);
+  const highlightMatch = text.match(/^\s*highlight:\s*"?([^"\n]+)"?/m);
+  if (totalMatch) result.summary.total = parseInt(totalMatch[1]);
+  if (periodMatch) result.summary.period = periodMatch[1].trim();
+  if (highlightMatch) result.summary.highlight = highlightMatch[1].trim();
+
+  // Split by organization blocks
+  const orgBlocks = text.split(/\n  - name:\s*/);
+  orgBlocks.shift(); // Remove everything before first org
+
+  for (const block of orgBlocks) {
+    const lines = block.split('\n');
+    const orgName = lines[0].trim();
+
+    // Skip commented-out orgs
+    if (orgName.startsWith('#')) continue;
+
+    const periodLine = lines.find(l => l.match(/^\s+period:/));
+    const orgPeriod = periodLine ? periodLine.replace(/.*period:\s*"?/, '').replace(/"?\s*$/, '').trim() : '';
+
+    const org = { name: orgName, period: orgPeriod, awards: [] };
+
+    // Split by award entries
+    const awardBlocks = block.split(/\n      - id:\s*/);
+    awardBlocks.shift(); // Remove org header
+
+    for (const aBlock of awardBlocks) {
+      const aLines = aBlock.split('\n');
+      const award = { id: aLines[0].trim(), name: '', times: 0, image: '', desc: '' };
+
+      for (const line of aLines) {
+        const nameMatch = line.match(/^\s+name:\s*(.+)/);
+        const timesMatch = line.match(/^\s+times:\s*(\d+)/);
+        const imageMatch = line.match(/^\s+image:\s*(.+)/);
+        if (nameMatch) award.name = nameMatch[1].trim();
+        if (timesMatch) award.times = parseInt(timesMatch[1]);
+        if (imageMatch) award.image = imageMatch[1].trim();
+      }
+
+      // Parse multi-line desc (folded scalar with >)
+      const descStart = aBlock.indexOf('desc: >');
+      if (descStart !== -1) {
+        const descLines = [];
+        const afterDesc = aBlock.substring(descStart).split('\n').slice(1);
+        for (const dl of afterDesc) {
+          // Stop at next field (less indented) or empty
+          if (dl.match(/^\s{6}\w/) || dl.match(/^\s{4}-/) || dl.match(/^\s{2}-/) || dl.trim() === '') {
+            if (dl.trim() === '') { descLines.push(''); continue; }
+            if (!dl.match(/^\s{8,}/)) break;
+          }
+          descLines.push(dl.trim());
+        }
+        award.desc = descLines.filter(Boolean).join(' ').trim();
+      }
+
+      if (award.id && award.name) org.awards.push(award);
+    }
+
+    if (org.name) result.organizations.push(org);
+  }
+
+  return result;
+}
+
+// ── Styles ──
 function injectStyles() {
   if (document.getElementById('awards-styles')) return;
   const s = document.createElement('style');
   s.id = 'awards-styles';
   s.textContent = `
     .awards-container { height:100%; overflow-y:auto; padding:20px; }
+    .awards-loading, .awards-empty {
+      display:flex; align-items:center; justify-content:center; height:100%;
+      color:var(--text-dim); font-size:13px; font-family:var(--font-mono);
+    }
 
-    .awards-summary {
-      text-align:center; margin-bottom:20px; font-size:13px; color:var(--text-muted);
+    .awards-header { text-align:center; margin-bottom:16px; }
+    .awards-title {
+      font-family:var(--font-display); font-size:18px; font-weight:700;
+      color:var(--text-primary); margin-bottom:6px;
     }
-    .awards-summary-number {
-      font-family:var(--font-display); font-size:20px; font-weight:700; color:var(--cyan);
+    .awards-subtitle { font-size:13px; color:var(--text-muted); }
+    .awards-subtitle strong { color:var(--text-primary); }
+
+    .awards-org-section { margin-bottom:20px; }
+    .awards-org {
+      display:flex; align-items:center; gap:8px; margin-bottom:12px;
+      font-size:12px; font-weight:600; color:var(--cyan); text-transform:uppercase;
+      letter-spacing:0.5px;
     }
-    .awards-summary-sep { color:var(--text-dim); margin:0 6px; }
+    .awards-org-line { width:20px; height:1px; background:var(--cyan); flex-shrink:0; }
+    .awards-org-line-fill { flex:1; background:var(--glass-border); }
 
     .awards-grid {
-      display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:12px;
+      display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:12px;
     }
 
     .award-card {
-      background:var(--glass); border:1px solid var(--glass-border); border-radius:12px;
-      padding:16px; text-align:center; transition:border-color 0.2s, transform 0.2s, box-shadow 0.2s;
-      cursor:default; position:relative; overflow:hidden;
+      background:var(--glass); border:1px solid var(--glass-border); border-radius:10px;
+      padding:14px; display:flex; gap:12px; align-items:flex-start;
+      cursor:pointer; transition:border-color 0.2s, transform 0.15s;
     }
-    .award-card:hover {
-      border-color:var(--violet); transform:translateY(-3px);
-      box-shadow:0 8px 24px rgba(124,58,237,0.15);
+    .award-card:hover { border-color:var(--violet); transform:translateY(-2px); }
+    .award-card-img {
+      width:48px; height:48px; border-radius:8px; object-fit:cover; flex-shrink:0;
     }
+    .award-card-body { min-width:0; }
+    .award-card-name { font-size:13px; font-weight:600; color:var(--text-primary); }
+    .award-card-times { font-size:11px; color:var(--violet-light, #c084fc); font-family:var(--font-mono); }
+    .award-card-desc { font-size:11px; color:var(--text-dim); margin-top:4px; line-height:1.4; }
 
-    .award-card-icon { font-size:36px; margin-bottom:8px; }
-    .award-card-name { font-size:13px; font-weight:600; color:var(--text-primary); margin-bottom:6px; }
-    .award-card-meta { display:flex; justify-content:center; gap:10px; font-size:11px; margin-bottom:8px; }
-    .award-count {
-      background:var(--violet); color:#fff; padding:1px 8px; border-radius:10px;
-      font-family:var(--font-mono); font-size:10px;
+    /* Modal */
+    .award-modal-overlay {
+      position:absolute; inset:0; z-index:100;
+      background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);
+      display:flex; align-items:center; justify-content:center;
+      opacity:0; pointer-events:none; transition:opacity 0.25s;
     }
-    .award-years { color:var(--text-dim); font-family:var(--font-mono); font-size:10px; }
-
-    .award-card-desc {
-      font-size:11px; color:var(--text-muted); line-height:1.5;
-      max-height:0; overflow:hidden; opacity:0;
-      transition:max-height 0.3s ease, opacity 0.3s ease;
+    .award-modal-overlay.visible { opacity:1; pointer-events:auto; }
+    .award-modal {
+      background:var(--glass); border:1px solid var(--glass-border); border-radius:14px;
+      max-width:460px; width:calc(100% - 32px); max-height:80%; overflow:hidden;
+      display:flex; flex-direction:column;
+      transform:scale(0.92); transition:transform 0.25s;
     }
-    .award-card:hover .award-card-desc {
-      max-height:100px; opacity:1;
+    .award-modal-overlay.visible .award-modal { transform:scale(1); }
+    .award-modal-header {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:16px 20px 12px; border-bottom:1px solid var(--glass-border);
     }
+    .award-modal-title { font-size:16px; font-weight:700; color:var(--text-primary); }
+    .award-modal-close {
+      width:28px; height:28px; border-radius:50%; border:none;
+      background:var(--glass); color:var(--text-muted); font-size:16px;
+      cursor:pointer; display:flex; align-items:center; justify-content:center;
+      transition:background 0.2s;
+    }
+    .award-modal-close:hover { background:rgba(255,255,255,0.12); }
+    .award-modal-body { padding:20px; overflow-y:auto; }
+    .award-modal-image {
+      border-radius:10px; overflow:hidden; background:rgba(0,0,0,0.3); margin-bottom:16px;
+    }
+    .award-modal-image img { width:100%; display:block; object-fit:contain; max-height:280px; }
+    .award-modal-times {
+      font-size:13px; color:var(--violet-light, #c084fc); font-family:var(--font-mono); margin-bottom:8px;
+    }
+    .award-modal-desc { font-size:13px; color:var(--text-muted); line-height:1.7; }
   `;
   document.head.appendChild(s);
 }
