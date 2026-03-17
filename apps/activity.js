@@ -11,7 +11,7 @@ export async function init(container) {
 
   let data;
   try {
-    const resp = await fetch('data.json');
+    const resp = await fetch('data.json?t=' + Date.now());
     data = await resp.json();
   } catch {
     container.querySelector('.activity-container').innerHTML =
@@ -97,25 +97,67 @@ function renderContributionGraph(weeks) {
     return;
   }
 
-  let html = '<div class="contrib-grid">';
-  weeks.forEach(week => {
-    // Support both formats: [{count, date}] or [0, 2, 3, ...]
-    const days = Array.isArray(week.days || week)
-      ? (week.days || week)
-      : [];
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const DAYS = ['Sun','','Mon','','Wed','','Fri'];
 
-    html += '<div class="contrib-week">';
-    days.forEach(day => {
-      const count = typeof day === 'number' ? day : (day.count || 0);
-      const date = typeof day === 'object' ? day.date : '';
-      const level = getContribLevel(count);
-      const title = date ? `${date}: ${count} contributions` : `${count} contributions`;
-      html += `<div class="contrib-day level-${level}" title="${title}"></div>`;
-    });
-    html += '</div>';
+  // Normalize weeks: support both {days:[{count,date}]} and [0,2,3,...] formats
+  const normalized = weeks.map(week => {
+    const days = week.days || week;
+    return days.map(d => typeof d === 'number' ? { count: d, date: '' } : d);
   });
-  html += '</div>';
-  graph.innerHTML = html;
+
+  // Build month labels from first day of each week
+  let monthLabels = '';
+  let lastMonth = -1;
+  normalized.forEach((week, i) => {
+    const firstDay = week[0];
+    if (firstDay && firstDay.date) {
+      const month = new Date(firstDay.date).getMonth();
+      if (month !== lastMonth) {
+        lastMonth = month;
+        monthLabels += `<div class="contrib-month" style="grid-column:${i + 2}">${MONTHS[month]}</div>`;
+      }
+    }
+  });
+
+  // Day labels (left column)
+  const dayLabelsHtml = DAYS.map(d =>
+    `<div class="contrib-day-label">${d}</div>`
+  ).join('');
+
+  // Grid cells: 7 rows (Sun–Sat) x N columns (weeks)
+  let cellsHtml = '';
+  for (let row = 0; row < 7; row++) {
+    for (let col = 0; col < normalized.length; col++) {
+      const day = normalized[col][row];
+      if (!day) {
+        cellsHtml += '<div class="contrib-day empty"></div>';
+        continue;
+      }
+      const count = day.count || 0;
+      const level = getContribLevel(count);
+      const title = day.date ? `${day.date}: ${count} contributions` : `${count} contributions`;
+      cellsHtml += `<div class="contrib-day level-${level}" title="${title}"></div>`;
+    }
+  }
+
+  const totalCols = normalized.length;
+  graph.innerHTML = `
+    <div class="contrib-wrapper">
+      <div class="contrib-months" style="grid-template-columns: 28px repeat(${totalCols}, 1fr)">
+        <div></div>${monthLabels}
+      </div>
+      <div class="contrib-grid" style="grid-template-columns: 28px repeat(${totalCols}, 1fr)">
+        ${DAYS.map((d, i) => `<div class="contrib-day-label">${d}</div>${normalized.map((week, col) => {
+          const day = week[i];
+          if (!day) return '<div class="contrib-day empty"></div>';
+          const count = day.count || 0;
+          const level = getContribLevel(count);
+          const title = day.date ? `${day.date}: ${count} contributions` : `${count} contributions`;
+          return `<div class="contrib-day level-${level}" title="${title}"></div>`;
+        }).join('')}`).join('')}
+      </div>
+    </div>`;
 }
 
 function getContribLevel(count) {
@@ -213,12 +255,26 @@ function injectStyles() {
 
     .activity-columns { display:flex; gap:12px; }
 
-    /* Contribution graph */
-    .contrib-grid { display:flex; gap:2px; overflow-x:auto; padding-bottom:4px; }
-    .contrib-week { display:flex; flex-direction:column; gap:2px; }
-    .contrib-day {
-      width:10px; height:10px; border-radius:2px; transition:background 0.2s;
+    /* Contribution graph — GitHub-style grid */
+    .contrib-wrapper { overflow-x:auto; padding-bottom:4px; }
+    .contrib-months {
+      display:grid; gap:2px; margin-bottom:4px;
     }
+    .contrib-month {
+      font-size:9px; color:var(--text-dim); font-family:var(--font-mono);
+      white-space:nowrap;
+    }
+    .contrib-grid {
+      display:grid; gap:2px;
+    }
+    .contrib-day-label {
+      font-size:9px; color:var(--text-dim); font-family:var(--font-mono);
+      display:flex; align-items:center; height:10px;
+    }
+    .contrib-day {
+      width:auto; height:10px; min-width:10px; border-radius:2px;
+    }
+    .contrib-day.empty { background:transparent; }
     .contrib-day.level-0 { background:rgba(255,255,255,0.04); }
     .contrib-day.level-1 { background:rgba(0,229,255,0.2); }
     .contrib-day.level-2 { background:rgba(0,229,255,0.4); }
