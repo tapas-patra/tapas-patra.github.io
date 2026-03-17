@@ -1,90 +1,51 @@
-// Skills.app — System Preferences-style skills viewer
+// Skills.app — System Preferences-style skills viewer (fetches from tapas-data)
 
-const SKILL_CATEGORIES = [
-  { id: 'languages', name: 'Languages',  icon: '\uD83D\uDCBB', fromGithub: true },
-  { id: 'backend',   name: 'Backend',    icon: '\u2699\uFE0F' },
-  { id: 'ai-ml',     name: 'AI / ML',    icon: '\uD83E\uDDE0' },
-  { id: 'databases',  name: 'Databases',  icon: '\uD83D\uDDC4\uFE0F' },
-  { id: 'testing',   name: 'Testing',    icon: '\uD83E\uDDEA' },
-  { id: 'cloud',     name: 'Cloud',      icon: '\u2601\uFE0F' },
-  { id: 'tools',     name: 'Tools',      icon: '\uD83D\uDEE0\uFE0F' },
-];
-
-// Manual skills (from profile.md spec — will eventually come from API)
-const MANUAL_SKILLS = {
-  backend:   [
-    { name: 'FastAPI',       proficiency: 'expert',       years: 3 },
-    { name: 'Node.js',       proficiency: 'advanced',     years: 4 },
-    { name: 'Express',       proficiency: 'advanced',     years: 4 },
-    { name: 'REST APIs',     proficiency: 'expert',       years: 5 },
-    { name: 'GraphQL',       proficiency: 'intermediate', years: 2 },
-    { name: 'Microservices', proficiency: 'advanced',     years: 3 },
-  ],
-  'ai-ml': [
-    { name: 'RAG',               proficiency: 'advanced',     years: 1.5 },
-    { name: 'LLM Integration',   proficiency: 'advanced',     years: 2 },
-    { name: 'Prompt Engineering', proficiency: 'advanced',     years: 2 },
-    { name: 'Embeddings',        proficiency: 'advanced',     years: 1.5 },
-    { name: 'Vector Databases',  proficiency: 'intermediate', years: 1 },
-  ],
-  databases: [
-    { name: 'PostgreSQL',  proficiency: 'expert',       years: 4 },
-    { name: 'Supabase',    proficiency: 'advanced',     years: 2 },
-    { name: 'MongoDB',     proficiency: 'intermediate', years: 3 },
-    { name: 'Redis',       proficiency: 'intermediate', years: 2 },
-  ],
-  testing: [
-    { name: 'Selenium',      proficiency: 'expert',   years: 4 },
-    { name: 'Playwright',    proficiency: 'advanced',  years: 2 },
-    { name: 'TestRail',      proficiency: 'expert',    years: 3 },
-    { name: 'CI/CD Testing', proficiency: 'advanced',  years: 3 },
-  ],
-  cloud: [
-    { name: 'AWS',                proficiency: 'intermediate', years: 3 },
-    { name: 'GitHub Actions',     proficiency: 'advanced',     years: 3 },
-    { name: 'Docker',             proficiency: 'advanced',     years: 3 },
-    { name: 'Vercel',             proficiency: 'advanced',     years: 2 },
-    { name: 'Render',             proficiency: 'intermediate', years: 1 },
-    { name: 'Cloudflare Workers', proficiency: 'intermediate', years: 1 },
-  ],
-  tools: [
-    { name: 'Git',     proficiency: 'expert',   years: 5 },
-    { name: 'VS Code', proficiency: 'expert',   years: 5 },
-    { name: 'Postman', proficiency: 'advanced',  years: 4 },
-    { name: 'Jira',    proficiency: 'advanced',  years: 4 },
-    { name: 'Linux',   proficiency: 'advanced',  years: 4 },
-  ],
-};
-
+const SKILLS_YAML_URL = 'https://tapas-patra.github.io/tapas-data/skills.yaml';
 const PROFICIENCY_LEVELS = { beginner: 25, intermediate: 50, advanced: 75, expert: 95 };
 
+let skillCategories = [];
 let githubLanguages = {};
 
 export async function init(container) {
   injectStyles();
 
-  // Load GitHub language data
-  try {
-    const resp = await fetch('data.json');
-    const data = await resp.json();
-    githubLanguages = data.github?.languages || {};
-  } catch { /* use empty */ }
-
   container.innerHTML = `
     <div class="skills-container">
-      <div class="skills-grid" id="skills-grid">
-        ${SKILL_CATEGORIES.map(cat => `
-          <div class="skills-pane" data-cat="${cat.id}">
-            <div class="skills-pane-icon">${cat.icon}</div>
-            <div class="skills-pane-name">${cat.name}</div>
-          </div>
-        `).join('')}
-      </div>
-      <div class="skills-detail" id="skills-detail" style="display:none;">
-        <button class="skills-back" id="skills-back">\u2190 All Skills</button>
-        <div class="skills-detail-header" id="skills-detail-header"></div>
-        <div class="skills-detail-list" id="skills-detail-list"></div>
-      </div>
+      <div class="skills-loading">Loading skills...</div>
+    </div>
+  `;
+
+  // Load GitHub languages and skills YAML in parallel
+  const [langData, yamlText] = await Promise.all([
+    fetch('data.json?t=' + Date.now()).then(r => r.json()).catch(() => ({})),
+    fetch(SKILLS_YAML_URL + '?t=' + Date.now()).then(r => r.text()).catch(() => ''),
+  ]);
+
+  githubLanguages = langData.github?.languages || {};
+
+  if (yamlText) {
+    skillCategories = parseSkillsYaml(yamlText);
+  }
+
+  if (skillCategories.length === 0) {
+    container.querySelector('.skills-container').innerHTML =
+      '<div class="skills-empty">Could not load skills data.</div>';
+    return;
+  }
+
+  container.querySelector('.skills-container').innerHTML = `
+    <div class="skills-grid" id="skills-grid">
+      ${skillCategories.map(cat => `
+        <div class="skills-pane" data-cat="${cat.id}">
+          <div class="skills-pane-icon">${cat.icon || '\uD83D\uDCCB'}</div>
+          <div class="skills-pane-name">${cat.category}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="skills-detail" id="skills-detail" style="display:none;">
+      <button class="skills-back" id="skills-back">\u2190 All Skills</button>
+      <div class="skills-detail-header" id="skills-detail-header"></div>
+      <div class="skills-detail-list" id="skills-detail-list"></div>
     </div>
   `;
 
@@ -100,7 +61,7 @@ export async function init(container) {
 }
 
 function openCategory(container, catId) {
-  const cat = SKILL_CATEGORIES.find(c => c.id === catId);
+  const cat = skillCategories.find(c => c.id === catId);
   if (!cat) return;
 
   container.querySelector('#skills-grid').style.display = 'none';
@@ -108,19 +69,18 @@ function openCategory(container, catId) {
   detail.style.display = '';
 
   container.querySelector('#skills-detail-header').innerHTML = `
-    <span class="skills-detail-icon">${cat.icon}</span>
-    <span class="skills-detail-title">${cat.name}</span>
+    <span class="skills-detail-icon">${cat.icon || '\uD83D\uDCCB'}</span>
+    <span class="skills-detail-title">${cat.category}</span>
   `;
 
   const list = container.querySelector('#skills-detail-list');
 
-  if (cat.fromGithub) {
-    // Languages from GitHub data
+  if (cat.from_github) {
     const sorted = Object.entries(githubLanguages)
       .sort((a, b) => b[1].percentage - a[1].percentage);
 
     if (sorted.length === 0) {
-      list.innerHTML = '<div class="skills-empty">No language data yet. Run sync-github workflow.</div>';
+      list.innerHTML = '<div class="skills-empty">No language data yet.</div>';
       return;
     }
 
@@ -136,7 +96,11 @@ function openCategory(container, catId) {
       </div>
     `).join('');
   } else {
-    const skills = MANUAL_SKILLS[catId] || [];
+    const skills = cat.skills || [];
+    if (skills.length === 0) {
+      list.innerHTML = '<div class="skills-empty">No skills listed.</div>';
+      return;
+    }
     list.innerHTML = skills.map(s => `
       <div class="skill-item">
         <div class="skill-item-header">
@@ -151,12 +115,67 @@ function openCategory(container, catId) {
   }
 }
 
+// ── Minimal YAML parser for skills.yaml structure ──
+function parseSkillsYaml(text) {
+  const entries = [];
+  const blocks = text.split(/\n  - id:\s*/);
+  blocks.shift(); // Remove header before first entry
+
+  for (const block of blocks) {
+    const entry = { id: '', category: '', icon: '', from_github: false, skills: [] };
+    const lines = block.split('\n');
+
+    entry.id = lines[0].trim();
+
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i];
+      const match = line.match(/^\s{4}(\w[\w_]*):\s*(.+)/);
+      if (match) {
+        const [, key, val] = match;
+        if (key === 'category') entry.category = val.trim();
+        else if (key === 'icon') entry.icon = val.trim().replace(/^["']|["']$/g, '');
+        else if (key === 'from_github') entry.from_github = val.trim() === 'true';
+      }
+
+      // Parse skills array
+      if (line.match(/^\s{4}skills:\s*$/)) {
+        for (let j = i + 1; j < lines.length; j++) {
+          const sLine = lines[j];
+          if (sLine.match(/^\s{6}- name:\s*/)) {
+            const skill = { name: '', proficiency: 'intermediate', years: 0 };
+            skill.name = sLine.replace(/^\s{6}- name:\s*/, '').trim();
+            // Read next lines for proficiency and years
+            for (let k = j + 1; k < lines.length && k <= j + 3; k++) {
+              const pMatch = lines[k].match(/^\s{8}proficiency:\s*(.+)/);
+              const yMatch = lines[k].match(/^\s{8}years:\s*(.+)/);
+              if (pMatch) skill.proficiency = pMatch[1].trim();
+              if (yMatch) skill.years = parseFloat(yMatch[1].trim());
+            }
+            entry.skills.push(skill);
+          }
+          // Stop if we hit another top-level key (text:, etc.)
+          if (sLine.match(/^\s{4}\w/) && !sLine.match(/^\s{6}/)) break;
+        }
+      }
+    }
+
+    if (entry.id && entry.category) entries.push(entry);
+  }
+
+  return entries;
+}
+
+// ── Styles ──
 function injectStyles() {
   if (document.getElementById('skills-styles')) return;
   const s = document.createElement('style');
   s.id = 'skills-styles';
   s.textContent = `
     .skills-container { height:100%; overflow-y:auto; padding:20px; }
+    .skills-loading, .skills-empty {
+      display:flex; align-items:center; justify-content:center; height:100%;
+      color:var(--text-dim); font-size:13px; font-family:var(--font-mono);
+    }
 
     .skills-grid {
       display:grid; grid-template-columns:repeat(auto-fill, minmax(130px, 1fr));
@@ -184,7 +203,6 @@ function injectStyles() {
     .skills-detail-title { font-size:18px; font-weight:600; font-family:var(--font-display); }
 
     .skills-detail-list { display:flex; flex-direction:column; gap:14px; }
-    .skills-empty { color:var(--text-dim); font-size:12px; font-family:var(--font-mono); text-align:center; padding:24px; }
 
     .skill-item {}
     .skill-item-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; }
