@@ -70,6 +70,7 @@ const APP_REGISTRY = [
   { id: 'notes',        title: 'Notes.app',           icon: '\uD83D\uDCDD', dock: false, default: false, width: 700, height: 480, desc: 'Create and manage notes — auto-saved locally', version: '1.0', size: '8 KB' },
   { id: 'photos',       title: 'Photos.app',          icon: '\uD83C\uDFA8', dock: false, default: false, width: 800, height: 540, desc: 'Gallery of project screenshots and award images', version: '1.0', size: '6 KB' },
   { id: 'calendar',     title: 'Calendar.app',        icon: '\uD83D\uDCC5', dock: false, default: false, width: 780, height: 520, desc: 'Career timeline, key dates, and availability', version: '1.0', size: '10 KB' },
+  { id: 'launchpad',    title: 'Launchpad',            icon: '\uD83D\uDE80', dock: false, default: false, width: 680, height: 520, desc: 'View and launch all installed applications', version: '1.0', size: '5 KB' },
   { id: 'settings',     title: 'Settings.app',       icon: '\u2699\uFE0F', dock: true,  default: false, width: 720, height: 500, desc: 'System preferences — wallpaper, sound, display, lock screen', version: '1.0', size: '14 KB' },
   { id: 'classic',      title: 'Classic.view',       icon: '\uD83C\uDF10', dock: false, default: false, width: 900, height: 600, desc: 'Classic HTML portfolio — simple, crawlable', version: '1.0', size: '1 KB' },
 ];
@@ -84,6 +85,7 @@ export function initDesktop() {
 
   // Expose openApp for child modules (e.g. Finder)
   window.__tapasos_openApp = openApp;
+  window.__tapasos_getAppRegistry = getAppRegistry;
 }
 
 // Open default apps after boot — with welcome splash

@@ -54,7 +54,7 @@ const FS = {
         { name: 'TapasOS', type: 'folder', icon: '\uD83D\uDCC1', children: [
           { name: 'index.html', type: 'file', icon: '\uD83C\uDF10', content: 'TapasOS — AI-first portfolio\n\nBrowser-based operating system with:\n- Window manager\n- Dock with magnification\n- Spotlight search\n- 12+ apps\n- RAG-powered AI chatbot\n- Boot sequence with system detection\n- Sound system (Web Audio API)' },
           { name: 'os/', type: 'file', icon: '\uD83D\uDCC2', content: 'Core OS modules:\ndesktop.js, menubar.js, boot.js, sounds.js,\nlock-screen.js, wallpaper.js, control-center.js,\nnotifications.js, analytics.js, admin.js' },
-          { name: 'apps/', type: 'file', icon: '\uD83D\uDCC2', content: 'App modules:\nai-assistant.js, projects.js, skills.js,\nactivity.js, terminal.js, settings.js,\nawards.js, resume.js, experience.js,\neducation.js, contact.js, finder.js' },
+          { name: 'apps/', type: 'file', icon: '\uD83D\uDCC2', content: 'App modules:\nai-assistant.js, projects.js, skills.js,\nactivity.js, terminal.js, settings.js,\nawards.js, resume.js, experience.js,\neducation.js, contact.js, finder.js,\nnotes.js, photos.js, calendar.js' },
         ]},
         { name: 'PortfolioBot', type: 'folder', icon: '\uD83D\uDCC1', children: [
           { name: 'README.md', type: 'file', icon: '\uD83D\uDCC4', content: 'Portfolio Bot — FastAPI Backend\n\nRAG pipeline with:\n- Multi-provider AI (OpenAI, Gemini, Groq)\n- SSE streaming\n- pgvector embeddings\n- Supabase PostgreSQL\n- Entry-level diff sync from YAML' },
@@ -112,6 +112,10 @@ function populateApps() {
       { id: 'contact', title: 'Contact.app', icon: '\uD83D\uDCEC' },
       { id: 'settings', title: 'Settings.app', icon: '\u2699\uFE0F' },
       { id: 'finder', title: 'Finder', icon: '\uD83D\uDCBB' },
+      { id: 'notes', title: 'Notes.app', icon: '\uD83D\uDCDD' },
+      { id: 'photos', title: 'Photos.app', icon: '\uD83D\uDDBC\uFE0F' },
+      { id: 'calendar', title: 'Calendar.app', icon: '\uD83D\uDCC5' },
+      { id: 'launchpad', title: 'Launchpad', icon: '\uD83D\uDE80' },
       { id: 'classic', title: 'Classic.view', icon: '\uD83C\uDF10' },
     ];
 
