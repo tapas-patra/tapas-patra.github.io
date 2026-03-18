@@ -30,15 +30,21 @@ export function initWidgets() {
         return;
       }
       const dw = newW - lastLayerWidth;
-      widgetLayer.querySelectorAll('.wgt').forEach(w => {
+      const widgets = [...widgetLayer.querySelectorAll('.wgt')];
+
+      // Shift all widgets by delta, clamp to bounds
+      widgets.forEach(w => {
         let x = parseInt(w.style.left) || 0;
         let y = parseInt(w.style.top) || 0;
-        // Shift x by the width delta to keep distance from right edge
-        x = Math.max(0, Math.min(x + dw, newW - 240));
-        y = Math.max(0, Math.min(y, newH - 60));
+        x = Math.max(0, Math.min(x + dw, newW - w.offsetWidth));
+        y = Math.max(0, Math.min(y, newH - w.offsetHeight));
         w.style.left = `${x}px`;
         w.style.top = `${y}px`;
       });
+
+      // Resolve overlaps — push widgets down if they collide
+      resolveOverlaps(widgets, newW, newH);
+
       lastLayerWidth = newW;
     }, 100);
   });
@@ -82,6 +88,34 @@ function render() {
 
     lastLayerWidth = lw;
   });
+}
+
+function resolveOverlaps(widgets, maxW, maxH) {
+  const gap = 10;
+  // Sort by Y position so we push lower widgets down
+  widgets.sort((a, b) => (parseInt(a.style.top) || 0) - (parseInt(b.style.top) || 0));
+
+  for (let i = 0; i < widgets.length; i++) {
+    for (let j = i + 1; j < widgets.length; j++) {
+      const a = widgets[i];
+      const b = widgets[j];
+      const ax = parseInt(a.style.left) || 0;
+      const ay = parseInt(a.style.top) || 0;
+      const aw = a.offsetWidth;
+      const ah = a.offsetHeight;
+      const bx = parseInt(b.style.left) || 0;
+      const by = parseInt(b.style.top) || 0;
+      const bw = b.offsetWidth;
+      const bh = b.offsetHeight;
+
+      // Check overlap
+      if (ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by) {
+        // Push b below a
+        const newY = Math.min(ay + ah + gap, maxH - bh);
+        b.style.top = `${Math.max(0, newY)}px`;
+      }
+    }
+  }
 }
 
 function makeDraggable(widget) {
