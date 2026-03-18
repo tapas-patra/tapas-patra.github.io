@@ -2,7 +2,7 @@
 
 import { setActiveAppName } from './menubar.js';
 import { trackAppOpen, trackAppClose } from './analytics.js';
-import { notify } from './notifications.js';
+import { notify, togglePanel as toggleNotificationCenter } from './notifications.js';
 import { recordAppForLead } from './lead-capture.js';
 import { lockNow } from './lock-screen.js';
 import { playWindowOpen, playWindowClose, playClick, toggleMute, isMuted } from './sounds.js';
@@ -1047,6 +1047,12 @@ function initKeyboardShortcuts() {
     if (e.key === 'F3' || (mod && e.code === 'Tab')) {
       e.preventDefault();
       toggleMissionControl();
+    }
+
+    // Notification Center — Option+N / Alt+N
+    if (mod && e.code === 'KeyN' && !e.shiftKey) {
+      e.preventDefault();
+      toggleNotificationCenter();
     }
 
     // Escape — close context menu, spotlight, app switcher, mission control

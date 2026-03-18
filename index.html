@@ -188,8 +188,22 @@
       initLeadCapture();
       initLockScreen();
       setTimeout(() => {
-        notify('Welcome to TapasOS', 'Click any app in the dock to explore. Try Tapas.ai for a chat!', { icon: '\uD83D\uDC4B', duration: 5000 });
+        notify('Welcome to TapasOS', 'Click any app in the dock to explore. Try Tapas.ai for a chat!', { icon: '\uD83D\uDC4B', duration: 5000, app: 'System' });
       }, 800);
+      setTimeout(() => {
+        notify('Tip: Keyboard Shortcuts', `Press ${/Mac|iPhone|iPad/.test(navigator.platform || '') ? 'Option' : 'Alt'}+K for Spotlight, F3 for Mission Control`, { icon: '\u2328\uFE0F', duration: 6000, app: 'System', silent: true });
+      }, 4000);
+      setTimeout(() => {
+        notify('Open to Opportunities', 'Looking for SDET / Backend / AI roles. Try Tapas.ai to learn more!', { icon: '\uD83D\uDCBC', duration: 6000, app: 'Career', silent: true });
+      }, 12000);
+      // Fetch GitHub status notification
+      fetch('data.json').then(r => r.ok ? r.json() : null).then(data => {
+        if (data?.github?.committed_today) {
+          setTimeout(() => {
+            notify('GitHub Active Today', `${data.github.total_repos || '?'} repos, streak active`, { icon: '\uD83D\uDFE2', duration: 5000, app: 'GitHub', silent: true });
+          }, 8000);
+        }
+      }).catch(() => {});
     }
 
     // Initial load
