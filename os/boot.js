@@ -51,18 +51,14 @@ export function runBoot() {
     const skipBtn = document.getElementById('boot-skip');
     const bootScreen = document.getElementById('boot-screen');
 
-    let skipped = false;
-
-    // Failsafe — never let boot hang longer than 6 seconds
-    setTimeout(() => { if (!skipped) finish(); }, 6000);
+    let done = false;
 
     async function finish() {
-      if (skipped) return;
-      skipped = true;
+      if (done) return;
+      done = true;
       sessionStorage.setItem('tapasos-booted', '1');
       progressFill.style.width = '100%';
       progressLabel.textContent = 'Ready.';
-      // Unlock audio from this user gesture (Skip click) before playing
       await ensureAudioUnlocked();
       playBoot();
       bootScreen.classList.add('fade-out');
@@ -72,11 +68,43 @@ export function runBoot() {
       }, 600);
     }
 
+    let promptShown = false;
+    function showStartPrompt() {
+      if (done || promptShown) return;
+      promptShown = true;
+      // Hide skip button and progress label
+      skipBtn.style.display = 'none';
+      progressFill.style.width = '100%';
+      progressLabel.textContent = 'Ready.';
+
+      // Show "click to start" prompt
+      const startPrompt = document.createElement('div');
+      startPrompt.id = 'boot-start-prompt';
+      startPrompt.textContent = 'Click anywhere to start TapasOS';
+      bootScreen.appendChild(startPrompt);
+      requestAnimationFrame(() => startPrompt.classList.add('visible'));
+
+      // Any click on boot screen = start
+      bootScreen.addEventListener('click', finish);
+      // Keyboard shortcut too
+      const onKey = (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          document.removeEventListener('keydown', onKey);
+          finish();
+        }
+      };
+      document.addEventListener('keydown', onKey);
+    }
+
+    // Failsafe — if boot stalls, show start prompt after 6s
+    setTimeout(() => { if (!done) showStartPrompt(); }, 6000);
+
     // Show skip button after 1 second
     setTimeout(() => {
-      if (!skipped) skipBtn.classList.add('visible');
+      if (!done) skipBtn.classList.add('visible');
     }, 1000);
 
+    // Skip jumps straight to start prompt (user has clicked = gesture)
     skipBtn.addEventListener('click', finish);
 
     // POST lines
@@ -85,7 +113,7 @@ export function runBoot() {
     const totalPostTime = POST_LINES.length * lineInterval;
 
     function addLine() {
-      if (lineIndex >= POST_LINES.length || skipped) return;
+      if (lineIndex >= POST_LINES.length || done) return;
       const text = POST_LINES[lineIndex] || '\u00A0';
       const line = document.createElement('div');
       line.className = 'line';
@@ -109,7 +137,7 @@ export function runBoot() {
     const progressInterval = totalPostTime / progressSteps;
 
     function updateProgress(step) {
-      if (skipped || step >= progressSteps) return;
+      if (done || step >= progressSteps) return;
       progress = ((step + 1) / progressSteps) * 100;
       progressFill.style.width = progress + '%';
       progressLabel.textContent = PROGRESS_MESSAGES[step];
@@ -117,8 +145,8 @@ export function runBoot() {
       if (step + 1 < progressSteps) {
         setTimeout(() => updateProgress(step + 1), progressInterval);
       } else {
-        // Boot complete
-        setTimeout(finish, 400);
+        // Boot complete — wait for user click to start
+        setTimeout(showStartPrompt, 400);
       }
     }
 

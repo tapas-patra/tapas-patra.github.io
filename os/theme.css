@@ -181,6 +181,28 @@ html, body {
   100% { background-position: -200% 0; }
 }
 
+#boot-start-prompt {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--cyan);
+  letter-spacing: 1px;
+  margin-top: 32px;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  animation: bootPromptPulse 2s ease-in-out infinite;
+  cursor: pointer;
+  text-shadow: 0 0 12px var(--cyan-glow);
+}
+
+#boot-start-prompt.visible {
+  opacity: 1;
+}
+
+@keyframes bootPromptPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
 #boot-skip {
   position: fixed;
   bottom: 40px;
