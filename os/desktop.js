@@ -193,19 +193,111 @@ function focusWindow(appId) {
   setActiveAppName(appDef?.title || '');
 }
 
-// ── Drag ──
+// ── Drag with Window Snapping ──
+
+const SNAP_EDGE = 8;       // px from edge to trigger snap
+const SNAP_CORNER = 30;    // px from corner for quarter snap
+
+function getSnapZone(clientX, clientY) {
+  const desktop = document.getElementById('desktop');
+  const r = desktop.getBoundingClientRect();
+  const x = clientX - r.left;
+  const y = clientY - r.top;
+  const w = r.width;
+  const h = r.height;
+
+  // Top edge → maximize
+  if (y <= SNAP_EDGE) return 'top';
+  // Left edge
+  if (x <= SNAP_EDGE) return 'left';
+  // Right edge
+  if (x >= w - SNAP_EDGE) return 'right';
+
+  return null;
+}
+
+function getSnapGeometry(zone) {
+  const desktop = document.getElementById('desktop');
+  const r = desktop.getBoundingClientRect();
+  const w = r.width;
+  const h = r.height;
+
+  switch (zone) {
+    case 'top':   return { left: 0, top: 0, width: w, height: h };
+    case 'left':  return { left: 0, top: 0, width: Math.round(w / 2), height: h };
+    case 'right': return { left: Math.round(w / 2), top: 0, width: Math.round(w / 2), height: h };
+    default:      return null;
+  }
+}
+
+function showSnapPreview(zone) {
+  let preview = document.getElementById('snap-preview');
+  if (!preview) {
+    preview = document.createElement('div');
+    preview.id = 'snap-preview';
+    document.getElementById('desktop').appendChild(preview);
+  }
+
+  const geo = getSnapGeometry(zone);
+  if (!geo) { hideSnapPreview(); return; }
+
+  preview.style.left = geo.left + 'px';
+  preview.style.top = geo.top + 'px';
+  preview.style.width = geo.width + 'px';
+  preview.style.height = geo.height + 'px';
+  preview.classList.add('visible');
+}
+
+function hideSnapPreview() {
+  const preview = document.getElementById('snap-preview');
+  if (preview) preview.classList.remove('visible');
+}
+
 function bindTitlebarDrag(win) {
   const titlebar = win.querySelector('.window-titlebar');
   let dragging = false;
   let startX, startY, origLeft, origTop;
+  let currentSnapZone = null;
+  const appId = win.dataset.appId;
+
+  // Double-click titlebar → maximize/restore
+  titlebar.addEventListener('dblclick', (e) => {
+    if (e.target.closest('.traffic-light')) return;
+    toggleMaximize(appId);
+  });
 
   titlebar.addEventListener('mousedown', (e) => {
     if (e.target.closest('.traffic-light')) return;
     dragging = true;
-    startX = e.clientX;
-    startY = e.clientY;
-    origLeft = win.offsetLeft;
-    origTop = win.offsetTop;
+    currentSnapZone = null;
+
+    const entry = windows.get(appId);
+
+    // If maximized or snapped, unsnap on drag start and center cursor on titlebar
+    if (entry && (entry.state === 'maximized' || entry.state === 'snapped')) {
+      const prevWidth = entry.preMax?.width || 640;
+      const prevHeight = entry.preMax?.height || 460;
+      // Restore dimensions but position cursor at center of new titlebar
+      win.style.width = prevWidth + 'px';
+      win.style.height = prevHeight + 'px';
+      win.classList.remove('maximized');
+      const newLeft = e.clientX - prevWidth / 2;
+      const newTop = e.clientY - 16; // near titlebar
+      const deskRect = document.getElementById('desktop').getBoundingClientRect();
+      win.style.left = Math.max(0, newLeft - deskRect.left) + 'px';
+      win.style.top = Math.max(0, newTop - deskRect.top) + 'px';
+      entry.state = 'normal';
+      startX = e.clientX;
+      startY = e.clientY;
+      origLeft = win.offsetLeft;
+      origTop = win.offsetTop;
+    } else {
+      startX = e.clientX;
+      startY = e.clientY;
+      origLeft = win.offsetLeft;
+      origTop = win.offsetTop;
+    }
+
     win.style.transition = 'none';
     e.preventDefault();
   });
@@ -216,12 +308,51 @@ function bindTitlebarDrag(win) {
     const dy = e.clientY - startY;
     win.style.left = (origLeft + dx) + 'px';
     win.style.top = (origTop + dy) + 'px';
+
+    // Snap zone detection
+    const zone = getSnapZone(e.clientX, e.clientY);
+    if (zone !== currentSnapZone) {
+      currentSnapZone = zone;
+      if (zone) {
+        showSnapPreview(zone);
+      } else {
+        hideSnapPreview();
+      }
+    }
   });
 
-  document.addEventListener('mouseup', () => {
-    if (dragging) {
-      dragging = false;
-      win.style.transition = '';
+  document.addEventListener('mouseup', (e) => {
+    if (!dragging) return;
+    dragging = false;
+    win.style.transition = '';
+    hideSnapPreview();
+
+    if (currentSnapZone) {
+      const entry = windows.get(appId);
+      if (entry) {
+        // Save pre-snap geometry for restore
+        if (entry.state === 'normal') {
+          entry.preMax = {
+            left: origLeft,
+            top: origTop,
+            width: win.offsetWidth,
+            height: win.offsetHeight,
+          };
+        }
+
+        const geo = getSnapGeometry(currentSnapZone);
+        if (geo) {
+          win.style.transition = 'left 0.2s ease, top 0.2s ease, width 0.2s ease, height 0.2s ease';
+          win.style.left = geo.left + 'px';
+          win.style.top = geo.top + 'px';
+          win.style.width = geo.width + 'px';
+          win.style.height = geo.height + 'px';
+
+          entry.state = currentSnapZone === 'top' ? 'maximized' : 'snapped';
+          if (currentSnapZone === 'top') win.classList.add('maximized');
+        }
+      }
+      currentSnapZone = null;
     }
   });
 }
@@ -372,13 +503,17 @@ function toggleMaximize(appId) {
   const desktop = document.getElementById('desktop');
   const deskRect = desktop.getBoundingClientRect();
 
-  if (entry.state === 'maximized') {
-    // Restore
+  if (entry.state === 'maximized' || entry.state === 'snapped') {
+    // Restore from maximized or snapped
     const pm = entry.preMax;
-    entry.el.style.left = pm.left + 'px';
-    entry.el.style.top = pm.top + 'px';
-    entry.el.style.width = pm.width + 'px';
-    entry.el.style.height = pm.height + 'px';
+    if (pm) {
+      entry.el.style.transition = 'left 0.2s ease, top 0.2s ease, width 0.2s ease, height 0.2s ease';
+      entry.el.style.left = pm.left + 'px';
+      entry.el.style.top = pm.top + 'px';
+      entry.el.style.width = pm.width + 'px';
+      entry.el.style.height = pm.height + 'px';
+      setTimeout(() => { entry.el.style.transition = ''; }, 250);
+    }
     entry.el.classList.remove('maximized');
     entry.state = 'normal';
     entry.preMax = null;
@@ -390,12 +525,14 @@ function toggleMaximize(appId) {
       width: entry.el.offsetWidth,
       height: entry.el.offsetHeight,
     };
+    entry.el.style.transition = 'left 0.2s ease, top 0.2s ease, width 0.2s ease, height 0.2s ease';
     entry.el.style.left = '0px';
     entry.el.style.top = '0px';
     entry.el.style.width = deskRect.width + 'px';
     entry.el.style.height = deskRect.height + 'px';
     entry.el.classList.add('maximized');
     entry.state = 'maximized';
+    setTimeout(() => { entry.el.style.transition = ''; }, 250);
   }
 }
 

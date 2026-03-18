@@ -910,6 +910,23 @@ html, body {
   margin: 0 2px;
 }
 
+/* ── Snap Preview ── */
+
+#snap-preview {
+  position: absolute;
+  z-index: 1;
+  background: rgba(124,58,237,0.08);
+  border: 2px solid rgba(124,58,237,0.35);
+  border-radius: 12px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease, left 0.15s ease, top 0.15s ease, width 0.15s ease, height 0.15s ease;
+}
+
+#snap-preview.visible {
+  opacity: 1;
+}
+
 /* ── App Switcher (Cmd+` / Alt+`) ── */
 
 #app-switcher {
