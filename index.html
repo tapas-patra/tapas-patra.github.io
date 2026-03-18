@@ -167,6 +167,7 @@
       const banner = document.getElementById('mobile-banner');
       const { initMobileApp } = await import('./mobile/nav.js');
       initMobileApp(banner);
+      initLeadCapture();
     }
 
     async function activateDesktop() {
