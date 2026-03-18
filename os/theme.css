@@ -709,25 +709,25 @@ html, body {
 #spotlight-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9800;
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  z-index: 8500;
+  background: rgba(0, 0, 0, 0.25);
   display: flex;
   justify-content: center;
   padding-top: 16vh;
   opacity: 0;
   transition: opacity 0.2s ease;
+  pointer-events: none;
 }
 
 #spotlight-overlay.visible {
   opacity: 1;
+  pointer-events: auto;
 }
 
 #spotlight-box {
   width: 580px;
   max-width: 92vw;
-  background: linear-gradient(170deg, rgba(22,22,40,0.97), rgba(17,17,32,0.98));
+  background: linear-gradient(170deg, rgb(22,22,40), rgb(17,17,32));
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 16px;
   box-shadow: 0 24px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.05) inset;
