@@ -86,6 +86,7 @@ export function initDesktop() {
   initContextMenu();
   initKeyboardShortcuts();
   initMissionControl();
+  renderDesktopFolders();
 
   // Expose openApp for child modules (e.g. Finder)
   window.__tapasos_openApp = openApp;
@@ -711,22 +712,35 @@ function initContextMenu() {
 
   // Desktop background right-click
   desktop.addEventListener('contextmenu', (e) => {
-    if (e.target.closest('.window') || e.target.closest('#dock')) return;
+    if (e.target.closest('.window') || e.target.closest('#dock') || e.target.closest('.desktop-folder')) return;
     e.preventDefault();
     showContextMenu(e, [
-      { label: 'About TapasOS', action: () => showAboutDialog() },
+      { label: 'New Folder', action: () => createDesktopFolder(e.clientX, e.clientY) },
+      { type: 'separator' },
       { label: 'Mission Control', shortcut: 'F3', action: () => toggleMissionControl() },
       { label: 'Spotlight Search', shortcut: `${MOD_LABEL}K`, action: () => openSpotlight() },
       { type: 'separator' },
-      ...APP_REGISTRY.map(app => ({
-        label: `Open ${app.title}`,
-        icon: app.icon,
-        action: () => openApp(app.id),
-      })),
-      { type: 'separator' },
       { label: 'Change Wallpaper', action: () => showWallpaperPicker() },
+      { label: 'Settings', action: () => openApp('settings') },
+      { type: 'separator' },
+      { label: 'About TapasOS', action: () => showAboutDialog() },
       { label: 'Lock Screen', action: () => lockNow() },
       { label: 'Refresh Desktop', action: () => location.reload() },
+    ]);
+  });
+
+  // Desktop folder right-click
+  desktop.addEventListener('contextmenu', (e) => {
+    const folder = e.target.closest('.desktop-folder');
+    if (!folder) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const folderId = folder.dataset.folderId;
+    showContextMenu(e, [
+      { label: 'Open', action: () => openDesktopFolder(folderId) },
+      { label: 'Rename', action: () => renameDesktopFolder(folderId) },
+      { type: 'separator' },
+      { label: 'Delete', action: () => deleteDesktopFolder(folderId) },
     ]);
   });
 
@@ -970,6 +984,205 @@ function showWallpaperPicker() {
       el.classList.add('active');
     });
   });
+}
+
+// ── Desktop Folders ──
+
+const LS_FOLDERS = 'tapasos-desktop-folders';
+
+function getDesktopFolders() {
+  try { return JSON.parse(localStorage.getItem(LS_FOLDERS)) || []; }
+  catch { return []; }
+}
+
+function saveDesktopFolders(folders) {
+  localStorage.setItem(LS_FOLDERS, JSON.stringify(folders));
+}
+
+function renderDesktopFolders() {
+  document.querySelectorAll('.desktop-folder').forEach(f => f.remove());
+  const desktop = document.getElementById('desktop');
+  const deskRect = desktop.getBoundingClientRect();
+
+  getDesktopFolders().forEach(f => {
+    const el = document.createElement('div');
+    el.className = 'desktop-folder';
+    el.dataset.folderId = f.id;
+    el.style.left = `${Math.min(f.x, deskRect.width - 80)}px`;
+    el.style.top = `${Math.min(f.y, deskRect.height - 80)}px`;
+    el.innerHTML = `
+      <div class="df-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+          <path d="M2 6C2 4.9 2.9 4 4 4H9L11 6H20C21.1 6 22 6.9 22 8V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6Z" fill="rgba(0,229,255,0.15)" stroke="rgba(0,229,255,0.5)" stroke-width="1"/>
+        </svg>
+      </div>
+      <div class="df-name">${escHtml(f.name)}</div>
+    `;
+    el.addEventListener('dblclick', () => openDesktopFolder(f.id));
+    desktop.appendChild(el);
+    makeFolderDraggable(el, f.id);
+  });
+}
+
+function createDesktopFolder(cx, cy) {
+  const desktop = document.getElementById('desktop');
+  const deskRect = desktop.getBoundingClientRect();
+  const x = cx - deskRect.left;
+  const y = cy - deskRect.top;
+
+  const folders = getDesktopFolders();
+  const id = 'folder-' + Date.now();
+  folders.push({ id, name: 'Untitled Folder', x, y });
+  saveDesktopFolders(folders);
+  renderDesktopFolders();
+
+  // Immediately enter rename mode
+  requestAnimationFrame(() => renameDesktopFolder(id));
+}
+
+function renameDesktopFolder(folderId) {
+  const el = document.querySelector(`.desktop-folder[data-folder-id="${folderId}"]`);
+  if (!el) return;
+  const nameEl = el.querySelector('.df-name');
+  const folders = getDesktopFolders();
+  const folder = folders.find(f => f.id === folderId);
+  if (!folder) return;
+
+  const input = document.createElement('input');
+  input.className = 'df-rename-input';
+  input.value = folder.name;
+  input.maxLength = 30;
+  nameEl.replaceWith(input);
+  input.focus();
+  input.select();
+
+  const commit = () => {
+    const newName = input.value.trim() || 'Untitled Folder';
+    folder.name = newName;
+    saveDesktopFolders(folders);
+    renderDesktopFolders();
+  };
+
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+    if (e.key === 'Escape') { input.value = folder.name; input.blur(); }
+  });
+}
+
+function deleteDesktopFolder(folderId) {
+  const folders = getDesktopFolders().filter(f => f.id !== folderId);
+  saveDesktopFolders(folders);
+  renderDesktopFolders();
+}
+
+function openDesktopFolder(folderId) {
+  const folders = getDesktopFolders();
+  const folder = folders.find(f => f.id === folderId);
+  if (!folder) return;
+
+  const appId = '__folder-' + folderId;
+  if (windows.has(appId)) { focusWindow(appId); return; }
+
+  const desktop = document.getElementById('desktop');
+  const deskRect = desktop.getBoundingClientRect();
+  const w = 400, h = 300;
+
+  const win = document.createElement('div');
+  win.className = 'window focused';
+  win.dataset.appId = appId;
+  win.style.left = ((deskRect.width - w) / 2) + 'px';
+  win.style.top = ((deskRect.height - h) / 2) + 'px';
+  win.style.width = w + 'px';
+  win.style.height = h + 'px';
+  win.style.zIndex = ++zCounter;
+  win.style.minWidth = '280px';
+  win.style.minHeight = '200px';
+
+  win.innerHTML = `
+    <div class="window-titlebar">
+      <div class="window-titlebar-left">
+        <span class="window-title">${escHtml(folder.name)}</span>
+      </div>
+      <div class="window-traffic-lights">
+        <button class="traffic-light close" title="Close"></button>
+        <button class="traffic-light minimize" title="Minimize"></button>
+        <button class="traffic-light maximize" title="Maximize"></button>
+      </div>
+    </div>
+    <div class="window-body" style="display:flex;align-items:center;justify-content:center;padding:40px;text-align:center;">
+      <div style="color:var(--text-dim);font-size:12px;">This folder is empty</div>
+    </div>
+  `;
+
+  desktop.appendChild(win);
+  windows.set(appId, { el: win, state: 'normal', preMax: null, openedAt: Date.now() });
+  focusWindow(appId);
+  bindTitlebarDrag(win);
+  bindResizeHandles(win);
+  bindTrafficLights(win, appId);
+  win.addEventListener('mousedown', () => focusWindow(appId));
+}
+
+function makeFolderDraggable(el, folderId) {
+  let dragging = false, startX, startY, origX, origY;
+
+  el.addEventListener('mousedown', onDown);
+  el.addEventListener('touchstart', onDown, { passive: false });
+
+  function onDown(e) {
+    if (e.target.closest('input')) return;
+    dragging = true;
+    el.classList.add('df-dragging');
+    const point = e.touches ? e.touches[0] : e;
+    startX = point.clientX;
+    startY = point.clientY;
+    origX = parseInt(el.style.left) || 0;
+    origY = parseInt(el.style.top) || 0;
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onUp);
+    e.preventDefault();
+  }
+
+  function onMove(e) {
+    if (!dragging) return;
+    const point = e.touches ? e.touches[0] : e;
+    const desktop = document.getElementById('desktop');
+    const deskRect = desktop.getBoundingClientRect();
+    let nx = origX + (point.clientX - startX);
+    let ny = origY + (point.clientY - startY);
+    nx = Math.max(0, Math.min(nx, deskRect.width - 80));
+    ny = Math.max(0, Math.min(ny, deskRect.height - 80));
+    el.style.left = `${nx}px`;
+    el.style.top = `${ny}px`;
+    e.preventDefault();
+  }
+
+  function onUp() {
+    if (!dragging) return;
+    dragging = false;
+    el.classList.remove('df-dragging');
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('touchend', onUp);
+    // Persist position
+    const folders = getDesktopFolders();
+    const folder = folders.find(f => f.id === folderId);
+    if (folder) {
+      folder.x = parseInt(el.style.left) || 0;
+      folder.y = parseInt(el.style.top) || 0;
+      saveDesktopFolders(folders);
+    }
+  }
+}
+
+function escHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
 }
 
 // ── Keyboard Shortcuts ──
