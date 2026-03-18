@@ -68,6 +68,7 @@ const APP_REGISTRY = [
   { id: 'contact',      title: 'Contact.app',        icon: '\uD83D\uDCEC', dock: false, default: false, width: 640, height: 460, desc: 'Get in touch — email, LinkedIn, GitHub', version: '1.0', size: '10 KB' },
   { id: 'finder',       title: 'Finder',              icon: '\uD83D\uDCBB', dock: false, default: false, width: 760, height: 480, desc: 'Browse the TapasOS virtual filesystem', version: '1.0', size: '12 KB' },
   { id: 'notes',        title: 'Notes.app',           icon: '\uD83D\uDCDD', dock: false, default: false, width: 700, height: 480, desc: 'Create and manage notes — auto-saved locally', version: '1.0', size: '8 KB' },
+  { id: 'photos',       title: 'Photos.app',          icon: '\uD83C\uDFA8', dock: false, default: false, width: 800, height: 540, desc: 'Gallery of project screenshots and award images', version: '1.0', size: '6 KB' },
   { id: 'settings',     title: 'Settings.app',       icon: '\u2699\uFE0F', dock: true,  default: false, width: 720, height: 500, desc: 'System preferences — wallpaper, sound, display, lock screen', version: '1.0', size: '14 KB' },
   { id: 'classic',      title: 'Classic.view',       icon: '\uD83C\uDF10', dock: false, default: false, width: 900, height: 600, desc: 'Classic HTML portfolio — simple, crawlable', version: '1.0', size: '1 KB' },
 ];
