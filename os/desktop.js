@@ -20,6 +20,40 @@ const zStack = [];             // window elements ordered by z-index
 let zCounter = 100;
 let cascadeOffset = 0;
 
+// ── Dock Persistence ──
+const LS_DOCK = 'tapasos-dock-apps';
+const DEFAULT_DOCK_IDS = ['ai-assistant', 'projects', 'skills', 'activity', 'settings'];
+
+function getDockApps() {
+  const stored = localStorage.getItem(LS_DOCK);
+  if (stored) {
+    try { return JSON.parse(stored); } catch { /* fall through */ }
+  }
+  return DEFAULT_DOCK_IDS.slice();
+}
+
+function saveDockApps(ids) {
+  localStorage.setItem(LS_DOCK, JSON.stringify(ids));
+}
+
+export function isInDock(appId) {
+  return getDockApps().includes(appId);
+}
+
+export function addToDock(appId) {
+  const ids = getDockApps();
+  if (ids.includes(appId)) return;
+  ids.push(appId);
+  saveDockApps(ids);
+  rebuildDock();
+}
+
+export function removeFromDock(appId) {
+  let ids = getDockApps().filter(id => id !== appId);
+  saveDockApps(ids);
+  rebuildDock();
+}
+
 // ── App Registry ──
 const APP_REGISTRY = [
   { id: 'ai-assistant', title: 'Tapas.ai',          icon: '\uD83E\uDD16', dock: true,  default: false, width: 760, height: 560, desc: 'AI chatbot powered by RAG — ask anything about Tapas', version: '2.1', size: '48 KB' },
@@ -556,18 +590,7 @@ function initDock() {
   const dock = document.getElementById('dock');
   if (!dock) return;
 
-  APP_REGISTRY.filter(a => a.dock).forEach(app => {
-    const item = document.createElement('div');
-    item.className = 'dock-item';
-    item.dataset.app = app.id;
-    item.innerHTML = `
-      <div class="dock-tooltip">${app.title}</div>
-      <div class="dock-icon">${app.icon}</div>
-      <div class="dock-dot"></div>
-    `;
-    item.addEventListener('click', () => { playClick(); openApp(app.id); });
-    dock.appendChild(item);
-  });
+  populateDockItems(dock);
 
   // Magnification — distance-based scaling
   let dockHovered = false;
@@ -581,14 +604,11 @@ function initDock() {
   dock.addEventListener('mousemove', (e) => {
     if (!dockHovered) return;
     const items = dock.querySelectorAll('.dock-item');
+    if (!items.length) return;
 
-    // First pass: compute scale factors using original (unscaled) centers
-    // We use offsetLeft relative to dock which is stable
     const factors = [];
     items.forEach(item => {
       const rect = item.getBoundingClientRect();
-      // Use the center of the base (unscaled) area
-      const baseWidth = item.offsetWidth;
       const center = rect.left + rect.width / 2;
       const dist = Math.abs(e.clientX - center);
       const proximity = Math.max(0, 1 - dist / DOCK_MAG.range);
@@ -596,12 +616,10 @@ function initDock() {
       factors.push(factor);
     });
 
-    // Second pass: apply scale + dynamic horizontal padding to push neighbors apart
     items.forEach((item, i) => {
       const factor = factors[i];
       const scale = DOCK_MAG.baseScale + (DOCK_MAG.maxScale - DOCK_MAG.baseScale) * factor;
       const lift = DOCK_MAG.liftMax * factor;
-      // Add extra horizontal margin proportional to scale to prevent overlap
       const extraPad = Math.round((scale - 1) * 28);
 
       item.style.transform = `translateY(${-lift}px) scale(${scale})`;
@@ -609,6 +627,46 @@ function initDock() {
       item.style.marginRight = `${extraPad}px`;
     });
   });
+}
+
+function populateDockItems(dock) {
+  // Clear existing items but keep event listeners on dock itself
+  dock.querySelectorAll('.dock-item, .dock-empty').forEach(el => el.remove());
+
+  const dockIds = getDockApps();
+  const dockApps = dockIds.map(id => APP_REGISTRY.find(a => a.id === id)).filter(Boolean);
+
+  if (dockApps.length === 0) {
+    // Empty dock — show hint
+    const hint = document.createElement('div');
+    hint.className = 'dock-empty';
+    hint.innerHTML = `<span>Dock is empty — press <kbd>${MOD_DISPLAY}+K</kbd> to search apps</span>`;
+    hint.addEventListener('click', () => openSpotlight());
+    dock.appendChild(hint);
+    return;
+  }
+
+  dockApps.forEach(app => {
+    const item = document.createElement('div');
+    item.className = 'dock-item';
+    item.dataset.app = app.id;
+    item.innerHTML = `
+      <div class="dock-tooltip">${app.title}</div>
+      <div class="dock-icon">${app.icon}</div>
+      <div class="dock-dot"></div>
+    `;
+    // Restore active dot if window is open
+    if (windows.has(app.id)) item.classList.add('active');
+    item.addEventListener('click', () => { playClick(); openApp(app.id); });
+    dock.appendChild(item);
+  });
+}
+
+function rebuildDock() {
+  const dock = document.getElementById('dock');
+  if (!dock) return;
+  populateDockItems(dock);
+  animateDockEntrance();
 }
 
 function resetDockMagnification(dock) {
@@ -676,6 +734,8 @@ function initContextMenu() {
         items.push({ label: 'Close', action: () => closeWindow(appId) });
       }
       items.push({ type: 'separator' });
+      items.push({ label: 'Remove from Dock', action: () => removeFromDock(appId) });
+      items.push({ type: 'separator' });
       items.push({ label: 'Close All Windows', action: () => closeAllWindows() });
       showContextMenu(e, items);
     } else {
@@ -683,6 +743,8 @@ function initContextMenu() {
       showContextMenu(e, [
         { label: 'Open All Apps', action: () => APP_REGISTRY.forEach(a => openApp(a.id)) },
         { label: 'Minimize All', action: () => minimizeAllWindows() },
+        { type: 'separator' },
+        { label: 'Reset Dock', action: () => { saveDockApps(DEFAULT_DOCK_IDS.slice()); rebuildDock(); } },
         { type: 'separator' },
         { label: 'Close All Windows', action: () => closeAllWindows() },
       ]);
@@ -1801,11 +1863,18 @@ function buildSpotlightContextMenu(item) {
   if (item.type === 'app') {
     const appDef = APP_REGISTRY.find(a => a.id === item.id);
     const isOpen = windows.has(item.id);
+    const inDock = isInDock(item.id);
     const menuItems = [
       { label: 'Open', icon: item.icon, action: () => { closeSpotlight(); openApp(item.id); } },
     ];
     if (isOpen) {
       menuItems.push({ label: 'Close', action: () => { closeSpotlight(); closeWindow(item.id); } });
+    }
+    menuItems.push({ type: 'separator' });
+    if (inDock) {
+      menuItems.push({ label: 'Remove from Dock', action: () => { closeSpotlight(); removeFromDock(item.id); } });
+    } else {
+      menuItems.push({ label: 'Add to Dock', action: () => { closeSpotlight(); addToDock(item.id); } });
     }
     menuItems.push({ type: 'separator' });
     if (appDef) {
@@ -1852,7 +1921,7 @@ function showAppInfo(appDef) {
         <div class="app-info-row"><span>Version</span><span>${appDef.version || '1.0'}</span></div>
         <div class="app-info-row"><span>Size</span><span>${appDef.size || 'N/A'}</span></div>
         <div class="app-info-row"><span>Window</span><span>${appDef.width} x ${appDef.height}</span></div>
-        <div class="app-info-row"><span>In Dock</span><span>${appDef.dock ? 'Yes' : 'No'}</span></div>
+        <div class="app-info-row"><span>In Dock</span><span>${isInDock(appDef.id) ? 'Yes' : 'No'}</span></div>
       </div>
       <button class="app-info-open">Open ${appDef.title}</button>
     </div>
