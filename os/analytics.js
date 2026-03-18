@@ -1,4 +1,4 @@
-// TapasOS Analytics — lightweight event tracking + error monitoring
+// TapasOS Analytics — event tracking, error monitoring, visitor fingerprinting
 
 const API = location.hostname === 'localhost'
   ? 'http://localhost:8000'
@@ -6,6 +6,9 @@ const API = location.hostname === 'localhost'
 
 const SESSION_ID = crypto.randomUUID?.() || Math.random().toString(36).slice(2);
 let pageLoadTime = Date.now();
+
+// Expose session ID globally for lead capture
+window.__tapasos_session_id = SESSION_ID;
 
 // ── Public API ──
 
@@ -24,13 +27,19 @@ export function trackAppClose(appId, durationMs) {
 // ── Init ──
 
 export function initAnalytics() {
-  // Page view
+  const fingerprint = generateFingerprint();
+
+  // Page view with fingerprint
   send('page_view', {
     path: location.pathname,
     referrer: document.referrer || null,
     screen: `${screen.width}x${screen.height}`,
     viewport: `${innerWidth}x${innerHeight}`,
     device: isMobile() ? 'mobile' : 'desktop',
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    language: navigator.language,
+    platform: navigator.platform,
+    fingerprint,
   });
 
   // Session duration on unload
@@ -55,12 +64,53 @@ export function initAnalytics() {
   });
 }
 
+// ── Fingerprinting ──
+
+function generateFingerprint() {
+  const components = [
+    screen.width + 'x' + screen.height,
+    screen.colorDepth,
+    Intl.DateTimeFormat().resolvedOptions().timeZone,
+    navigator.language,
+    navigator.platform,
+    navigator.hardwareConcurrency || 0,
+    new Date().getTimezoneOffset(),
+  ];
+
+  // Canvas fingerprint — draws text and returns hash
+  try {
+    const canvas = document.createElement('canvas');
+    canvas.width = 200;
+    canvas.height = 50;
+    const ctx = canvas.getContext('2d');
+    ctx.textBaseline = 'top';
+    ctx.font = '14px Arial';
+    ctx.fillStyle = '#f60';
+    ctx.fillRect(50, 0, 80, 30);
+    ctx.fillStyle = '#069';
+    ctx.fillText('TapasOS fp', 2, 15);
+    ctx.fillStyle = 'rgba(102,204,0,0.7)';
+    ctx.fillText('TapasOS fp', 4, 17);
+    components.push(canvas.toDataURL().slice(-50));
+  } catch {
+    components.push('no-canvas');
+  }
+
+  // Simple hash
+  const str = components.join('|');
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return 'fp_' + Math.abs(hash).toString(36);
+}
+
 // ── Internal ──
 
 function send(event, props = {}) {
   const body = JSON.stringify({ event, props, session_id: SESSION_ID });
 
-  // Use sendBeacon for reliability on page unload, fetch otherwise
   if (event === 'session_end' && navigator.sendBeacon) {
     navigator.sendBeacon(`${API}/track`, new Blob([body], { type: 'application/json' }));
     return;

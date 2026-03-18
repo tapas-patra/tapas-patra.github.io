@@ -3,6 +3,7 @@
 import { setActiveAppName } from './menubar.js';
 import { trackAppOpen, trackAppClose } from './analytics.js';
 import { notify } from './notifications.js';
+import { recordAppForLead } from './lead-capture.js';
 
 // ── State ──
 const windows = new Map();     // appId -> { el, state, preMax }
@@ -70,6 +71,7 @@ function createWindow(appDef) {
   const { id, title, icon, width, height } = appDef;
 
   trackAppOpen(id);
+  recordAppForLead(id);
 
   const desktop = document.getElementById('desktop');
   const deskRect = desktop.getBoundingClientRect();
