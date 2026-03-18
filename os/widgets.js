@@ -2,17 +2,12 @@
 // Clock, Mini Calendar, GitHub Heatmap, Quick Stats
 // Freely draggable, positions persisted in localStorage
 
-const LS_POSITIONS = 'tapasos-widget-positions';
-
 let widgetLayer = null;
 let clockTimer = null;
 let githubData = null;
-let savedPositions = {};
 
 export function initWidgets() {
   injectStyles();
-
-  try { savedPositions = JSON.parse(localStorage.getItem(LS_POSITIONS)) || {}; } catch { savedPositions = {}; }
 
   widgetLayer = document.createElement('div');
   widgetLayer.id = 'widget-layer';
@@ -52,37 +47,13 @@ function render() {
 
     let nextY = 16;
     widgets.forEach(w => {
-      const id = w.id;
-      // Use saved position if available, otherwise stack them
-      if (savedPositions[id]) {
-        const pos = savedPositions[id];
-        const x = Math.max(0, Math.min(pos.x, lw - 240));
-        const y = Math.max(0, Math.min(pos.y, lh - 60));
-        w.style.left = `${x}px`;
-        w.style.top = `${y}px`;
-      } else {
-        w.style.left = `${Math.max(0, rightX)}px`;
-        w.style.top = `${nextY}px`;
-      }
+      w.style.left = `${Math.max(0, rightX)}px`;
+      w.style.top = `${nextY}px`;
       widgetLayer.appendChild(w);
       makeDraggable(w);
-
-      // Calculate next Y based on actual rendered height
-      if (!savedPositions[id]) {
-        nextY += w.offsetHeight + 10;
-      }
+      nextY += w.offsetHeight + 10;
     });
   });
-}
-
-function savePositions() {
-  const widgets = widgetLayer.querySelectorAll('.wgt');
-  const pos = {};
-  widgets.forEach(w => {
-    pos[w.id] = { x: parseInt(w.style.left) || 0, y: parseInt(w.style.top) || 0 };
-  });
-  savedPositions = pos;
-  localStorage.setItem(LS_POSITIONS, JSON.stringify(pos));
 }
 
 function makeDraggable(widget) {
@@ -147,7 +118,6 @@ function makeDraggable(widget) {
     document.removeEventListener('mouseup', onUp);
     document.removeEventListener('touchmove', onMove);
     document.removeEventListener('touchend', onUp);
-    savePositions();
   }
 }
 
