@@ -1,7 +1,9 @@
 // TapasOS Sound System — synthesized audio, autoplay-safe, mute toggle
 
 const LS_KEY = 'tapasos-sound';
+const LS_VOL = 'tapasos-volume';
 let ctx = null;
+let masterGain = null;
 let unlocked = false;
 let pendingQueue = []; // sounds queued before user interaction
 
@@ -31,6 +33,17 @@ export function toggleMute() {
   return m;
 }
 
+export function getVolume() {
+  const val = localStorage.getItem(LS_VOL);
+  return val !== null ? parseInt(val, 10) : 80;
+}
+
+export function setVolume(val) {
+  const clamped = Math.max(0, Math.min(100, val));
+  localStorage.setItem(LS_VOL, String(clamped));
+  if (masterGain) masterGain.gain.value = clamped / 100;
+}
+
 export function playBoot()         { enqueue(synthBoot); }
 export function playNotification() { enqueue(synthNotification); }
 export function playWindowOpen()   { enqueue(synthWindowOpen); }
@@ -44,9 +57,16 @@ function getCtx() {
   if (!ctx) {
     try {
       ctx = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = ctx.createGain();
+      masterGain.gain.value = getVolume() / 100;
+      masterGain.connect(ctx.destination);
     } catch { return null; }
   }
   return ctx;
+}
+
+function getDest() {
+  return masterGain || ctx.destination;
 }
 
 function unlockAudio() {
@@ -114,7 +134,7 @@ function flushQueue() {
 function synthBoot(ctx) {
   const master = ctx.createGain();
   master.gain.value = 0.3;
-  master.connect(ctx.destination);
+  master.connect(getDest());
 
   // Reverb
   const convolver = ctx.createConvolver();
@@ -175,7 +195,7 @@ function synthNotification(ctx) {
   const now = ctx.currentTime;
   const master = ctx.createGain();
   master.gain.value = 0.2;
-  master.connect(ctx.destination);
+  master.connect(getDest());
 
   // Two-tone ping: C6 → E6 (bright, short)
   [
@@ -196,7 +216,7 @@ function synthWindowOpen(ctx) {
   const now = ctx.currentTime;
   const master = ctx.createGain();
   master.gain.value = 0.12;
-  master.connect(ctx.destination);
+  master.connect(getDest());
 
   // Quick ascending whoosh: soft sine sweep
   const osc = ctx.createOscillator(); osc.type = 'sine';
@@ -216,7 +236,7 @@ function synthWindowClose(ctx) {
   const now = ctx.currentTime;
   const master = ctx.createGain();
   master.gain.value = 0.1;
-  master.connect(ctx.destination);
+  master.connect(getDest());
 
   // Descending tone
   const osc = ctx.createOscillator(); osc.type = 'sine';
@@ -235,7 +255,7 @@ function synthClick(ctx) {
   const now = ctx.currentTime;
   const master = ctx.createGain();
   master.gain.value = 0.08;
-  master.connect(ctx.destination);
+  master.connect(getDest());
 
   // Tiny tick
   const osc = ctx.createOscillator(); osc.type = 'sine';
@@ -253,7 +273,7 @@ function synthUnlock(ctx) {
   const now = ctx.currentTime;
   const master = ctx.createGain();
   master.gain.value = 0.15;
-  master.connect(ctx.destination);
+  master.connect(getDest());
 
   // Bright ascending two-note
   [

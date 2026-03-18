@@ -22,18 +22,18 @@ let cascadeOffset = 0;
 
 // ── App Registry ──
 const APP_REGISTRY = [
-  { id: 'ai-assistant', title: 'Tapas.ai',          icon: '\uD83E\uDD16', dock: true, default: false, width: 760, height: 560 },
-  { id: 'projects',     title: 'Projects.finder',    icon: '\uD83D\uDCC2', dock: true, default: false, width: 800, height: 560 },
-  { id: 'skills',       title: 'Skills.app',         icon: '\u26A1',       dock: true, default: false, width: 700, height: 500 },
-  { id: 'activity',     title: 'Activity.monitor',   icon: '\uD83D\uDCC8', dock: true, default: false, width: 820, height: 540 },
-  { id: 'awards',       title: 'Awards.app',         icon: '\uD83C\uDFC6', dock: true, default: false, width: 700, height: 500 },
-  { id: 'resume',       title: 'Resume.app',         icon: '\uD83D\uDCC4', dock: true, default: false, width: 640, height: 500 },
-  { id: 'terminal',     title: 'Terminal.app',       icon: '\u2328\uFE0F', dock: true, default: false, width: 720, height: 460 },
-  { id: 'experience',   title: 'Experience.app',     icon: '\uD83D\uDCBC', dock: true, default: false, width: 680, height: 540 },
-  { id: 'education',    title: 'Education.app',      icon: '\uD83C\uDF93', dock: true, default: false, width: 640, height: 460 },
-  { id: 'contact',      title: 'Contact.app',        icon: '\uD83D\uDCEC', dock: true, default: false, width: 640, height: 460 },
-  { id: 'settings',     title: 'Settings.app',       icon: '\u2699\uFE0F', dock: true, default: false, width: 720, height: 500 },
-  { id: 'classic',      title: 'Classic.view',       icon: '\uD83C\uDF10', dock: true, default: false, width: 900, height: 600 },
+  { id: 'ai-assistant', title: 'Tapas.ai',          icon: '\uD83E\uDD16', dock: true,  default: false, width: 760, height: 560, desc: 'AI chatbot powered by RAG — ask anything about Tapas', version: '2.1', size: '48 KB' },
+  { id: 'projects',     title: 'Projects.finder',    icon: '\uD83D\uDCC2', dock: true,  default: false, width: 800, height: 560, desc: 'Browse GitHub projects and repositories', version: '1.4', size: '16 KB' },
+  { id: 'skills',       title: 'Skills.app',         icon: '\u26A1',       dock: true,  default: false, width: 700, height: 500, desc: 'Technical skills — languages, frameworks, tools', version: '1.2', size: '8 KB' },
+  { id: 'activity',     title: 'Activity.monitor',   icon: '\uD83D\uDCC8', dock: true,  default: false, width: 820, height: 540, desc: 'GitHub contribution activity and stats', version: '1.3', size: '12 KB' },
+  { id: 'awards',       title: 'Awards.app',         icon: '\uD83C\uDFC6', dock: false, default: false, width: 700, height: 500, desc: '19 performance awards and recognition at Wipro', version: '1.0', size: '10 KB' },
+  { id: 'resume',       title: 'Resume.app',         icon: '\uD83D\uDCC4', dock: false, default: false, width: 640, height: 500, desc: 'Download or preview resume / CV', version: '1.1', size: '9 KB' },
+  { id: 'terminal',     title: 'Terminal.app',       icon: '\u2328\uFE0F', dock: false, default: false, width: 720, height: 460, desc: 'Interactive command-line shell with real commands', version: '2.0', size: '17 KB' },
+  { id: 'experience',   title: 'Experience.app',     icon: '\uD83D\uDCBC', dock: false, default: false, width: 680, height: 540, desc: 'Work experience timeline — Wipro, Setu', version: '1.0', size: '6 KB' },
+  { id: 'education',    title: 'Education.app',      icon: '\uD83C\uDF93', dock: false, default: false, width: 640, height: 460, desc: 'Educational background — BITS Pilani, NCC', version: '1.0', size: '4 KB' },
+  { id: 'contact',      title: 'Contact.app',        icon: '\uD83D\uDCEC', dock: false, default: false, width: 640, height: 460, desc: 'Get in touch — email, LinkedIn, GitHub', version: '1.0', size: '10 KB' },
+  { id: 'settings',     title: 'Settings.app',       icon: '\u2699\uFE0F', dock: true,  default: false, width: 720, height: 500, desc: 'System preferences — wallpaper, sound, display, lock screen', version: '1.0', size: '14 KB' },
+  { id: 'classic',      title: 'Classic.view',       icon: '\uD83C\uDF10', dock: false, default: false, width: 900, height: 600, desc: 'Classic HTML portfolio — simple, crawlable', version: '1.0', size: '1 KB' },
 ];
 
 // ── Init ──
@@ -1537,27 +1537,14 @@ const SPOTLIGHT_INDEX = (() => {
   const items = [];
 
   // Apps
-  const appDescriptions = {
-    'ai-assistant': 'AI chatbot powered by RAG — ask anything about Tapas',
-    'projects': 'Browse GitHub projects and repositories',
-    'skills': 'Technical skills — languages, frameworks, tools',
-    'activity': 'GitHub contribution activity and stats',
-    'awards': 'Performance awards and recognition',
-    'resume': 'Download or preview resume / CV',
-    'terminal': 'Interactive command-line terminal',
-    'experience': 'Work experience timeline',
-    'education': 'Educational background and degrees',
-    'contact': 'Get in touch — email, LinkedIn, GitHub',
-    'classic': 'Classic HTML portfolio view',
-  };
   APP_REGISTRY.forEach(app => {
     items.push({
       type: 'app',
       id: app.id,
       title: app.title,
       icon: app.icon,
-      desc: appDescriptions[app.id] || '',
-      keywords: [app.id, app.title, appDescriptions[app.id] || ''].join(' ').toLowerCase(),
+      desc: app.desc || '',
+      keywords: [app.id, app.title, app.desc || ''].join(' ').toLowerCase(),
       action: () => openApp(app.id),
     });
   });
@@ -1788,7 +1775,8 @@ function renderSpotlightResults(container, query) {
   });
 
   itemEls.forEach((el, i) => {
-    el._spotlightAction = flatMatched[i]?.action;
+    const item = flatMatched[i];
+    el._spotlightAction = item?.action;
     el.addEventListener('click', () => {
       closeSpotlight();
       if (el._spotlightAction) el._spotlightAction();
@@ -1797,7 +1785,94 @@ function renderSpotlightResults(container, query) {
       container.querySelectorAll('.spotlight-item').forEach(x => x.classList.remove('active'));
       el.classList.add('active');
     });
+    // Right-click context menu
+    el.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const menuItems = buildSpotlightContextMenu(item);
+      if (menuItems.length) showContextMenu(e, menuItems);
+    });
   });
+}
+
+function buildSpotlightContextMenu(item) {
+  if (!item) return [];
+
+  if (item.type === 'app') {
+    const appDef = APP_REGISTRY.find(a => a.id === item.id);
+    const isOpen = windows.has(item.id);
+    const menuItems = [
+      { label: 'Open', icon: item.icon, action: () => { closeSpotlight(); openApp(item.id); } },
+    ];
+    if (isOpen) {
+      menuItems.push({ label: 'Close', action: () => { closeSpotlight(); closeWindow(item.id); } });
+    }
+    menuItems.push({ type: 'separator' });
+    if (appDef) {
+      menuItems.push({ label: 'Get Info', icon: '\u2139\uFE0F', action: () => {
+        closeSpotlight();
+        showAppInfo(appDef);
+      }});
+    }
+    return menuItems;
+  }
+
+  if (item.type === 'action') {
+    return [
+      { label: 'Run', icon: '\u25B6', action: () => { closeSpotlight(); item.action(); } },
+    ];
+  }
+
+  if (item.type === 'terminal') {
+    return [
+      { label: 'Run in Terminal', icon: '\u2328\uFE0F', action: () => { closeSpotlight(); item.action(); } },
+      { type: 'separator' },
+      { label: 'Open Terminal', action: () => { closeSpotlight(); openApp('terminal'); } },
+    ];
+  }
+
+  if (item.type === 'content') {
+    return [
+      { label: 'Open', action: () => { closeSpotlight(); item.action(); } },
+    ];
+  }
+
+  return [];
+}
+
+function showAppInfo(appDef) {
+  const infoOverlay = document.createElement('div');
+  infoOverlay.className = 'app-info-overlay';
+  infoOverlay.innerHTML = `
+    <div class="app-info-card">
+      <div class="app-info-icon">${appDef.icon}</div>
+      <div class="app-info-title">${appDef.title}</div>
+      <div class="app-info-desc">${appDef.desc || 'No description available.'}</div>
+      <div class="app-info-meta">
+        <div class="app-info-row"><span>Version</span><span>${appDef.version || '1.0'}</span></div>
+        <div class="app-info-row"><span>Size</span><span>${appDef.size || 'N/A'}</span></div>
+        <div class="app-info-row"><span>Window</span><span>${appDef.width} x ${appDef.height}</span></div>
+        <div class="app-info-row"><span>In Dock</span><span>${appDef.dock ? 'Yes' : 'No'}</span></div>
+      </div>
+      <button class="app-info-open">Open ${appDef.title}</button>
+    </div>
+  `;
+
+  infoOverlay.addEventListener('click', (e) => {
+    if (e.target === infoOverlay) {
+      infoOverlay.classList.remove('visible');
+      setTimeout(() => infoOverlay.remove(), 200);
+    }
+  });
+
+  infoOverlay.querySelector('.app-info-open').addEventListener('click', () => {
+    infoOverlay.classList.remove('visible');
+    setTimeout(() => infoOverlay.remove(), 200);
+    openApp(appDef.id);
+  });
+
+  document.body.appendChild(infoOverlay);
+  requestAnimationFrame(() => infoOverlay.classList.add('visible'));
 }
 
 function closeSpotlight() {

@@ -1,6 +1,6 @@
 // Settings.app — Central hub for all TapasOS preferences
 
-import { isMuted, setMuted } from '../os/sounds.js';
+import { isMuted, setMuted, getVolume, setVolume } from '../os/sounds.js';
 import { getLockTimeout, setLockTimeout } from '../os/lock-screen.js';
 import { WALLPAPERS, setWallpaper, getWallpaperId } from '../os/wallpaper.js';
 
@@ -73,6 +73,17 @@ function bindSectionEvents() {
   if (lockSelect) {
     lockSelect.addEventListener('change', () => {
       setLockTimeout(parseInt(lockSelect.value, 10));
+    });
+  }
+
+  // Volume
+  const volSlider = container.querySelector('#settings-volume');
+  if (volSlider) {
+    volSlider.addEventListener('input', () => {
+      const val = parseInt(volSlider.value, 10);
+      setVolume(val);
+      const label = container.querySelector('#settings-vol-val');
+      if (label) label.textContent = val + '%';
     });
   }
 
@@ -190,6 +201,7 @@ function renderAppearance() {
 
 function renderSound() {
   const muted = isMuted();
+  const volume = getVolume();
   return `
     <div class="settings-section">
       <div class="settings-section-title">Sound</div>
@@ -204,6 +216,18 @@ function renderSound() {
         </label>
       </div>
       <div class="settings-option-row">
+        <div class="settings-option-info">
+          <div class="settings-option-label">Volume</div>
+          <div class="settings-option-desc">Adjust system sound level</div>
+        </div>
+        <span class="settings-option-value" id="settings-vol-val">${volume}%</span>
+      </div>
+      <div class="settings-slider-row">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/></svg>
+        <input type="range" class="settings-slider" id="settings-volume" min="0" max="100" value="${volume}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+      </div>
+      <div class="settings-option-row" style="margin-top: 12px;">
         <div class="settings-option-info">
           <div class="settings-option-label">Audio Engine</div>
           <div class="settings-option-desc">Web Audio API — synthesized oscillators, zero audio files</div>

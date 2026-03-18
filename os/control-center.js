@@ -1,6 +1,6 @@
 // TapasOS Control Center — menubar dropdown with quick toggles
 
-import { isMuted, toggleMute, playClick } from './sounds.js';
+import { isMuted, toggleMute, playClick, getVolume, setVolume } from './sounds.js';
 import { lockNow } from './lock-screen.js';
 import { WALLPAPERS, setWallpaper, getWallpaperId } from './wallpaper.js';
 
@@ -70,6 +70,7 @@ function buildPanel() {
   const muted = isMuted();
   const bt = getBluetooth();
   const brightness = getBrightness();
+  const volume = getVolume();
   const wpId = getWallpaperId();
 
   return `
@@ -106,6 +107,15 @@ function buildPanel() {
           <div class="cc-tile-label">Sound</div>
           <div class="cc-tile-status">${muted ? 'Off' : 'On'}</div>
         </div>
+      </div>
+    </div>
+
+    <div class="cc-section">
+      <div class="cc-section-label">Volume</div>
+      <div class="cc-slider-row">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/></svg>
+        <input type="range" class="cc-slider" id="cc-volume" min="0" max="100" value="${volume}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
       </div>
     </div>
 
@@ -165,6 +175,14 @@ function bindEvents() {
       // Wi-Fi is always "on" (cosmetic)
     });
   });
+
+  // Volume slider
+  const volSlider = panelEl.querySelector('#cc-volume');
+  if (volSlider) {
+    volSlider.addEventListener('input', () => {
+      setVolume(parseInt(volSlider.value, 10));
+    });
+  }
 
   // Brightness slider
   const slider = panelEl.querySelector('#cc-brightness');
