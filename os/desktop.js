@@ -1,6 +1,8 @@
 // TapasOS Desktop — Window Manager, Dock, Particles, Context Menu
 
 import { setActiveAppName } from './menubar.js';
+import { trackAppOpen, trackAppClose } from './analytics.js';
+import { notify } from './notifications.js';
 
 // ── State ──
 const windows = new Map();     // appId -> { el, state, preMax }
@@ -67,6 +69,8 @@ export function getAppRegistry() {
 function createWindow(appDef) {
   const { id, title, icon, width, height } = appDef;
 
+  trackAppOpen(id);
+
   const desktop = document.getElementById('desktop');
   const deskRect = desktop.getBoundingClientRect();
 
@@ -114,7 +118,7 @@ function createWindow(appDef) {
   desktop.appendChild(win);
   animateWindowOpen(win);
 
-  windows.set(id, { el: win, state: 'normal', preMax: null });
+  windows.set(id, { el: win, state: 'normal', preMax: null, openedAt: Date.now() });
   zStack.push(win);
   focusWindow(id);
 
@@ -287,6 +291,9 @@ function bindTrafficLights(win, appId) {
 function closeWindow(appId) {
   const entry = windows.get(appId);
   if (!entry) return;
+
+  const openedAt = entry.openedAt || Date.now();
+  trackAppClose(appId, Date.now() - openedAt);
 
   entry.el.remove();
   windows.delete(appId);
@@ -610,7 +617,7 @@ function showAboutDialog() {
   `;
 
   desktop.appendChild(win);
-  windows.set(appId, { el: win, state: 'normal', preMax: null });
+  windows.set(appId, { el: win, state: 'normal', preMax: null, openedAt: Date.now() });
   focusWindow(appId);
   bindTitlebarDrag(win);
   bindResizeHandles(win);
