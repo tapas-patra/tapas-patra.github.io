@@ -887,56 +887,59 @@ let switcherVisible = false;
 
 function initKeyboardShortcuts() {
   document.addEventListener('keydown', (e) => {
-    const mod = e[MOD_KEY]; // Cmd on Mac, Alt on Windows/Linux
+    const mod = e[MOD_KEY]; // Alt/Option on all platforms
     const isInput = ['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName) || document.activeElement?.isContentEditable;
 
-    // Close focused window — Cmd+W / Alt+W
-    if (mod && e.key === 'w' && !e.shiftKey) {
+    // Use e.code (physical key) instead of e.key — Option+letter on Mac produces
+    // special characters (e.g. Option+K → ˚, Option+M → µ) so e.key won't match
+
+    // Close focused window — Option+W / Alt+W
+    if (mod && e.code === 'KeyW' && !e.shiftKey) {
       e.preventDefault();
       const focused = getFocusedAppId();
       if (focused) closeWindow(focused);
     }
 
-    // Close ALL windows — Cmd+Shift+W / Alt+Shift+W
-    if (mod && e.key === 'W' && e.shiftKey) {
+    // Close ALL windows — Option+Shift+W / Alt+Shift+W
+    if (mod && e.code === 'KeyW' && e.shiftKey) {
       e.preventDefault();
       closeAllWindows();
     }
 
-    // Minimize focused window — Cmd+M / Alt+M
-    if (mod && e.key === 'm') {
+    // Minimize focused window — Option+M / Alt+M
+    if (mod && e.code === 'KeyM') {
       e.preventDefault();
       const focused = getFocusedAppId();
       if (focused) minimizeWindow(focused);
     }
 
-    // Maximize / Restore focused window — Cmd+Enter / Alt+Enter
-    if (mod && e.key === 'Enter') {
+    // Maximize / Restore focused window — Option+Enter / Alt+Enter
+    if (mod && e.code === 'Enter') {
       e.preventDefault();
       const focused = getFocusedAppId();
       if (focused) toggleMaximize(focused);
     }
 
-    // Hide all windows — Cmd+H / Alt+H
-    if (mod && e.key === 'h') {
+    // Hide all windows — Option+H / Alt+H
+    if (mod && e.code === 'KeyH') {
       e.preventDefault();
       minimizeAllWindows();
     }
 
-    // Cycle windows — Cmd+` / Alt+` (app switcher)
-    if (mod && (e.key === '`' || e.key === '~')) {
+    // Cycle windows — Option+` / Alt+` (app switcher)
+    if (mod && e.code === 'Backquote') {
       e.preventDefault();
       cycleWindows(e.shiftKey ? -1 : 1);
     }
 
-    // Lock Screen — Cmd+L / Alt+L
-    if (mod && e.key === 'l') {
+    // Lock Screen — Option+L / Alt+L
+    if (mod && e.code === 'KeyL') {
       e.preventDefault();
       lockNow();
     }
 
-    // Spotlight Search — Cmd+K / Alt+K
-    if (mod && e.key === 'k') {
+    // Spotlight Search — Option+K / Alt+K
+    if (mod && e.code === 'KeyK') {
       e.preventDefault();
       toggleSpotlight();
     }
