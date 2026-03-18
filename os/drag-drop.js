@@ -201,13 +201,10 @@ function initFinderDrag() {
       item.draggable = true;
 
       item.addEventListener('dragstart', (e) => {
-        const name = item.dataset.name || '';
-        // Find the appId from the Finder item — stored in the FS node
-        const appOpenBtn = item.closest('.vfs-app')?.querySelector(`.vfs-preview-open`);
-        const appId = appOpenBtn?.dataset.app || findAppIdByName(name);
+        const appId = item.dataset.appId || findAppIdByName(item.dataset.name || '');
         if (appId) {
           e.dataTransfer.setData('application/x-tapasos-app', appId);
-          e.dataTransfer.effectAllowed = 'copy';
+          e.dataTransfer.effectAllowed = 'move';
         }
       });
     });
@@ -247,6 +244,7 @@ function initTrashDropTarget() {
     if (!trashItem) return;
     if (!e.dataTransfer.types.includes('application/x-tapasos-app')) return;
     e.preventDefault();
+    e.stopPropagation();
     e.dataTransfer.dropEffect = 'move';
     trashItem.classList.add('trash-drop-hover');
   });
@@ -264,6 +262,7 @@ function initTrashDropTarget() {
     const appId = e.dataTransfer.getData('application/x-tapasos-app');
     if (!appId) return;
     e.preventDefault();
+    e.stopPropagation(); // Prevent desktop handler from opening the app
 
     const uninstall = window.__tapasos_uninstallApp;
     if (uninstall) uninstall(appId);

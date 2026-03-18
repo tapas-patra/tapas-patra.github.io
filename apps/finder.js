@@ -168,7 +168,7 @@ function render() {
         <div class="vfs-content">
           ${children.length === 0 ? '<div class="vfs-empty">This folder is empty</div>' : ''}
           ${[...folders, ...files].map(child => `
-            <div class="vfs-item ${selectedFile === child.name ? 'selected' : ''}" data-name="${esc(child.name)}" data-type="${child.type}">
+            <div class="vfs-item ${selectedFile === child.name ? 'selected' : ''}" data-name="${esc(child.name)}" data-type="${child.type}"${child.appId ? ` data-app-id="${child.appId}"` : ''}>
               <div class="vfs-item-icon">${child.icon || getDefaultIcon(child)}</div>
               <div class="vfs-item-name">${esc(child.name)}</div>
             </div>
