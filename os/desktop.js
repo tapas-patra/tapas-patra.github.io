@@ -7,6 +7,7 @@ import { recordAppForLead } from './lead-capture.js';
 import { lockNow } from './lock-screen.js';
 import { playWindowOpen, playWindowClose, playClick, toggleMute, isMuted } from './sounds.js';
 import { initWallpaper, setWallpaper, getWallpaperId, WALLPAPERS } from './wallpaper.js';
+import { initMissionControl, toggleMissionControl, isMissionControlActive, closeMissionControl } from './mission-control.js';
 
 // ── Platform Detection ──
 export const IS_MAC = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
@@ -82,10 +83,14 @@ export function initDesktop() {
   initDock();
   initContextMenu();
   initKeyboardShortcuts();
+  initMissionControl();
 
   // Expose openApp for child modules (e.g. Finder)
   window.__tapasos_openApp = openApp;
   window.__tapasos_getAppRegistry = getAppRegistry;
+  window.__tapasos_getWindows = () => windows;
+  window.__tapasos_focusWindow = focusWindow;
+  window.__tapasos_restoreWindow = restoreWindow;
 }
 
 // Open default apps after boot — with welcome splash
@@ -705,6 +710,7 @@ function initContextMenu() {
     e.preventDefault();
     showContextMenu(e, [
       { label: 'About TapasOS', action: () => showAboutDialog() },
+      { label: 'Mission Control', shortcut: 'F3', action: () => toggleMissionControl() },
       { label: 'Spotlight Search', shortcut: `${MOD_LABEL}K`, action: () => openSpotlight() },
       { type: 'separator' },
       ...APP_REGISTRY.map(app => ({
@@ -1037,11 +1043,18 @@ function initKeyboardShortcuts() {
       toggleSpotlight();
     }
 
-    // Escape — close context menu, spotlight, app switcher
+    // Mission Control — F3 or Option+Tab / Alt+Tab
+    if (e.key === 'F3' || (mod && e.code === 'Tab')) {
+      e.preventDefault();
+      toggleMissionControl();
+    }
+
+    // Escape — close context menu, spotlight, app switcher, mission control
     if (e.key === 'Escape') {
       document.getElementById('context-menu')?.classList.remove('visible');
       closeSpotlight();
       closeAppSwitcher();
+      if (isMissionControlActive()) closeMissionControl();
     }
   });
 
