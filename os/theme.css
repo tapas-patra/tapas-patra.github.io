@@ -910,6 +910,88 @@ html, body {
   margin: 0 2px;
 }
 
+/* ── App Switcher (Cmd+` / Alt+`) ── */
+
+#app-switcher {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.92);
+  z-index: 9900;
+  display: flex;
+  gap: 6px;
+  padding: 16px 20px;
+  background: rgba(17,17,32,0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04) inset;
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  pointer-events: none;
+}
+
+#app-switcher.visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+}
+
+.switcher-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background 0.1s;
+  min-width: 72px;
+}
+
+.switcher-item.active {
+  background: rgba(124,58,237,0.3);
+  box-shadow: 0 0 0 2px rgba(124,58,237,0.4);
+}
+
+.switcher-item:hover:not(.active) {
+  background: rgba(255,255,255,0.06);
+}
+
+.switcher-icon {
+  font-size: 32px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+}
+
+.switcher-item.active .switcher-icon {
+  background: rgba(124,58,237,0.15);
+  border-color: rgba(124,58,237,0.3);
+}
+
+.switcher-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-align: center;
+  white-space: nowrap;
+  max-width: 72px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.switcher-item.active .switcher-label {
+  color: var(--text-primary);
+}
+
 /* ── Mobile Responsive ── */
 @media (max-width: 767px) {
   #boot-screen,

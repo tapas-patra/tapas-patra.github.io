@@ -634,45 +634,157 @@ function showAboutDialog() {
 }
 
 // ── Keyboard Shortcuts ──
+//
+// Mac:  Cmd+W close, Cmd+M minimize, Cmd+K spotlight, Cmd+Enter maximize,
+//       Cmd+` cycle windows, Cmd+Shift+W close all, Cmd+H hide all
+// Win:  Alt+W close, Alt+M minimize, Alt+K spotlight, Alt+Enter maximize,
+//       Alt+` cycle windows, Alt+Shift+W close all, Alt+H hide all
+// Both: / spotlight, Esc dismiss
+
+let switcherIndex = -1;
+let switcherVisible = false;
+
 function initKeyboardShortcuts() {
   document.addEventListener('keydown', (e) => {
     const mod = e[MOD_KEY]; // Cmd on Mac, Alt on Windows/Linux
+    const isInput = ['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName) || document.activeElement?.isContentEditable;
 
-    // Close focused window — Cmd+W (Mac) / Alt+W (Win)
-    if (mod && e.key === 'w') {
+    // Close focused window — Cmd+W / Alt+W
+    if (mod && e.key === 'w' && !e.shiftKey) {
       e.preventDefault();
-      const focused = [...windows.entries()].find(([, w]) => w.el.classList.contains('focused'));
-      if (focused) closeWindow(focused[0]);
+      const focused = getFocusedAppId();
+      if (focused) closeWindow(focused);
     }
 
-    // Minimize focused window — Cmd+M (Mac) / Alt+M (Win)
+    // Close ALL windows — Cmd+Shift+W / Alt+Shift+W
+    if (mod && e.key === 'W' && e.shiftKey) {
+      e.preventDefault();
+      closeAllWindows();
+    }
+
+    // Minimize focused window — Cmd+M / Alt+M
     if (mod && e.key === 'm') {
       e.preventDefault();
-      const focused = [...windows.entries()].find(([, w]) => w.el.classList.contains('focused'));
-      if (focused) minimizeWindow(focused[0]);
+      const focused = getFocusedAppId();
+      if (focused) minimizeWindow(focused);
     }
 
-    // Spotlight Search — Cmd+K (Mac) / Alt+K (Win)
+    // Maximize / Restore focused window — Cmd+Enter / Alt+Enter
+    if (mod && e.key === 'Enter') {
+      e.preventDefault();
+      const focused = getFocusedAppId();
+      if (focused) toggleMaximize(focused);
+    }
+
+    // Hide all windows — Cmd+H / Alt+H
+    if (mod && e.key === 'h') {
+      e.preventDefault();
+      minimizeAllWindows();
+    }
+
+    // Cycle windows — Cmd+` / Alt+` (app switcher)
+    if (mod && (e.key === '`' || e.key === '~')) {
+      e.preventDefault();
+      cycleWindows(e.shiftKey ? -1 : 1);
+    }
+
+    // Spotlight Search — Cmd+K / Alt+K
     if (mod && e.key === 'k') {
       e.preventDefault();
       toggleSpotlight();
     }
 
-    // Slash (/) — quick Spotlight trigger (no modifier needed, only when no input focused)
-    if (e.key === '/' && !e.metaKey && !e.ctrlKey && !e.altKey) {
-      const tag = document.activeElement?.tagName;
-      if (tag !== 'INPUT' && tag !== 'TEXTAREA' && !document.activeElement?.isContentEditable) {
-        e.preventDefault();
-        toggleSpotlight();
-      }
+    // Slash (/) — quick Spotlight (only when no input focused)
+    if (e.key === '/' && !e.metaKey && !e.ctrlKey && !e.altKey && !isInput) {
+      e.preventDefault();
+      toggleSpotlight();
     }
 
-    // Escape — close context menu & spotlight
+    // Escape — close context menu, spotlight, app switcher
     if (e.key === 'Escape') {
       document.getElementById('context-menu')?.classList.remove('visible');
       closeSpotlight();
+      closeAppSwitcher();
     }
   });
+
+  // Close app switcher when modifier key is released
+  document.addEventListener('keyup', (e) => {
+    if (switcherVisible && (e.key === 'Meta' || e.key === 'Alt')) {
+      commitAppSwitch();
+    }
+  });
+}
+
+function getFocusedAppId() {
+  const entry = [...windows.entries()].find(([, w]) => w.el.classList.contains('focused'));
+  return entry ? entry[0] : null;
+}
+
+// ── App Switcher (Cmd+` / Alt+`) ──
+
+function cycleWindows(direction) {
+  const openApps = [...windows.entries()].filter(([, w]) => w.state !== 'minimized');
+  if (openApps.length < 2) return;
+
+  if (!switcherVisible) {
+    switcherIndex = 0;
+    switcherVisible = true;
+  }
+
+  switcherIndex = (switcherIndex + direction + openApps.length) % openApps.length;
+  showAppSwitcher(openApps, switcherIndex);
+}
+
+function showAppSwitcher(openApps, activeIdx) {
+  let overlay = document.getElementById('app-switcher');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'app-switcher';
+    document.body.appendChild(overlay);
+  }
+
+  overlay.innerHTML = openApps.map(([appId], i) => {
+    const appDef = APP_REGISTRY.find(a => a.id === appId);
+    if (!appDef) return '';
+    return `
+      <div class="switcher-item ${i === activeIdx ? 'active' : ''}" data-app="${appId}">
+        <div class="switcher-icon">${appDef.icon}</div>
+        <div class="switcher-label">${appDef.title}</div>
+      </div>
+    `;
+  }).join('');
+
+  overlay.classList.add('visible');
+
+  // Click to select
+  overlay.querySelectorAll('.switcher-item').forEach(el => {
+    el.addEventListener('click', () => {
+      const appId = el.dataset.app;
+      closeAppSwitcher();
+      focusWindow(appId);
+    });
+  });
+}
+
+function commitAppSwitch() {
+  const openApps = [...windows.entries()].filter(([, w]) => w.state !== 'minimized');
+  if (openApps[switcherIndex]) {
+    const [appId] = openApps[switcherIndex];
+    focusWindow(appId);
+  }
+  closeAppSwitcher();
+}
+
+function closeAppSwitcher() {
+  if (!switcherVisible) return;
+  switcherVisible = false;
+  switcherIndex = -1;
+  const overlay = document.getElementById('app-switcher');
+  if (overlay) {
+    overlay.classList.remove('visible');
+    setTimeout(() => overlay.remove(), 150);
+  }
 }
 
 // ── Particle Mesh Wallpaper ──
