@@ -118,6 +118,7 @@ function populateApps() {
       { id: 'launchpad', title: 'Launchpad', icon: '\uD83D\uDE80' },
       { id: 'browser', title: 'Browser.app', icon: '\uD83E\uDDED' },
       { id: 'appstore', title: 'App Store', icon: '\uD83D\uDED2' },
+      { id: 'trash', title: 'Trash', icon: '\uD83D\uDDD1\uFE0F' },
       { id: 'classic', title: 'Classic.view', icon: '\uD83C\uDF10' },
     ];
 

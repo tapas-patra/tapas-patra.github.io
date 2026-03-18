@@ -845,6 +845,15 @@ html, body {
   box-shadow: 0 0 6px var(--cyan-glow);
 }
 
+.dock-separator {
+  width: 1px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 4px;
+  align-self: center;
+  flex-shrink: 0;
+}
+
 .dock-empty {
   display: flex;
   align-items: center;

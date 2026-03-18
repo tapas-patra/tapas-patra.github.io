@@ -75,6 +75,7 @@ const APP_REGISTRY = [
   { id: 'browser',      title: 'Browser.app',          icon: '\uD83E\uDDED', dock: false, default: false, width: 860, height: 580, desc: 'Web browser — search, browse, bookmarks', version: '1.0', size: '10 KB' },
   { id: 'appstore',     title: 'App Store',            icon: '\uD83D\uDED2', dock: false, default: false, width: 820, height: 560, desc: 'Browse, install, and manage TapasOS apps', version: '1.0', size: '8 KB' },
   { id: 'settings',     title: 'Settings.app',       icon: '\u2699\uFE0F', dock: true,  default: false, width: 720, height: 500, desc: 'System preferences — wallpaper, sound, display, lock screen', version: '1.0', size: '14 KB' },
+  { id: 'trash',        title: 'Trash',               icon: '\uD83D\uDDD1\uFE0F', dock: false, default: false, width: 600, height: 420, desc: 'Deleted items — restore or permanently remove', version: '1.0', size: '4 KB' },
   { id: 'classic',      title: 'Classic.view',       icon: '\uD83C\uDF10', dock: false, default: false, width: 900, height: 600, desc: 'Classic HTML portfolio — simple, crawlable', version: '1.0', size: '1 KB' },
 ];
 
@@ -97,6 +98,7 @@ export function initDesktop() {
   window.__tapasos_isInDock = isInDock;
   window.__tapasos_addToDock = addToDock;
   window.__tapasos_removeFromDock = removeFromDock;
+  window.__tapasos_renderFolders = renderDesktopFolders;
 }
 
 // Open default apps after boot — with welcome splash
@@ -667,6 +669,7 @@ function populateDockItems(dock) {
   }
 
   dockApps.forEach(app => {
+    if (app.id === 'trash') return; // Trash is always at the end
     const item = document.createElement('div');
     item.className = 'dock-item';
     item.dataset.app = app.id;
@@ -675,11 +678,31 @@ function populateDockItems(dock) {
       <div class="dock-icon">${app.icon}</div>
       <div class="dock-dot"></div>
     `;
-    // Restore active dot if window is open
     if (windows.has(app.id)) item.classList.add('active');
     item.addEventListener('click', () => { playClick(); openApp(app.id); });
     dock.appendChild(item);
   });
+
+  // Dock separator + Trash (always last, like macOS)
+  const sep = document.createElement('div');
+  sep.className = 'dock-separator';
+  dock.appendChild(sep);
+
+  const trashApp = APP_REGISTRY.find(a => a.id === 'trash');
+  if (trashApp) {
+    const trashCount = JSON.parse(localStorage.getItem('tapasos-trash') || '[]').length;
+    const trashItem = document.createElement('div');
+    trashItem.className = 'dock-item';
+    trashItem.dataset.app = 'trash';
+    trashItem.innerHTML = `
+      <div class="dock-tooltip">Trash${trashCount ? ` (${trashCount})` : ''}</div>
+      <div class="dock-icon">${trashCount ? '\uD83D\uDDD1\uFE0F' : '\uD83D\uDDD1\uFE0F'}</div>
+      <div class="dock-dot"></div>
+    `;
+    if (windows.has('trash')) trashItem.classList.add('active');
+    trashItem.addEventListener('click', () => { playClick(); openApp('trash'); });
+    dock.appendChild(trashItem);
+  }
 }
 
 function rebuildDock() {
@@ -740,7 +763,7 @@ function initContextMenu() {
       { label: 'Open', action: () => openDesktopFolder(folderId) },
       { label: 'Rename', action: () => renameDesktopFolder(folderId) },
       { type: 'separator' },
-      { label: 'Delete', action: () => deleteDesktopFolder(folderId) },
+      { label: 'Move to Trash', action: () => deleteDesktopFolder(folderId) },
     ]);
   });
 
@@ -1071,8 +1094,15 @@ function renameDesktopFolder(folderId) {
 }
 
 function deleteDesktopFolder(folderId) {
-  const folders = getDesktopFolders().filter(f => f.id !== folderId);
-  saveDesktopFolders(folders);
+  const folders = getDesktopFolders();
+  const folder = folders.find(f => f.id === folderId);
+  if (folder) {
+    // Move to trash
+    const trash = JSON.parse(localStorage.getItem('tapasos-trash') || '[]');
+    trash.unshift({ type: 'folder', id: folder.id, name: folder.name, x: folder.x, y: folder.y, deletedAt: Date.now() });
+    localStorage.setItem('tapasos-trash', JSON.stringify(trash));
+  }
+  saveDesktopFolders(folders.filter(f => f.id !== folderId));
   renderDesktopFolders();
 }
 
