@@ -5,6 +5,12 @@ import { trackAppOpen, trackAppClose } from './analytics.js';
 import { notify } from './notifications.js';
 import { recordAppForLead } from './lead-capture.js';
 
+// ── Platform Detection ──
+export const IS_MAC = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
+const MOD_KEY = IS_MAC ? 'metaKey' : 'altKey';  // Cmd on Mac, Alt on Windows/Linux (avoids Ctrl+W/K/M browser conflicts)
+const MOD_LABEL = IS_MAC ? '\u2318' : 'Alt+';   // ⌘ or Alt+
+const MOD_DISPLAY = IS_MAC ? 'Cmd' : 'Alt';
+
 // ── State ──
 const windows = new Map();     // appId -> { el, state, preMax }
 const zStack = [];             // window elements ordered by z-index
@@ -430,7 +436,7 @@ function initContextMenu() {
     e.preventDefault();
     showContextMenu(e, [
       { label: 'About TapasOS', action: () => showAboutDialog() },
-      { label: 'App Launcher', shortcut: '\u2318Space', action: () => openSpotlight() },
+      { label: 'Spotlight Search', shortcut: `${MOD_LABEL}K`, action: () => openSpotlight() },
       { type: 'separator' },
       ...APP_REGISTRY.map(app => ({
         label: `Open ${app.title}`,
@@ -438,7 +444,7 @@ function initContextMenu() {
         action: () => openApp(app.id),
       })),
       { type: 'separator' },
-      { label: 'Refresh Desktop', shortcut: '\u2318R', action: () => location.reload() },
+      { label: 'Refresh Desktop', action: () => location.reload() },
     ]);
   });
 
@@ -630,30 +636,41 @@ function showAboutDialog() {
 // ── Keyboard Shortcuts ──
 function initKeyboardShortcuts() {
   document.addEventListener('keydown', (e) => {
-    // Cmd+W or Ctrl+W — close focused window
-    if ((e.metaKey || e.ctrlKey) && e.key === 'w') {
+    const mod = e[MOD_KEY]; // Cmd on Mac, Alt on Windows/Linux
+
+    // Close focused window — Cmd+W (Mac) / Alt+W (Win)
+    if (mod && e.key === 'w') {
       e.preventDefault();
       const focused = [...windows.entries()].find(([, w]) => w.el.classList.contains('focused'));
       if (focused) closeWindow(focused[0]);
     }
 
-    // Cmd+M or Ctrl+M — minimize focused window
-    if ((e.metaKey || e.ctrlKey) && e.key === 'm') {
+    // Minimize focused window — Cmd+M (Mac) / Alt+M (Win)
+    if (mod && e.key === 'm') {
       e.preventDefault();
       const focused = [...windows.entries()].find(([, w]) => w.el.classList.contains('focused'));
       if (focused) minimizeWindow(focused[0]);
     }
 
-    // Cmd+K or Ctrl+K — Spotlight Search
-    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    // Spotlight Search — Cmd+K (Mac) / Alt+K (Win)
+    if (mod && e.key === 'k') {
       e.preventDefault();
       toggleSpotlight();
     }
 
-    // Cmd+Space or Ctrl+Space — Spotlight Search (alt trigger)
-    if ((e.metaKey || e.ctrlKey) && e.code === 'Space') {
+    // Spotlight Search alt — Cmd+Space (Mac) / Alt+Space (Win)
+    if (mod && e.code === 'Space') {
       e.preventDefault();
       toggleSpotlight();
+    }
+
+    // Slash (/) — quick Spotlight trigger (no modifier needed, only when no input focused)
+    if (e.key === '/' && !e.metaKey && !e.ctrlKey && !e.altKey) {
+      const tag = document.activeElement?.tagName;
+      if (tag !== 'INPUT' && tag !== 'TEXTAREA' && !document.activeElement?.isContentEditable) {
+        e.preventDefault();
+        toggleSpotlight();
+      }
     }
 
     // Escape — close context menu & spotlight
@@ -1273,7 +1290,7 @@ function openSpotlight() {
   box.innerHTML = `
     <div id="spotlight-input-wrap">
       <svg id="spotlight-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="spotlight-input" placeholder="Search apps, commands, content..." autocomplete="off" spellcheck="false">
+      <input type="text" id="spotlight-input" placeholder="Search apps, commands, content\u2026" autocomplete="off" spellcheck="false">
       <kbd id="spotlight-esc">esc</kbd>
     </div>
     <div id="spotlight-results"></div>
@@ -1281,6 +1298,7 @@ function openSpotlight() {
       <span><kbd>\u2191</kbd><kbd>\u2193</kbd> navigate</span>
       <span><kbd>\u21B5</kbd> open</span>
       <span><kbd>esc</kbd> close</span>
+      <span><kbd>${MOD_DISPLAY}+K</kbd> toggle</span>
     </div>
   `;
 
