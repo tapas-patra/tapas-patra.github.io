@@ -31,7 +31,7 @@ const DEFAULT_DOCK_IDS = ['ai-assistant', 'projects', 'skills', 'activity', 'set
 function getDockApps() {
   const stored = localStorage.getItem(LS_DOCK);
   if (stored) {
-    try { return JSON.parse(stored); } catch { /* fall through */ }
+    try { return JSON.parse(stored).filter(id => id !== 'trash'); } catch { /* fall through */ }
   }
   return DEFAULT_DOCK_IDS.slice();
 }

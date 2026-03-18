@@ -116,8 +116,10 @@ function initDockReorder() {
     placeholder.remove();
     placeholder = null;
 
-    // Persist new order
-    const newOrder = [...dock.querySelectorAll('.dock-item')].map(el => el.dataset.app).filter(Boolean);
+    // Persist new order (exclude trash — it's always appended at the end)
+    const newOrder = [...dock.querySelectorAll('.dock-item')]
+      .map(el => el.dataset.app)
+      .filter(id => id && id !== 'trash');
     if (newOrder.length > 0) {
       localStorage.setItem(LS_DOCK, JSON.stringify(newOrder));
     }

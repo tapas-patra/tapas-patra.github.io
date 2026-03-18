@@ -8,7 +8,7 @@ const FS = {
       name: 'Applications',
       type: 'folder',
       icon: '\uD83D\uDCC1',
-      children: '__APPS__', // populated dynamically
+      children: [], // populated dynamically from app registry
     },
     {
       name: 'Desktop',
@@ -92,43 +92,17 @@ export async function init(el) {
 
 function populateApps() {
   const appsFolder = FS.children.find(c => c.name === 'Applications');
-  if (appsFolder && appsFolder.children === '__APPS__') {
-    // Import APP_REGISTRY would create circular dep, so read from DOM
-    const dockItems = document.querySelectorAll('.dock-item');
-    const apps = [];
+  if (!appsFolder) return;
 
-    // Get all apps from the spotlight index (they're in the DOM as data)
-    // Instead, hardcode from known registry
-    const registry = [
-      { id: 'ai-assistant', title: 'Tapas.ai', icon: '\uD83E\uDD16' },
-      { id: 'projects', title: 'Projects.finder', icon: '\uD83D\uDCC2' },
-      { id: 'skills', title: 'Skills.app', icon: '\u26A1' },
-      { id: 'activity', title: 'Activity.monitor', icon: '\uD83D\uDCC8' },
-      { id: 'awards', title: 'Awards.app', icon: '\uD83C\uDFC6' },
-      { id: 'resume', title: 'Resume.app', icon: '\uD83D\uDCC4' },
-      { id: 'terminal', title: 'Terminal.app', icon: '\u2328\uFE0F' },
-      { id: 'experience', title: 'Experience.app', icon: '\uD83D\uDCBC' },
-      { id: 'education', title: 'Education.app', icon: '\uD83C\uDF93' },
-      { id: 'contact', title: 'Contact.app', icon: '\uD83D\uDCEC' },
-      { id: 'settings', title: 'Settings.app', icon: '\u2699\uFE0F' },
-      { id: 'finder', title: 'Finder', icon: '\uD83D\uDCBB' },
-      { id: 'notes', title: 'Notes.app', icon: '\uD83D\uDCDD' },
-      { id: 'photos', title: 'Photos.app', icon: '\uD83D\uDDBC\uFE0F' },
-      { id: 'calendar', title: 'Calendar.app', icon: '\uD83D\uDCC5' },
-      { id: 'launchpad', title: 'Launchpad', icon: '\uD83D\uDE80' },
-      { id: 'browser', title: 'Browser.app', icon: '\uD83E\uDDED' },
-      { id: 'appstore', title: 'App Store', icon: '\uD83D\uDED2' },
-      { id: 'trash', title: 'Trash', icon: '\uD83D\uDDD1\uFE0F' },
-      { id: 'classic', title: 'Classic.view', icon: '\uD83C\uDF10' },
-    ];
+  // Use global registry which filters uninstalled apps
+  const registry = window.__tapasos_getAppRegistry?.() || [];
 
-    appsFolder.children = registry.map(app => ({
-      name: app.title,
-      type: 'app',
-      icon: app.icon,
-      appId: app.id,
-    }));
-  }
+  appsFolder.children = registry.map(app => ({
+    name: app.title,
+    type: 'app',
+    icon: app.icon,
+    appId: app.id,
+  }));
 }
 
 function resolve(path) {
@@ -142,6 +116,9 @@ function resolve(path) {
 }
 
 function render() {
+  // Re-populate apps each render to reflect uninstalls
+  populateApps();
+
   const node = resolve(currentPath);
   if (!node) { currentPath = ['~']; return render(); }
 
