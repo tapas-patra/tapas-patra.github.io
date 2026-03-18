@@ -1,6 +1,6 @@
 // TapasOS Boot Sequence
 
-import { playBoot } from './sounds.js';
+import { playBoot, ensureAudioUnlocked } from './sounds.js';
 
 const POST_LINES = [
   'TapasOS BIOS v2.0.26',
@@ -56,12 +56,14 @@ export function runBoot() {
     // Failsafe — never let boot hang longer than 6 seconds
     setTimeout(() => { if (!skipped) finish(); }, 6000);
 
-    function finish() {
+    async function finish() {
       if (skipped) return;
       skipped = true;
       sessionStorage.setItem('tapasos-booted', '1');
       progressFill.style.width = '100%';
       progressLabel.textContent = 'Ready.';
+      // Unlock audio from this user gesture (Skip click) before playing
+      await ensureAudioUnlocked();
       playBoot();
       bootScreen.classList.add('fade-out');
       setTimeout(() => {

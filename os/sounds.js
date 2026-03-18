@@ -65,6 +65,23 @@ function unlockAudio() {
   }
 }
 
+// Attempt to unlock audio and return a promise that resolves when ready.
+// Call this from a user-gesture context (e.g. button click) to guarantee unlock.
+export function ensureAudioUnlocked() {
+  const c = getCtx();
+  if (!c) return Promise.resolve();
+
+  if (c.state === 'suspended') {
+    return c.resume().then(() => {
+      unlocked = true;
+      flushQueue();
+    });
+  }
+  unlocked = true;
+  flushQueue();
+  return Promise.resolve();
+}
+
 const QUEUE_EXPIRY_MS = 3000; // discard queued sounds older than 3s
 
 function enqueue(synthFn) {
