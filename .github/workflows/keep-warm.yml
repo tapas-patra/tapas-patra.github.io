@@ -99,3 +99,20 @@ jobs:
 
           echo ""
           echo "=== PING SUCCESSFUL ==="
+
+      - name: Daily cleanup (once at ~06:00 IST)
+        if: steps.check-time.outputs.in_window == 'true'
+        run: |
+          IST_HOUR=$(TZ="Asia/Kolkata" date +%H)
+          IST_MIN=$(TZ="Asia/Kolkata" date +%M)
+          # Only run cleanup at 06:00-06:14 IST (first ping of the day)
+          if [ "$IST_HOUR" = "06" ] && [ "$IST_MIN" -lt 15 ]; then
+            echo "=== Running daily cleanup (90-day retention) ==="
+            CLEANUP_RESP=$(curl -s --max-time 15 \
+              -X POST \
+              -H "Authorization: Bearer ${{ secrets.ADMIN_REINDEX_TOKEN }}" \
+              "${{ secrets.RENDER_API_URL }}/track/cleanup" 2>&1) || true
+            echo "$CLEANUP_RESP"
+          else
+            echo "Skipping cleanup (only runs at 06:00 IST)"
+          fi
