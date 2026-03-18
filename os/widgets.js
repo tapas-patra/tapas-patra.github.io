@@ -16,6 +16,13 @@ export function initWidgets() {
 
   // Fetch real data then render
   fetchGitHubData().then(() => render());
+
+  // Reposition widgets when browser resizes
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => render(), 150);
+  });
 }
 
 async function fetchGitHubData() {
