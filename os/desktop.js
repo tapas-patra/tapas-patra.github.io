@@ -644,7 +644,13 @@ function initKeyboardShortcuts() {
       if (focused) minimizeWindow(focused[0]);
     }
 
-    // Cmd+Space or Ctrl+Space — App Launcher (Spotlight)
+    // Cmd+K or Ctrl+K — Spotlight Search
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      toggleSpotlight();
+    }
+
+    // Cmd+Space or Ctrl+Space — Spotlight Search (alt trigger)
     if ((e.metaKey || e.ctrlKey) && e.code === 'Space') {
       e.preventDefault();
       toggleSpotlight();
@@ -1134,11 +1140,124 @@ function createDesktopWatermark() {
   desktop.appendChild(mark);
 }
 
-// ── Spotlight App Launcher ──
+// ── Spotlight Search ──
 let spotlightOpen = false;
+
+// Search index — apps, actions, terminal commands, content sections
+const SPOTLIGHT_INDEX = (() => {
+  const items = [];
+
+  // Apps
+  const appDescriptions = {
+    'ai-assistant': 'AI chatbot powered by RAG — ask anything about Tapas',
+    'projects': 'Browse GitHub projects and repositories',
+    'skills': 'Technical skills — languages, frameworks, tools',
+    'activity': 'GitHub contribution activity and stats',
+    'awards': 'Performance awards and recognition',
+    'resume': 'Download or preview resume / CV',
+    'terminal': 'Interactive command-line terminal',
+    'experience': 'Work experience timeline',
+    'education': 'Educational background and degrees',
+    'contact': 'Get in touch — email, LinkedIn, GitHub',
+    'classic': 'Classic HTML portfolio view',
+  };
+  APP_REGISTRY.forEach(app => {
+    items.push({
+      type: 'app',
+      id: app.id,
+      title: app.title,
+      icon: app.icon,
+      desc: appDescriptions[app.id] || '',
+      keywords: [app.id, app.title, appDescriptions[app.id] || ''].join(' ').toLowerCase(),
+      action: () => openApp(app.id),
+    });
+  });
+
+  // Quick Actions
+  const actions = [
+    { title: 'Close All Windows', icon: '\u2716', desc: 'Close every open window', keywords: 'close all windows clear cleanup', action: () => { [...windows.keys()].forEach(closeWindow); } },
+    { title: 'Minimize All', icon: '\u2015', desc: 'Minimize all open windows', keywords: 'minimize all windows hide', action: () => { [...windows.keys()].forEach(minimizeWindow); } },
+    { title: 'Toggle Theme', icon: '\uD83C\uDF13', desc: 'Switch between dark and light mode', keywords: 'theme dark light mode toggle appearance', action: () => { document.body.classList.toggle('light-theme'); } },
+    { title: 'Chat with Tapas.ai', icon: '\uD83D\uDCAC', desc: 'Ask the AI anything about me', keywords: 'chat ai ask question tapas bot assistant', action: () => openApp('ai-assistant') },
+    { title: 'Download Resume', icon: '\u2B07\uFE0F', desc: 'Open resume for download', keywords: 'download resume cv pdf', action: () => openApp('resume') },
+  ];
+  actions.forEach(a => items.push({ type: 'action', ...a }));
+
+  // Terminal Commands
+  const terminalCmds = [
+    { title: 'cat about', desc: 'Read about Tapas in terminal', keywords: 'about whoami bio profile' },
+    { title: 'cat experience', desc: 'View work experience in terminal', keywords: 'work job career history wipro setu' },
+    { title: 'cat education', desc: 'View education in terminal', keywords: 'degree university college bits pilani' },
+    { title: 'cat skills', desc: 'List technical skills in terminal', keywords: 'python javascript java skills tech stack' },
+    { title: 'cat projects', desc: 'List GitHub projects in terminal', keywords: 'github repos projects code' },
+    { title: 'cat awards', desc: 'View awards in terminal', keywords: 'awards achievements recognition' },
+    { title: 'cat contact', desc: 'Show contact info in terminal', keywords: 'email phone linkedin github contact' },
+  ];
+  terminalCmds.forEach(c => items.push({
+    type: 'terminal',
+    id: 'terminal',
+    title: `$ ${c.title}`,
+    icon: '\u2328\uFE0F',
+    desc: c.desc,
+    keywords: `terminal command ${c.title} ${c.keywords}`.toLowerCase(),
+    action: () => {
+      openApp('terminal');
+      // Type the command into terminal after it opens
+      setTimeout(() => {
+        const input = document.getElementById('term-input');
+        if (input) {
+          input.value = c.title;
+          input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+        }
+      }, 400);
+    },
+  }));
+
+  // Content sections — searchable portfolio content
+  const content = [
+    { title: 'Python Developer', icon: '\uD83D\uDC0D', desc: 'Python, FastAPI, Django, Flask — backend engineering', keywords: 'python fastapi django flask backend developer programming', appId: 'skills' },
+    { title: 'Test Automation', icon: '\uD83E\uDDEA', desc: 'Selenium, Appium, Pytest, Playwright — QA automation', keywords: 'selenium appium pytest playwright test automation qa sdet testing', appId: 'skills' },
+    { title: 'AI & Machine Learning', icon: '\uD83E\uDD16', desc: 'RAG pipelines, LLM integration, embeddings, prompt engineering', keywords: 'ai ml machine learning rag llm embeddings vector database prompt engineering artificial intelligence', appId: 'skills' },
+    { title: 'Wipro Technologies', icon: '\uD83C\uDFE2', desc: 'Software Engineer (Automation) — Oct 2021 to Dec 2025', keywords: 'wipro ford motor company work experience job software engineer automation', appId: 'experience' },
+    { title: 'Setu by Pine Labs', icon: '\uD83C\uDFE2', desc: 'SDET II — Jan 2026 to Present', keywords: 'setu pine labs sdet fintech payment current job', appId: 'experience' },
+    { title: 'BITS Pilani', icon: '\uD83C\uDF93', desc: 'M.Tech in Software Systems (WILP)', keywords: 'bits pilani mtech masters software systems education degree university', appId: 'education' },
+    { title: 'TapasOS Project', icon: '\uD83D\uDDA5\uFE0F', desc: 'AI-first portfolio disguised as a browser OS', keywords: 'tapasos portfolio project browser operating system os', appId: 'projects' },
+    { title: 'Bengaluru, India', icon: '\uD83D\uDCCD', desc: 'Based in Bengaluru, Karnataka', keywords: 'location bangalore bengaluru india karnataka where', appId: 'contact' },
+    { title: 'tapas.patra0406@gmail.com', icon: '\u2709\uFE0F', desc: 'Email address', keywords: 'email mail contact reach', appId: 'contact' },
+  ];
+  content.forEach(c => items.push({
+    type: 'content',
+    title: c.title,
+    icon: c.icon,
+    desc: c.desc,
+    keywords: `${c.title} ${c.desc} ${c.keywords}`.toLowerCase(),
+    action: () => openApp(c.appId),
+  }));
+
+  return items;
+})();
 
 function toggleSpotlight() {
   spotlightOpen ? closeSpotlight() : openSpotlight();
+}
+
+function fuzzyMatch(query, text) {
+  if (!query) return true;
+  const words = query.split(/\s+/);
+  return words.every(w => text.includes(w));
+}
+
+function highlightMatch(text, query) {
+  if (!query) return text;
+  const words = query.split(/\s+/).filter(Boolean);
+  let result = text;
+  words.forEach(w => {
+    const idx = result.toLowerCase().indexOf(w);
+    if (idx !== -1) {
+      result = result.slice(0, idx) + '<mark>' + result.slice(idx, idx + w.length) + '</mark>' + result.slice(idx + w.length);
+    }
+  });
+  return result;
 }
 
 function openSpotlight() {
@@ -1152,8 +1271,17 @@ function openSpotlight() {
   const box = document.createElement('div');
   box.id = 'spotlight-box';
   box.innerHTML = `
-    <input type="text" id="spotlight-input" placeholder="Search apps..." autocomplete="off" spellcheck="false">
+    <div id="spotlight-input-wrap">
+      <svg id="spotlight-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="spotlight-input" placeholder="Search apps, commands, content..." autocomplete="off" spellcheck="false">
+      <kbd id="spotlight-esc">esc</kbd>
+    </div>
     <div id="spotlight-results"></div>
+    <div id="spotlight-footer">
+      <span><kbd>\u2191</kbd><kbd>\u2193</kbd> navigate</span>
+      <span><kbd>\u21B5</kbd> open</span>
+      <span><kbd>esc</kbd> close</span>
+    </div>
   `;
 
   overlay.appendChild(box);
@@ -1194,34 +1322,87 @@ function openSpotlight() {
       e.preventDefault();
       const sel = active || items[0];
       if (sel) {
-        const appId = sel.dataset.app;
+        const action = sel._spotlightAction;
         closeSpotlight();
-        openApp(appId);
+        if (action) action();
       }
     }
   });
 
+  box.querySelector('#spotlight-esc').addEventListener('click', closeSpotlight);
   box.addEventListener('click', (e) => e.stopPropagation());
 }
 
 function renderSpotlightResults(container, query) {
-  const matched = APP_REGISTRY.filter(a =>
-    !query || a.title.toLowerCase().includes(query) || a.id.toLowerCase().includes(query)
-  );
+  const matched = SPOTLIGHT_INDEX.filter(item => fuzzyMatch(query, item.keywords));
 
-  container.innerHTML = matched.map((app, i) => `
-    <div class="spotlight-item ${i === 0 ? 'active' : ''}" data-app="${app.id}">
-      <span class="spotlight-icon">${app.icon}</span>
-      <div class="spotlight-info">
-        <span class="spotlight-title">${app.title}</span>
-      </div>
-    </div>
-  `).join('') || '<div class="spotlight-empty">No apps found</div>';
+  // Group by type
+  const groups = { app: [], action: [], terminal: [], content: [] };
+  matched.forEach(item => {
+    if (groups[item.type]) groups[item.type].push(item);
+  });
 
-  container.querySelectorAll('.spotlight-item').forEach(el => {
+  const labels = { app: 'Apps', action: 'Quick Actions', terminal: 'Terminal', content: 'Content' };
+  const order = query ? ['app', 'action', 'terminal', 'content'] : ['app'];
+
+  let html = '';
+  let firstItem = true;
+
+  order.forEach(type => {
+    const items = groups[type];
+    if (!items || items.length === 0) return;
+
+    // Show category header when there's a query
+    if (query) {
+      html += `<div class="spotlight-category">${labels[type]}</div>`;
+    }
+
+    items.slice(0, type === 'app' ? 11 : 5).forEach(item => {
+      const title = query ? highlightMatch(item.title, query) : item.title;
+      const desc = item.desc ? `<span class="spotlight-desc">${query ? highlightMatch(item.desc, query) : item.desc}</span>` : '';
+      const badge = type !== 'app' ? `<span class="spotlight-badge spotlight-badge-${type}">${labels[type]}</span>` : '';
+      html += `
+        <div class="spotlight-item ${firstItem ? 'active' : ''}" data-type="${type}">
+          <span class="spotlight-icon">${item.icon}</span>
+          <div class="spotlight-info">
+            <span class="spotlight-title">${title}</span>
+            ${desc}
+          </div>
+          ${badge}
+        </div>
+      `;
+      firstItem = false;
+    });
+  });
+
+  if (!html) {
+    html = `<div class="spotlight-empty">
+      <div>No results for "${query}"</div>
+      <div class="spotlight-empty-hint">Try searching for apps, skills, companies, or commands</div>
+    </div>`;
+  }
+
+  container.innerHTML = html;
+
+  // Bind actions
+  const itemEls = container.querySelectorAll('.spotlight-item');
+  let matchIdx = 0;
+  const flatMatched = [];
+  order.forEach(type => {
+    const items = groups[type];
+    if (!items) return;
+    items.slice(0, type === 'app' ? 11 : 5).forEach(item => flatMatched.push(item));
+  });
+
+  itemEls.forEach((el, i) => {
+    el._spotlightAction = flatMatched[i]?.action;
     el.addEventListener('click', () => {
       closeSpotlight();
-      openApp(el.dataset.app);
+      if (el._spotlightAction) el._spotlightAction();
+    });
+    el.addEventListener('mouseenter', () => {
+      container.querySelectorAll('.spotlight-item').forEach(x => x.classList.remove('active'));
+      el.classList.add('active');
     });
   });
 }
