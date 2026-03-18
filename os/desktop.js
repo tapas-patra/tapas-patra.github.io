@@ -66,6 +66,7 @@ const APP_REGISTRY = [
   { id: 'experience',   title: 'Experience.app',     icon: '\uD83D\uDCBC', dock: false, default: false, width: 680, height: 540, desc: 'Work experience timeline — Wipro, Setu', version: '1.0', size: '6 KB' },
   { id: 'education',    title: 'Education.app',      icon: '\uD83C\uDF93', dock: false, default: false, width: 640, height: 460, desc: 'Educational background — BITS Pilani, NCC', version: '1.0', size: '4 KB' },
   { id: 'contact',      title: 'Contact.app',        icon: '\uD83D\uDCEC', dock: false, default: false, width: 640, height: 460, desc: 'Get in touch — email, LinkedIn, GitHub', version: '1.0', size: '10 KB' },
+  { id: 'finder',       title: 'Finder',              icon: '\uD83D\uDCBB', dock: false, default: false, width: 760, height: 480, desc: 'Browse the TapasOS virtual filesystem', version: '1.0', size: '12 KB' },
   { id: 'settings',     title: 'Settings.app',       icon: '\u2699\uFE0F', dock: true,  default: false, width: 720, height: 500, desc: 'System preferences — wallpaper, sound, display, lock screen', version: '1.0', size: '14 KB' },
   { id: 'classic',      title: 'Classic.view',       icon: '\uD83C\uDF10', dock: false, default: false, width: 900, height: 600, desc: 'Classic HTML portfolio — simple, crawlable', version: '1.0', size: '1 KB' },
 ];
@@ -77,6 +78,9 @@ export function initDesktop() {
   initDock();
   initContextMenu();
   initKeyboardShortcuts();
+
+  // Expose openApp for child modules (e.g. Finder)
+  window.__tapasos_openApp = openApp;
 }
 
 // Open default apps after boot — with welcome splash
