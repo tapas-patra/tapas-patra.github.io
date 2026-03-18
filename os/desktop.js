@@ -23,7 +23,7 @@ let cascadeOffset = 0;
 
 // ── Dock Persistence ──
 const LS_DOCK = 'tapasos-dock-apps';
-const DEFAULT_DOCK_IDS = ['ai-assistant', 'projects', 'skills', 'activity', 'settings'];
+const DEFAULT_DOCK_IDS = ['ai-assistant', 'projects', 'skills', 'activity', 'settings', 'launchpad'];
 
 function getDockApps() {
   const stored = localStorage.getItem(LS_DOCK);
