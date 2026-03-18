@@ -156,6 +156,7 @@
     import { initNotifications, notify } from './os/notifications.js';
     import { initLeadCapture } from './os/lead-capture.js';
     import { initLockScreen } from './os/lock-screen.js';
+    import { initSounds } from './os/sounds.js';
 
     const mobileQuery = window.matchMedia('(max-width: 767px)');
     let desktopInitialized = false;
@@ -174,6 +175,7 @@
     async function activateDesktop() {
       if (desktopInitialized) return;
       desktopInitialized = true;
+      initSounds();
       initMenubar();
       initDesktop();
       initAdmin();

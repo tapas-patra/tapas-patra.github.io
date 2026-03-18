@@ -1,5 +1,7 @@
 // TapasOS Lock Screen — triggers after inactivity, slide to unlock
 
+import { playUnlock } from './sounds.js';
+
 const LS_KEY = 'tapasos-lock-timeout';
 const DEFAULT_TIMEOUT = 5; // minutes
 
@@ -142,6 +144,7 @@ function initSlider(overlay) {
       thumb.style.transform = `translateX(${trackWidth}px)`;
       fill.style.width = `${trackWidth + thumbSize}px`;
 
+      playUnlock();
       overlay.classList.add('unlocking');
       setTimeout(() => dismissLockScreen(overlay), 400);
     } else {

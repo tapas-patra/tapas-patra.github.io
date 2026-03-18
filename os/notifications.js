@@ -1,5 +1,7 @@
 // TapasOS Notification Center — macOS-style notification toasts
 
+import { playNotification } from './sounds.js';
+
 let notificationQueue = [];
 let activeNotifications = [];
 let notifId = 0;
@@ -13,9 +15,10 @@ export function initNotifications() {
   document.body.appendChild(container);
 }
 
-export function notify(title, body = '', { icon = '', duration = 4000, type = 'info', onClick = null } = {}) {
+export function notify(title, body = '', { icon = '', duration = 4000, type = 'info', onClick = null, silent = false } = {}) {
   notifId++;
   const id = notifId;
+  if (!silent) playNotification();
 
   const el = document.createElement('div');
   el.className = `notif notif-${type}`;

@@ -5,6 +5,7 @@ import { trackAppOpen, trackAppClose } from './analytics.js';
 import { notify } from './notifications.js';
 import { recordAppForLead } from './lead-capture.js';
 import { lockNow } from './lock-screen.js';
+import { playWindowOpen, playWindowClose, playClick, toggleMute, isMuted } from './sounds.js';
 import { initWallpaper, setWallpaper, getWallpaperId, WALLPAPERS } from './wallpaper.js';
 
 // ── Platform Detection ──
@@ -81,6 +82,7 @@ function createWindow(appDef) {
 
   trackAppOpen(id);
   recordAppForLead(id);
+  playWindowOpen();
 
   const desktop = document.getElementById('desktop');
   const deskRect = desktop.getBoundingClientRect();
@@ -436,6 +438,7 @@ function closeWindow(appId) {
 
   const openedAt = entry.openedAt || Date.now();
   trackAppClose(appId, Date.now() - openedAt);
+  playWindowClose();
 
   entry.el.remove();
   windows.delete(appId);
@@ -561,7 +564,7 @@ function initDock() {
       <div class="dock-icon">${app.icon}</div>
       <div class="dock-dot"></div>
     `;
-    item.addEventListener('click', () => openApp(app.id));
+    item.addEventListener('click', () => { playClick(); openApp(app.id); });
     dock.appendChild(item);
   });
 
@@ -1549,6 +1552,7 @@ const SPOTLIGHT_INDEX = (() => {
     { title: 'Download Resume', icon: '\u2B07\uFE0F', desc: 'Open resume for download', keywords: 'download resume cv pdf', action: () => openApp('resume') },
     { title: 'Lock Screen', icon: '\uD83D\uDD12', desc: 'Lock the desktop immediately', keywords: 'lock screen sleep away', action: () => lockNow() },
     { title: 'Change Wallpaper', icon: '\uD83C\uDFA8', desc: 'Choose a desktop wallpaper', keywords: 'wallpaper background theme change desktop', action: () => showWallpaperPicker() },
+    { title: 'Toggle Sound', icon: '\uD83D\uDD0A', desc: 'Mute or unmute system sounds', keywords: 'sound mute unmute audio volume toggle', action: () => toggleMute() },
   ];
   actions.forEach(a => items.push({ type: 'action', ...a }));
 
