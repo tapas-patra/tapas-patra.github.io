@@ -545,10 +545,10 @@ function toggleMaximize(appId) {
 // ── Dock with Magnification ──
 
 const DOCK_MAG = {
-  maxScale: 1.55,       // peak magnification
+  maxScale: 1.45,       // peak magnification (reduced slightly to prevent crowding)
   baseScale: 1,         // default scale
-  range: 120,           // px — distance over which magnification fades
-  liftMax: 14,          // px — how high the hovered icon lifts
+  range: 100,           // px — distance over which magnification fades
+  liftMax: 12,          // px — how high the hovered icon lifts
 };
 
 function initDock() {
@@ -580,19 +580,32 @@ function initDock() {
   dock.addEventListener('mousemove', (e) => {
     if (!dockHovered) return;
     const items = dock.querySelectorAll('.dock-item');
+
+    // First pass: compute scale factors using original (unscaled) centers
+    // We use offsetLeft relative to dock which is stable
+    const factors = [];
     items.forEach(item => {
       const rect = item.getBoundingClientRect();
+      // Use the center of the base (unscaled) area
+      const baseWidth = item.offsetWidth;
       const center = rect.left + rect.width / 2;
       const dist = Math.abs(e.clientX - center);
       const proximity = Math.max(0, 1 - dist / DOCK_MAG.range);
-
-      // Smooth cosine falloff for natural wave
       const factor = proximity > 0 ? (Math.cos((1 - proximity) * Math.PI) + 1) / 2 : 0;
+      factors.push(factor);
+    });
 
+    // Second pass: apply scale + dynamic horizontal padding to push neighbors apart
+    items.forEach((item, i) => {
+      const factor = factors[i];
       const scale = DOCK_MAG.baseScale + (DOCK_MAG.maxScale - DOCK_MAG.baseScale) * factor;
       const lift = DOCK_MAG.liftMax * factor;
+      // Add extra horizontal margin proportional to scale to prevent overlap
+      const extraPad = Math.round((scale - 1) * 28);
 
       item.style.transform = `translateY(${-lift}px) scale(${scale})`;
+      item.style.marginLeft = `${extraPad}px`;
+      item.style.marginRight = `${extraPad}px`;
     });
   });
 }
@@ -601,6 +614,8 @@ function resetDockMagnification(dock) {
   const items = dock.querySelectorAll('.dock-item');
   items.forEach(item => {
     item.style.transform = '';
+    item.style.marginLeft = '';
+    item.style.marginRight = '';
   });
 }
 

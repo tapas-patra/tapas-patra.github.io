@@ -65,13 +65,15 @@ function unlockAudio() {
   }
 }
 
+const QUEUE_EXPIRY_MS = 3000; // discard queued sounds older than 3s
+
 function enqueue(synthFn) {
   if (isMuted()) return;
 
   if (unlocked && ctx && ctx.state === 'running') {
     synthFn(ctx);
   } else {
-    pendingQueue.push(synthFn);
+    pendingQueue.push({ fn: synthFn, time: Date.now() });
     // Try to unlock
     const c = getCtx();
     if (c && c.state === 'running') {
@@ -83,8 +85,11 @@ function enqueue(synthFn) {
 
 function flushQueue() {
   if (!ctx || isMuted()) { pendingQueue = []; return; }
+  const now = Date.now();
   const queue = pendingQueue.splice(0);
-  queue.forEach(fn => fn(ctx));
+  queue.forEach(item => {
+    if (now - item.time < QUEUE_EXPIRY_MS) item.fn(ctx);
+  });
 }
 
 // ── Synthesizers ──
