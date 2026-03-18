@@ -51,10 +51,10 @@ function render() {
           <div class="trash-list">
             ${items.map((item, i) => `
               <div class="trash-item" data-index="${i}">
-                <div class="trash-item-icon">${getItemIcon(item.type)}</div>
+                <div class="trash-item-icon">${getItemIcon(item.type, item.icon)}</div>
                 <div class="trash-item-info">
                   <div class="trash-item-name">${esc(item.name)}</div>
-                  <div class="trash-item-meta">${item.type === 'folder' ? 'Folder' : item.type} &middot; Deleted ${formatDate(item.deletedAt)}</div>
+                  <div class="trash-item-meta">${item.type === 'folder' ? 'Folder' : item.type === 'app' ? 'Application' : item.type} &middot; Deleted ${formatDate(item.deletedAt)}</div>
                 </div>
                 <div class="trash-item-actions">
                   <button class="trash-item-btn trash-item-restore" title="Restore" data-index="${i}">
@@ -123,20 +123,26 @@ function bindEvents() {
 
 function restoreItem(item) {
   if (item.type === 'folder') {
-    // Restore folder to desktop
     try {
       const folders = JSON.parse(localStorage.getItem('tapasos-desktop-folders')) || [];
       folders.push({ id: item.id, name: item.name, x: item.x || 100, y: item.y || 100 });
       localStorage.setItem('tapasos-desktop-folders', JSON.stringify(folders));
-      // Re-render desktop folders if function available
       if (window.__tapasos_renderFolders) window.__tapasos_renderFolders();
     } catch { /* ignore */ }
+  } else if (item.type === 'app') {
+    // Re-install: remove from uninstalled set via global bridge
+    const isInstalled = window.__tapasos_isInstalled;
+    if (isInstalled && !isInstalled(item.id)) {
+      // Access the uninstalled set through a reinstall bridge
+      if (window.__tapasos_reinstallApp) window.__tapasos_reinstallApp(item.id);
+    }
   }
-  // Future: handle other item types (notes, etc.)
 }
 
-function getItemIcon(type) {
+function getItemIcon(type, icon) {
+  if (icon) return `<span style="font-size:20px">${icon}</span>`;
   if (type === 'folder') return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M2 6C2 4.9 2.9 4 4 4H9L11 6H20C21.1 6 22 6.9 22 8V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6Z" fill="rgba(0,229,255,0.15)" stroke="rgba(0,229,255,0.5)" stroke-width="1"/></svg>';
+  if (type === 'app') return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(0,229,255,0.4)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="12" cy="12" r="4"/></svg>';
   return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
 }
 

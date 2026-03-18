@@ -21,6 +21,9 @@ const zStack = [];             // window elements ordered by z-index
 let zCounter = 100;
 let cascadeOffset = 0;
 
+// ── Uninstalled Apps (session-only, resets on reload) ──
+const uninstalledApps = new Set();
+
 // ── Dock Persistence ──
 const LS_DOCK = 'tapasos-dock-apps';
 const DEFAULT_DOCK_IDS = ['ai-assistant', 'projects', 'skills', 'activity', 'settings', 'launchpad'];
@@ -89,6 +92,15 @@ export function initDesktop() {
   initMissionControl();
   renderDesktopFolders();
 
+  // Clean app-type items from trash on reload (uninstalls are session-only)
+  try {
+    const trash = JSON.parse(localStorage.getItem('tapasos-trash') || '[]');
+    const cleaned = trash.filter(item => item.type !== 'app');
+    if (cleaned.length !== trash.length) {
+      localStorage.setItem('tapasos-trash', JSON.stringify(cleaned));
+    }
+  } catch { /* ignore */ }
+
   // Expose openApp for child modules (e.g. Finder)
   window.__tapasos_openApp = openApp;
   window.__tapasos_getAppRegistry = getAppRegistry;
@@ -99,6 +111,9 @@ export function initDesktop() {
   window.__tapasos_addToDock = addToDock;
   window.__tapasos_removeFromDock = removeFromDock;
   window.__tapasos_renderFolders = renderDesktopFolders;
+  window.__tapasos_uninstallApp = uninstallApp;
+  window.__tapasos_isInstalled = (id) => !uninstalledApps.has(id);
+  window.__tapasos_reinstallApp = reinstallApp;
 }
 
 // Open default apps after boot — with welcome splash
@@ -113,6 +128,8 @@ export function openDefaults() {
 
 // ── Public API ──
 export function openApp(appId) {
+  if (uninstalledApps.has(appId)) return; // App is uninstalled
+
   const existing = windows.get(appId);
   if (existing) {
     // If minimized, restore
@@ -130,7 +147,51 @@ export function openApp(appId) {
 }
 
 export function getAppRegistry() {
-  return APP_REGISTRY;
+  return APP_REGISTRY.filter(a => !uninstalledApps.has(a.id));
+}
+
+function uninstallApp(appId) {
+  // Can't uninstall core system apps
+  const PROTECTED = ['settings', 'finder', 'trash', 'launchpad'];
+  if (PROTECTED.includes(appId)) return false;
+
+  uninstalledApps.add(appId);
+
+  // Close window if open
+  if (windows.has(appId)) closeWindow(appId);
+
+  // Remove from dock
+  removeFromDock(appId);
+
+  // Add to trash list (session-only — won't persist on reload)
+  const appDef = APP_REGISTRY.find(a => a.id === appId);
+  if (appDef) {
+    const trash = JSON.parse(localStorage.getItem('tapasos-trash') || '[]');
+    trash.unshift({ type: 'app', id: appId, name: appDef.title, icon: appDef.icon, deletedAt: Date.now() });
+    localStorage.setItem('tapasos-trash', JSON.stringify(trash));
+  }
+
+  // Rebuild dock to reflect removal
+  rebuildDock();
+
+  // Notify
+  const { notify } = window.__tapasos_notify || {};
+  if (typeof notify === 'function' && appDef) {
+    notify('App Uninstalled', `${appDef.title} moved to Trash`, { icon: '\uD83D\uDDD1\uFE0F', duration: 3000, app: 'System' });
+  }
+
+  return true;
+}
+
+function reinstallApp(appId) {
+  uninstalledApps.delete(appId);
+  rebuildDock();
+
+  const appDef = APP_REGISTRY.find(a => a.id === appId);
+  const { notify } = window.__tapasos_notify || {};
+  if (typeof notify === 'function' && appDef) {
+    notify('App Restored', `${appDef.title} has been reinstalled`, { icon: appDef.icon, duration: 3000, app: 'System' });
+  }
 }
 
 // ── Window Creation ──

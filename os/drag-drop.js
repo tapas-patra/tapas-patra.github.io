@@ -215,7 +215,7 @@ function initFinderDrag() {
 
   observer.observe(document.body, { childList: true, subtree: true });
 
-  // Listen for app drops on desktop
+  // Listen for app drops on desktop — open the app
   const desktop = document.getElementById('desktop');
   desktop.addEventListener('drop', (e) => {
     const appId = e.dataTransfer.getData('application/x-tapasos-app');
@@ -231,6 +231,42 @@ function initFinderDrag() {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'copy';
     }
+  });
+
+  // Trash dock icon as drop target — uninstall app
+  initTrashDropTarget();
+}
+
+function initTrashDropTarget() {
+  const dock = document.getElementById('dock');
+  if (!dock) return;
+
+  // Use event delegation since dock rebuilds
+  dock.addEventListener('dragover', (e) => {
+    const trashItem = e.target.closest('.dock-item[data-app="trash"]');
+    if (!trashItem) return;
+    if (!e.dataTransfer.types.includes('application/x-tapasos-app')) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    trashItem.classList.add('trash-drop-hover');
+  });
+
+  dock.addEventListener('dragleave', (e) => {
+    const trashItem = e.target.closest('.dock-item[data-app="trash"]');
+    if (trashItem) trashItem.classList.remove('trash-drop-hover');
+  });
+
+  dock.addEventListener('drop', (e) => {
+    const trashItem = e.target.closest('.dock-item[data-app="trash"]');
+    if (!trashItem) return;
+    trashItem.classList.remove('trash-drop-hover');
+
+    const appId = e.dataTransfer.getData('application/x-tapasos-app');
+    if (!appId) return;
+    e.preventDefault();
+
+    const uninstall = window.__tapasos_uninstallApp;
+    if (uninstall) uninstall(appId);
   });
 }
 
@@ -284,6 +320,13 @@ function injectStyles() {
       font-size: 14px;
       color: rgba(0, 229, 255, 0.5);
       pointer-events: none;
+    }
+
+    /* Trash drop target highlight */
+    .dock-item.trash-drop-hover {
+      transform: scale(1.3) !important;
+      filter: drop-shadow(0 0 8px rgba(255, 59, 48, 0.5));
+      transition: transform 0.15s ease, filter 0.15s ease;
     }
 
     /* Finder draggable items */
