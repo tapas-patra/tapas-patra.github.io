@@ -169,12 +169,7 @@ function loadUrl(url) {
   const timeout = setTimeout(() => {
     const loading = viewport.querySelector('.brw-loading');
     if (loading) {
-      loading.innerHTML = `
-        <div class="brw-error-icon">\u26A0\uFE0F</div>
-        <div class="brw-error-title">Page may be restricted</div>
-        <div class="brw-error-desc">Some sites block embedding. The page might still load — or try opening it directly.</div>
-        <a class="brw-error-link" href="${esc(url)}" target="_blank" rel="noopener">Open in new tab \u2197</a>
-      `;
+      showBlockedPage(url);
     }
   }, 8000);
 
@@ -185,6 +180,45 @@ function loadUrl(url) {
   viewport.appendChild(iframeEl);
 }
 
+function showBlockedPage(url) {
+  const viewport = container.querySelector('#brw-viewport');
+  if (!viewport) return;
+
+  iframeEl = null;
+  let domain = '';
+  try { domain = new URL(url).hostname; } catch(e) { domain = url; }
+
+  viewport.innerHTML = `
+    <div class="brw-error-page">
+      <div class="brw-err-visual">
+        <svg class="brw-err-shield" viewBox="0 0 80 80" fill="none">
+          <circle cx="40" cy="40" r="38" stroke="rgba(255,95,86,0.15)" stroke-width="2"/>
+          <circle cx="40" cy="40" r="28" stroke="rgba(255,95,86,0.1)" stroke-width="1.5"/>
+          <path d="M40 18 L40 18 C40 18 56 24 56 38 C56 52 40 62 40 62 C40 62 24 52 24 38 C24 24 40 18 40 18Z" fill="rgba(255,95,86,0.08)" stroke="rgba(255,95,86,0.4)" stroke-width="1.5"/>
+          <line x1="33" y1="33" x2="47" y2="47" stroke="#FF5F56" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="47" y1="33" x2="33" y2="47" stroke="#FF5F56" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <div class="brw-err-ripple"></div>
+        <div class="brw-err-ripple brw-err-ripple-2"></div>
+      </div>
+      <div class="brw-err-content">
+        <div class="brw-error-title">This site can't be displayed</div>
+        <div class="brw-error-desc"><strong>${esc(domain)}</strong> refused the connection or blocks embedded browsing.</div>
+        <div class="brw-error-code">ERR_BLOCKED_BY_RESPONSE</div>
+        <div class="brw-err-actions">
+          <a class="brw-err-open-btn" href="${esc(url)}" target="_blank" rel="noopener">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Open in new tab
+          </a>
+          <button class="brw-err-home-btn" id="brw-err-home">Go Home</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  viewport.querySelector('#brw-err-home')?.addEventListener('click', () => navigateTo(HOME_URL));
+}
+
 function showOfflinePage() {
   const viewport = container.querySelector('#brw-viewport');
   if (!viewport) return;
@@ -192,11 +226,28 @@ function showOfflinePage() {
   iframeEl = null;
   viewport.innerHTML = `
     <div class="brw-error-page">
-      <div class="brw-error-icon">\uD83D\uDCE1</div>
-      <div class="brw-error-title">No Internet Connection</div>
-      <div class="brw-error-desc">Your device appears to be offline. Check your network connection and try again.</div>
-      <div class="brw-error-code">ERR_INTERNET_DISCONNECTED</div>
-      <button class="brw-error-retry" id="brw-retry">Retry</button>
+      <div class="brw-err-visual">
+        <svg class="brw-err-wifi" viewBox="0 0 80 80" fill="none">
+          <path d="M10 32a40 40 0 0 1 60 0" stroke="rgba(255,255,255,0.08)" stroke-width="3" stroke-linecap="round"/>
+          <path d="M20 42a26 26 0 0 1 40 0" stroke="rgba(255,255,255,0.08)" stroke-width="3" stroke-linecap="round"/>
+          <path d="M30 52a14 14 0 0 1 20 0" stroke="rgba(255,255,255,0.08)" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="40" cy="62" r="3" fill="rgba(255,255,255,0.1)"/>
+          <line x1="12" y1="12" x2="68" y2="68" stroke="#FF5F56" stroke-width="2.5" stroke-linecap="round" class="brw-err-slash"/>
+        </svg>
+        <div class="brw-err-ripple"></div>
+        <div class="brw-err-ripple brw-err-ripple-2"></div>
+      </div>
+      <div class="brw-err-content">
+        <div class="brw-error-title">No Internet Connection</div>
+        <div class="brw-error-desc">Your device appears to be offline. Check your network connection and try again.</div>
+        <div class="brw-error-code">ERR_INTERNET_DISCONNECTED</div>
+        <div class="brw-err-actions">
+          <button class="brw-err-open-btn" id="brw-retry">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Retry
+          </button>
+        </div>
+      </div>
     </div>
   `;
 
@@ -207,7 +258,6 @@ function showOfflinePage() {
     }
   });
 
-  // Update URL bar icon
   const urlIcon = container.querySelector('.brw-url-icon');
   if (urlIcon) urlIcon.textContent = '\u26A0\uFE0F';
 }
@@ -216,15 +266,34 @@ function showErrorPage(url, message) {
   const viewport = container.querySelector('#brw-viewport');
   if (!viewport) return;
 
+  iframeEl = null;
   viewport.innerHTML = `
     <div class="brw-error-page">
-      <div class="brw-error-icon">\u274C</div>
-      <div class="brw-error-title">Can't reach this page</div>
-      <div class="brw-error-desc">${esc(message)}</div>
-      <div class="brw-error-code">${esc(url)}</div>
-      <a class="brw-error-link" href="${esc(url)}" target="_blank" rel="noopener">Open in new tab \u2197</a>
+      <div class="brw-err-visual">
+        <svg class="brw-err-alert" viewBox="0 0 80 80" fill="none">
+          <circle cx="40" cy="40" r="30" fill="rgba(255,180,0,0.06)" stroke="rgba(255,180,0,0.3)" stroke-width="1.5"/>
+          <line x1="40" y1="28" x2="40" y2="44" stroke="#FFB400" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="40" cy="52" r="2" fill="#FFB400"/>
+        </svg>
+        <div class="brw-err-ripple"></div>
+        <div class="brw-err-ripple brw-err-ripple-2"></div>
+      </div>
+      <div class="brw-err-content">
+        <div class="brw-error-title">Can't reach this page</div>
+        <div class="brw-error-desc">${esc(message)}</div>
+        <div class="brw-error-code">${esc(url)}</div>
+        <div class="brw-err-actions">
+          <a class="brw-err-open-btn" href="${esc(url)}" target="_blank" rel="noopener">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Open in new tab
+          </a>
+          <button class="brw-err-home-btn" id="brw-err-home">Go Home</button>
+        </div>
+      </div>
     </div>
   `;
+
+  viewport.querySelector('#brw-err-home')?.addEventListener('click', () => navigateTo(HOME_URL));
 }
 
 function renderHomePage(viewport) {
@@ -417,28 +486,67 @@ function injectStyles() {
       align-items: center;
       justify-content: center;
       height: 100%;
-      gap: 10px;
+      gap: 0;
       text-align: center;
-      padding: 40px;
+      padding: 40px 20px;
+      background: radial-gradient(ellipse at center, rgba(20,20,35,1) 0%, #0d0d14 70%);
     }
 
-    .brw-error-icon {
-      font-size: 48px;
-      margin-bottom: 8px;
+    .brw-err-visual {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      animation: brw-err-float 3s ease-in-out infinite;
+    }
+
+    .brw-err-visual svg {
+      width: 80px;
+      height: 80px;
+      animation: brw-err-fadein 0.6s ease-out both;
+    }
+
+    .brw-err-ripple {
+      position: absolute;
+      inset: -10px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,95,86,0.12);
+      animation: brw-err-ripple 2.5s ease-out infinite;
+    }
+
+    .brw-err-ripple-2 {
+      animation-delay: 1.2s;
+    }
+
+    .brw-err-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
     }
 
     .brw-error-title {
       font-family: var(--font-display);
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 700;
       color: var(--text-primary);
+      animation: brw-err-slideup 0.5s ease-out 0.15s both;
     }
 
     .brw-error-desc {
       font-size: 12px;
       color: var(--text-muted);
       max-width: 360px;
-      line-height: 1.6;
+      line-height: 1.7;
+      animation: brw-err-slideup 0.5s ease-out 0.25s both;
+    }
+
+    .brw-error-desc strong {
+      color: var(--text-primary);
+      font-weight: 600;
     }
 
     .brw-error-code {
@@ -446,39 +554,87 @@ function injectStyles() {
       font-size: 10px;
       color: var(--text-dim);
       background: rgba(255,255,255,0.03);
-      padding: 4px 12px;
-      border-radius: 4px;
-      margin-top: 4px;
+      border: 1px solid rgba(255,255,255,0.04);
+      padding: 5px 14px;
+      border-radius: 6px;
+      margin-top: 2px;
+      animation: brw-err-slideup 0.5s ease-out 0.35s both;
     }
 
-    .brw-error-retry {
-      margin-top: 12px;
-      padding: 8px 24px;
+    .brw-err-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      animation: brw-err-slideup 0.5s ease-out 0.45s both;
+    }
+
+    .brw-err-open-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 20px;
       border-radius: 8px;
-      border: 1px solid rgba(0, 229, 255, 0.2);
-      background: rgba(0, 229, 255, 0.08);
+      border: 1px solid rgba(0,229,255,0.2);
+      background: rgba(0,229,255,0.08);
       color: var(--cyan);
       font-family: var(--font-body);
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.15s;
-    }
-
-    .brw-error-retry:hover {
-      background: rgba(0, 229, 255, 0.15);
-    }
-
-    .brw-error-link {
-      margin-top: 8px;
-      font-size: 11px;
-      color: var(--cyan);
       text-decoration: none;
-      transition: opacity 0.15s;
+      transition: background 0.15s, border-color 0.15s;
     }
 
-    .brw-error-link:hover {
-      opacity: 0.8;
+    .brw-err-open-btn:hover {
+      background: rgba(0,229,255,0.15);
+      border-color: rgba(0,229,255,0.3);
+    }
+
+    .brw-err-home-btn {
+      padding: 8px 20px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      color: var(--text-muted);
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .brw-err-home-btn:hover {
+      background: rgba(255,255,255,0.08);
+      color: var(--text-primary);
+    }
+
+    .brw-err-slash {
+      animation: brw-err-draw 0.6s ease-out 0.3s both;
+    }
+
+    @keyframes brw-err-float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes brw-err-fadein {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes brw-err-slideup {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes brw-err-ripple {
+      0% { transform: scale(0.8); opacity: 0.5; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+
+    @keyframes brw-err-draw {
+      from { stroke-dasharray: 80; stroke-dashoffset: 80; }
+      to { stroke-dasharray: 80; stroke-dashoffset: 0; }
     }
 
     /* ── Home Page ── */
