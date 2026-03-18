@@ -223,6 +223,18 @@ html, body {
   to { opacity: 1; }
 }
 
+#desktop-wallpaper {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  transition: opacity 0.8s ease;
+  opacity: 0;
+}
+
+#desktop-wallpaper.active {
+  opacity: 1;
+}
+
 #desktop-canvas {
   position: absolute;
   inset: 0;
@@ -884,6 +896,117 @@ html, body {
   padding: 1px 5px;
   font-size: 10px;
   margin: 0 2px;
+}
+
+/* ── Wallpaper Picker ── */
+
+#wallpaper-picker {
+  position: fixed;
+  inset: 0;
+  z-index: 9850;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+#wallpaper-picker.visible {
+  opacity: 1;
+}
+
+.wp-picker-box {
+  width: 560px;
+  max-width: 92vw;
+  max-height: 80vh;
+  background: linear-gradient(170deg, rgba(22,22,40,0.97), rgba(17,17,32,0.98));
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.7);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.wp-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.wp-picker-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.wp-picker-close {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.wp-picker-close:hover {
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.06);
+}
+
+.wp-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  padding: 16px 20px;
+  overflow-y: auto;
+}
+
+.wp-picker-item {
+  cursor: pointer;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  padding: 4px;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.wp-picker-item:hover {
+  border-color: rgba(255,255,255,0.12);
+  transform: scale(1.02);
+}
+
+.wp-picker-item.active {
+  border-color: var(--violet);
+  box-shadow: 0 0 0 1px var(--violet), 0 4px 16px rgba(124,58,237,0.2);
+}
+
+.wp-picker-preview {
+  width: 100%;
+  aspect-ratio: 16/10;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.wp-picker-name {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.wp-picker-desc {
+  font-family: var(--font-display);
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 2px;
 }
 
 /* ── Lock Screen ── */

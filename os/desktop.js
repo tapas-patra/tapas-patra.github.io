@@ -5,6 +5,7 @@ import { trackAppOpen, trackAppClose } from './analytics.js';
 import { notify } from './notifications.js';
 import { recordAppForLead } from './lead-capture.js';
 import { lockNow } from './lock-screen.js';
+import { initWallpaper, setWallpaper, getWallpaperId, WALLPAPERS } from './wallpaper.js';
 
 // ── Platform Detection ──
 export const IS_MAC = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
@@ -36,6 +37,7 @@ const APP_REGISTRY = [
 // ── Init ──
 export function initDesktop() {
   try { initParticles(); } catch(e) { console.warn('Particles failed:', e); }
+  initWallpaper();
   initDock();
   initContextMenu();
   initKeyboardShortcuts();
@@ -625,6 +627,7 @@ function initContextMenu() {
         action: () => openApp(app.id),
       })),
       { type: 'separator' },
+      { label: 'Change Wallpaper', action: () => showWallpaperPicker() },
       { label: 'Lock Screen', action: () => lockNow() },
       { label: 'Refresh Desktop', action: () => location.reload() },
     ]);
@@ -813,6 +816,59 @@ function showAboutDialog() {
   bindResizeHandles(win);
   bindTrafficLights(win, appId);
   win.addEventListener('mousedown', () => focusWindow(appId));
+}
+
+// ── Wallpaper Picker ──
+
+function showWallpaperPicker() {
+  // Remove existing picker if open
+  document.getElementById('wallpaper-picker')?.remove();
+
+  const current = getWallpaperId();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'wallpaper-picker';
+  overlay.innerHTML = `
+    <div class="wp-picker-box">
+      <div class="wp-picker-header">
+        <span class="wp-picker-title">Choose Wallpaper</span>
+        <button class="wp-picker-close" id="wp-close">&times;</button>
+      </div>
+      <div class="wp-picker-grid">
+        ${WALLPAPERS.map(wp => `
+          <div class="wp-picker-item ${wp.id === current ? 'active' : ''}" data-wp="${wp.id}">
+            <div class="wp-picker-preview" style="background:${wp.preview}"></div>
+            <div class="wp-picker-name">${wp.name}</div>
+            <div class="wp-picker-desc">${wp.desc}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => overlay.classList.add('visible'));
+
+  // Close
+  const close = () => {
+    overlay.classList.remove('visible');
+    setTimeout(() => overlay.remove(), 200);
+  };
+
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) close();
+  });
+  document.getElementById('wp-close').addEventListener('click', close);
+
+  // Select wallpaper
+  overlay.querySelectorAll('.wp-picker-item').forEach(el => {
+    el.addEventListener('click', () => {
+      const id = el.dataset.wp;
+      setWallpaper(id);
+      overlay.querySelectorAll('.wp-picker-item').forEach(x => x.classList.remove('active'));
+      el.classList.add('active');
+    });
+  });
 }
 
 // ── Keyboard Shortcuts ──
@@ -1492,6 +1548,7 @@ const SPOTLIGHT_INDEX = (() => {
     { title: 'Chat with Tapas.ai', icon: '\uD83D\uDCAC', desc: 'Ask the AI anything about me', keywords: 'chat ai ask question tapas bot assistant', action: () => openApp('ai-assistant') },
     { title: 'Download Resume', icon: '\u2B07\uFE0F', desc: 'Open resume for download', keywords: 'download resume cv pdf', action: () => openApp('resume') },
     { title: 'Lock Screen', icon: '\uD83D\uDD12', desc: 'Lock the desktop immediately', keywords: 'lock screen sleep away', action: () => lockNow() },
+    { title: 'Change Wallpaper', icon: '\uD83C\uDFA8', desc: 'Choose a desktop wallpaper', keywords: 'wallpaper background theme change desktop', action: () => showWallpaperPicker() },
   ];
   actions.forEach(a => items.push({ type: 'action', ...a }));
 
