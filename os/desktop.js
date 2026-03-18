@@ -4,6 +4,7 @@ import { setActiveAppName } from './menubar.js';
 import { trackAppOpen, trackAppClose } from './analytics.js';
 import { notify } from './notifications.js';
 import { recordAppForLead } from './lead-capture.js';
+import { lockNow } from './lock-screen.js';
 
 // ── Platform Detection ──
 export const IS_MAC = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
@@ -624,6 +625,7 @@ function initContextMenu() {
         action: () => openApp(app.id),
       })),
       { type: 'separator' },
+      { label: 'Lock Screen', action: () => lockNow() },
       { label: 'Refresh Desktop', action: () => location.reload() },
     ]);
   });
@@ -866,6 +868,12 @@ function initKeyboardShortcuts() {
     if (mod && (e.key === '`' || e.key === '~')) {
       e.preventDefault();
       cycleWindows(e.shiftKey ? -1 : 1);
+    }
+
+    // Lock Screen — Cmd+L / Alt+L
+    if (mod && e.key === 'l') {
+      e.preventDefault();
+      lockNow();
     }
 
     // Spotlight Search — Cmd+K / Alt+K
@@ -1483,6 +1491,7 @@ const SPOTLIGHT_INDEX = (() => {
     { title: 'Toggle Theme', icon: '\uD83C\uDF13', desc: 'Switch between dark and light mode', keywords: 'theme dark light mode toggle appearance', action: () => { document.body.classList.toggle('light-theme'); } },
     { title: 'Chat with Tapas.ai', icon: '\uD83D\uDCAC', desc: 'Ask the AI anything about me', keywords: 'chat ai ask question tapas bot assistant', action: () => openApp('ai-assistant') },
     { title: 'Download Resume', icon: '\u2B07\uFE0F', desc: 'Open resume for download', keywords: 'download resume cv pdf', action: () => openApp('resume') },
+    { title: 'Lock Screen', icon: '\uD83D\uDD12', desc: 'Lock the desktop immediately', keywords: 'lock screen sleep away', action: () => lockNow() },
   ];
   actions.forEach(a => items.push({ type: 'action', ...a }));
 

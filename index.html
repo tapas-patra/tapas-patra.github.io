@@ -155,6 +155,7 @@
     import { initAnalytics } from './os/analytics.js';
     import { initNotifications, notify } from './os/notifications.js';
     import { initLeadCapture } from './os/lead-capture.js';
+    import { initLockScreen } from './os/lock-screen.js';
 
     const mobileQuery = window.matchMedia('(max-width: 767px)');
     let desktopInitialized = false;
@@ -181,6 +182,7 @@
       await runBoot();
       openDefaults();
       initLeadCapture();
+      initLockScreen();
       setTimeout(() => {
         notify('Welcome to TapasOS', 'Click any app in the dock to explore. Try Tapas.ai for a chat!', { icon: '\uD83D\uDC4B', duration: 5000 });
       }, 800);
