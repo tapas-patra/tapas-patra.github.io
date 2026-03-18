@@ -658,12 +658,6 @@ function initKeyboardShortcuts() {
       toggleSpotlight();
     }
 
-    // Spotlight Search alt — Cmd+Space (Mac) / Alt+Space (Win)
-    if (mod && e.code === 'Space') {
-      e.preventDefault();
-      toggleSpotlight();
-    }
-
     // Slash (/) — quick Spotlight trigger (no modifier needed, only when no input focused)
     if (e.key === '/' && !e.metaKey && !e.ctrlKey && !e.altKey) {
       const tag = document.activeElement?.tagName;
