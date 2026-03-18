@@ -159,6 +159,7 @@
     import { initSounds } from './os/sounds.js';
     import { initControlCenter } from './os/control-center.js';
     import { initWidgets } from './os/widgets.js';
+    import { initDragDrop } from './os/drag-drop.js';
 
     const mobileQuery = window.matchMedia('(max-width: 767px)');
     let desktopInitialized = false;
@@ -186,6 +187,8 @@
       initAnalytics();
       await runBoot();
       initWidgets();
+      initDragDrop();
+      window.__tapasos_notify = { notify };
       openDefaults();
       initLeadCapture();
       initLockScreen();
