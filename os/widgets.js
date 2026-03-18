@@ -36,34 +36,42 @@ async function fetchGitHubData() {
 function render() {
   widgetLayer.innerHTML = '';
 
-  const layerRect = widgetLayer.getBoundingClientRect();
-  const lw = layerRect.width;
-  const lh = layerRect.height;
+  // Use requestAnimationFrame to ensure layout is ready
+  requestAnimationFrame(() => {
+    const lw = widgetLayer.offsetWidth || window.innerWidth;
+    const lh = widgetLayer.offsetHeight || window.innerHeight;
 
-  // Default right-column positions (px from top-right)
-  const defaults = {
-    'widget-clock':    { x: lw - 236, y: 16 },
-    'widget-calendar': { x: lw - 236, y: 120 },
-    'widget-heatmap':  { x: lw - 236, y: 360 },
-    'widget-stats':    { x: lw - 236, y: 540 },
-  };
+    // Default right-column positions — stacked vertically with 10px gap
+    const rightX = lw - 240; // 220px widget + 20px margin
 
-  const widgets = [];
-  widgets.push(createClockWidget());
-  widgets.push(createCalendarWidget());
-  if (githubData?.commit_weeks?.length) widgets.push(createHeatmapWidget());
-  if (githubData) widgets.push(createStatsWidget());
+    const widgets = [];
+    widgets.push(createClockWidget());
+    widgets.push(createCalendarWidget());
+    if (githubData?.commit_weeks?.length) widgets.push(createHeatmapWidget());
+    if (githubData) widgets.push(createStatsWidget());
 
-  widgets.forEach(w => {
-    const id = w.id;
-    const pos = savedPositions[id] || defaults[id] || { x: lw - 236, y: 16 };
-    // Clamp to visible area
-    const x = Math.max(0, Math.min(pos.x, lw - 100));
-    const y = Math.max(0, Math.min(pos.y, lh - 60));
-    w.style.left = `${x}px`;
-    w.style.top = `${y}px`;
-    widgetLayer.appendChild(w);
-    makeDraggable(w);
+    let nextY = 16;
+    widgets.forEach(w => {
+      const id = w.id;
+      // Use saved position if available, otherwise stack them
+      if (savedPositions[id]) {
+        const pos = savedPositions[id];
+        const x = Math.max(0, Math.min(pos.x, lw - 240));
+        const y = Math.max(0, Math.min(pos.y, lh - 60));
+        w.style.left = `${x}px`;
+        w.style.top = `${y}px`;
+      } else {
+        w.style.left = `${Math.max(0, rightX)}px`;
+        w.style.top = `${nextY}px`;
+      }
+      widgetLayer.appendChild(w);
+      makeDraggable(w);
+
+      // Calculate next Y based on actual rendered height
+      if (!savedPositions[id]) {
+        nextY += w.offsetHeight + 10;
+      }
+    });
   });
 }
 

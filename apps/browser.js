@@ -19,6 +19,32 @@ const BOOKMARKS = [
 
 const HOME_URL = '__home__';
 
+// Sites known to block iframe embedding via X-Frame-Options / CSP frame-ancestors
+const BLOCKED_DOMAINS = [
+  'youtube.com', 'facebook.com', 'twitter.com', 'x.com', 'instagram.com',
+  'linkedin.com', 'netflix.com', 'amazon.com', 'reddit.com', 'tiktok.com',
+  'spotify.com', 'discord.com', 'twitch.tv', 'paypal.com', 'ebay.com',
+  'apple.com', 'microsoft.com', 'gmail.com', 'outlook.com', 'whatsapp.com',
+  'github.com', 'stackoverflow.com', 'medium.com', 'pinterest.com',
+  'dropbox.com', 'slack.com', 'zoom.us', 'figma.com', 'notion.so',
+  'chatgpt.com', 'openai.com', 'anthropic.com', 'claude.ai',
+  'google.com', 'bing.com', 'yahoo.com', 'duckduckgo.com',
+  'cloudflare.com', 'vercel.com', 'netlify.com', 'heroku.com',
+  'docker.com', 'npmjs.com', 'pypi.org', 'crates.io',
+];
+
+function isKnownBlocked(url) {
+  try {
+    const u = new URL(url);
+    const hostname = u.hostname.replace(/^www\./, '');
+    // Google with igu=1 works in iframes
+    if ((hostname === 'google.com' || hostname.endsWith('.google.com')) && u.search.includes('igu=1')) {
+      return false;
+    }
+    return BLOCKED_DOMAINS.some(d => hostname === d || hostname.endsWith('.' + d));
+  } catch { return false; }
+}
+
 export async function init(el) {
   container = el;
   injectStyles();
@@ -141,6 +167,12 @@ function loadUrl(url) {
     return;
   }
 
+  // Immediately block known iframe-hostile sites
+  if (isKnownBlocked(url)) {
+    showBlockedPage(url);
+    return;
+  }
+
   viewport.innerHTML = `
     <div class="brw-loading">
       <div class="brw-spinner"></div>
@@ -154,26 +186,54 @@ function loadUrl(url) {
   iframeEl.referrerPolicy = 'no-referrer';
   iframeEl.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope';
 
+  let settled = false;
+
   iframeEl.addEventListener('load', () => {
-    // Remove loading indicator
-    const loading = viewport.querySelector('.brw-loading');
-    if (loading) loading.remove();
-    iframeEl.style.opacity = '1';
+    if (settled) return;
+
+    try {
+      // Same-origin: we can inspect the document
+      const doc = iframeEl.contentDocument;
+      if (doc && doc.body) {
+        const text = (doc.body.innerText || '').trim();
+        if (text.length > 0 && !text.includes('refused')) {
+          // Real same-origin content
+          settled = true;
+          clearTimeout(timeout);
+          const loading = viewport.querySelector('.brw-loading');
+          if (loading) loading.remove();
+          iframeEl.style.opacity = '1';
+          return;
+        }
+        // Empty or error page
+        settled = true;
+        clearTimeout(timeout);
+        showBlockedPage(url);
+        return;
+      }
+    } catch (e) {
+      // Cross-origin: page loaded something, assume it's real
+      settled = true;
+      clearTimeout(timeout);
+      const loading = viewport.querySelector('.brw-loading');
+      if (loading) loading.remove();
+      iframeEl.style.opacity = '1';
+    }
   });
 
   iframeEl.addEventListener('error', () => {
+    if (settled) return;
+    settled = true;
+    clearTimeout(timeout);
     showErrorPage(url, 'Failed to load this page.');
   });
 
-  // Timeout for pages that never fire load (blocked by X-Frame-Options etc)
+  // Fallback timeout for pages that never fire load
   const timeout = setTimeout(() => {
-    const loading = viewport.querySelector('.brw-loading');
-    if (loading) {
-      showBlockedPage(url);
-    }
+    if (settled) return;
+    settled = true;
+    showBlockedPage(url);
   }, 8000);
-
-  iframeEl.addEventListener('load', () => clearTimeout(timeout));
 
   iframeEl.style.opacity = '0';
   iframeEl.src = url;
