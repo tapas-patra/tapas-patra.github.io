@@ -72,6 +72,7 @@ const APP_REGISTRY = [
   { id: 'photos',       title: 'Photos.app',          icon: '\uD83C\uDFA8', dock: false, default: false, width: 800, height: 540, desc: 'Gallery of project screenshots and award images', version: '1.0', size: '6 KB' },
   { id: 'calendar',     title: 'Calendar.app',        icon: '\uD83D\uDCC5', dock: false, default: false, width: 780, height: 520, desc: 'Career timeline, key dates, and availability', version: '1.0', size: '10 KB' },
   { id: 'launchpad',    title: 'Launchpad',            icon: '\uD83D\uDE80', dock: false, default: false, width: 680, height: 520, desc: 'View and launch all installed applications', version: '1.0', size: '5 KB' },
+  { id: 'appstore',     title: 'App Store',            icon: '\uD83D\uDED2', dock: false, default: false, width: 820, height: 560, desc: 'Browse, install, and manage TapasOS apps', version: '1.0', size: '8 KB' },
   { id: 'settings',     title: 'Settings.app',       icon: '\u2699\uFE0F', dock: true,  default: false, width: 720, height: 500, desc: 'System preferences — wallpaper, sound, display, lock screen', version: '1.0', size: '14 KB' },
   { id: 'classic',      title: 'Classic.view',       icon: '\uD83C\uDF10', dock: false, default: false, width: 900, height: 600, desc: 'Classic HTML portfolio — simple, crawlable', version: '1.0', size: '1 KB' },
 ];
@@ -91,6 +92,9 @@ export function initDesktop() {
   window.__tapasos_getWindows = () => windows;
   window.__tapasos_focusWindow = focusWindow;
   window.__tapasos_restoreWindow = restoreWindow;
+  window.__tapasos_isInDock = isInDock;
+  window.__tapasos_addToDock = addToDock;
+  window.__tapasos_removeFromDock = removeFromDock;
 }
 
 // Open default apps after boot — with welcome splash
