@@ -536,7 +536,15 @@ function toggleMaximize(appId) {
   }
 }
 
-// ── Dock ──
+// ── Dock with Magnification ──
+
+const DOCK_MAG = {
+  maxScale: 1.55,       // peak magnification
+  baseScale: 1,         // default scale
+  range: 120,           // px — distance over which magnification fades
+  liftMax: 14,          // px — how high the hovered icon lifts
+};
+
 function initDock() {
   const dock = document.getElementById('dock');
   if (!dock) return;
@@ -552,6 +560,41 @@ function initDock() {
     `;
     item.addEventListener('click', () => openApp(app.id));
     dock.appendChild(item);
+  });
+
+  // Magnification — distance-based scaling
+  let dockHovered = false;
+
+  dock.addEventListener('mouseenter', () => { dockHovered = true; });
+  dock.addEventListener('mouseleave', () => {
+    dockHovered = false;
+    resetDockMagnification(dock);
+  });
+
+  dock.addEventListener('mousemove', (e) => {
+    if (!dockHovered) return;
+    const items = dock.querySelectorAll('.dock-item');
+    items.forEach(item => {
+      const rect = item.getBoundingClientRect();
+      const center = rect.left + rect.width / 2;
+      const dist = Math.abs(e.clientX - center);
+      const proximity = Math.max(0, 1 - dist / DOCK_MAG.range);
+
+      // Smooth cosine falloff for natural wave
+      const factor = proximity > 0 ? (Math.cos((1 - proximity) * Math.PI) + 1) / 2 : 0;
+
+      const scale = DOCK_MAG.baseScale + (DOCK_MAG.maxScale - DOCK_MAG.baseScale) * factor;
+      const lift = DOCK_MAG.liftMax * factor;
+
+      item.style.transform = `translateY(${-lift}px) scale(${scale})`;
+    });
+  });
+}
+
+function resetDockMagnification(dock) {
+  const items = dock.querySelectorAll('.dock-item');
+  items.forEach(item => {
+    item.style.transform = '';
   });
 }
 
