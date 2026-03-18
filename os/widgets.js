@@ -1,12 +1,18 @@
 // Desktop Widgets — real data only, no fakes
 // Clock, Mini Calendar, GitHub Heatmap, Quick Stats
+// Freely draggable, positions persisted in localStorage
+
+const LS_POSITIONS = 'tapasos-widget-positions';
 
 let widgetLayer = null;
 let clockTimer = null;
 let githubData = null;
+let savedPositions = {};
 
 export function initWidgets() {
   injectStyles();
+
+  try { savedPositions = JSON.parse(localStorage.getItem(LS_POSITIONS)) || {}; } catch { savedPositions = {}; }
 
   widgetLayer = document.createElement('div');
   widgetLayer.id = 'widget-layer';
@@ -30,26 +36,116 @@ async function fetchGitHubData() {
 function render() {
   widgetLayer.innerHTML = '';
 
-  // Top-right: Clock
-  widgetLayer.appendChild(createClockWidget());
+  const layerRect = widgetLayer.getBoundingClientRect();
+  const lw = layerRect.width;
+  const lh = layerRect.height;
 
-  // Below clock: Mini Calendar
-  widgetLayer.appendChild(createCalendarWidget());
+  // Default right-column positions (px from top-right)
+  const defaults = {
+    'widget-clock':    { x: lw - 236, y: 16 },
+    'widget-calendar': { x: lw - 236, y: 120 },
+    'widget-heatmap':  { x: lw - 236, y: 360 },
+    'widget-stats':    { x: lw - 236, y: 540 },
+  };
 
-  // Below calendar: GitHub Heatmap (only if real data)
-  if (githubData?.commit_weeks?.length) {
-    widgetLayer.appendChild(createHeatmapWidget());
+  const widgets = [];
+  widgets.push(createClockWidget());
+  widgets.push(createCalendarWidget());
+  if (githubData?.commit_weeks?.length) widgets.push(createHeatmapWidget());
+  if (githubData) widgets.push(createStatsWidget());
+
+  widgets.forEach(w => {
+    const id = w.id;
+    const pos = savedPositions[id] || defaults[id] || { x: lw - 236, y: 16 };
+    // Clamp to visible area
+    const x = Math.max(0, Math.min(pos.x, lw - 100));
+    const y = Math.max(0, Math.min(pos.y, lh - 60));
+    w.style.left = `${x}px`;
+    w.style.top = `${y}px`;
+    widgetLayer.appendChild(w);
+    makeDraggable(w);
+  });
+}
+
+function savePositions() {
+  const widgets = widgetLayer.querySelectorAll('.wgt');
+  const pos = {};
+  widgets.forEach(w => {
+    pos[w.id] = { x: parseInt(w.style.left) || 0, y: parseInt(w.style.top) || 0 };
+  });
+  savedPositions = pos;
+  localStorage.setItem(LS_POSITIONS, JSON.stringify(pos));
+}
+
+function makeDraggable(widget) {
+  const handle = widget.querySelector('.wgt-drag-handle');
+  const el = handle || widget;
+  let dragging = false;
+  let startX, startY, origX, origY;
+
+  el.addEventListener('mousedown', onDown);
+  el.addEventListener('touchstart', onDown, { passive: false });
+
+  function onDown(e) {
+    // Ignore if clicking inside interactive content
+    if (e.target.closest('a, button, input, select')) return;
+
+    dragging = true;
+    widget.classList.add('wgt-dragging');
+    widget.style.zIndex = 10;
+
+    const point = e.touches ? e.touches[0] : e;
+    startX = point.clientX;
+    startY = point.clientY;
+    origX = parseInt(widget.style.left) || 0;
+    origY = parseInt(widget.style.top) || 0;
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onUp);
+
+    e.preventDefault();
   }
 
-  // Below heatmap: Quick Stats (only if real data)
-  if (githubData) {
-    widgetLayer.appendChild(createStatsWidget());
+  function onMove(e) {
+    if (!dragging) return;
+    const point = e.touches ? e.touches[0] : e;
+    const dx = point.clientX - startX;
+    const dy = point.clientY - startY;
+
+    const layerRect = widgetLayer.getBoundingClientRect();
+    const wRect = widget.getBoundingClientRect();
+
+    let nx = origX + dx;
+    let ny = origY + dy;
+
+    // Clamp within widget layer
+    nx = Math.max(0, Math.min(nx, layerRect.width - wRect.width));
+    ny = Math.max(0, Math.min(ny, layerRect.height - wRect.height));
+
+    widget.style.left = `${nx}px`;
+    widget.style.top = `${ny}px`;
+
+    e.preventDefault();
+  }
+
+  function onUp() {
+    if (!dragging) return;
+    dragging = false;
+    widget.classList.remove('wgt-dragging');
+    widget.style.zIndex = '';
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('touchend', onUp);
+    savePositions();
   }
 }
 
 // ── Clock Widget ──
 function createClockWidget() {
-  const w = makeWidget('widget-clock', 'right-stack');
+  const w = makeWidget('widget-clock');
   const content = document.createElement('div');
   content.className = 'wgt-clock-content';
   w.querySelector('.wgt-body').appendChild(content);
@@ -76,7 +172,7 @@ function createClockWidget() {
 
 // ── Mini Calendar Widget ──
 function createCalendarWidget() {
-  const w = makeWidget('widget-calendar', 'right-stack');
+  const w = makeWidget('widget-calendar');
   const body = w.querySelector('.wgt-body');
 
   const now = new Date();
@@ -114,7 +210,7 @@ function createCalendarWidget() {
 
 // ── GitHub Heatmap Widget ──
 function createHeatmapWidget() {
-  const w = makeWidget('widget-heatmap', 'right-stack');
+  const w = makeWidget('widget-heatmap');
   const body = w.querySelector('.wgt-body');
 
   // Get last 12 weeks of commit data
@@ -147,7 +243,7 @@ function createHeatmapWidget() {
 
 // ── Quick Stats Widget ──
 function createStatsWidget() {
-  const w = makeWidget('widget-stats', 'right-stack');
+  const w = makeWidget('widget-stats');
   const body = w.querySelector('.wgt-body');
 
   const g = githubData;
@@ -196,11 +292,16 @@ function createStatsWidget() {
 
 // ── Helpers ──
 
-function makeWidget(id, position) {
+function makeWidget(id) {
   const w = document.createElement('div');
-  w.className = `wgt ${position}`;
+  w.className = 'wgt';
   w.id = id;
-  w.innerHTML = '<div class="wgt-body"></div>';
+  w.innerHTML = `
+    <div class="wgt-drag-handle">
+      <div class="wgt-drag-dots"></div>
+    </div>
+    <div class="wgt-body"></div>
+  `;
   return w;
 }
 
@@ -235,15 +336,11 @@ function injectStyles() {
       inset: 0;
       z-index: 1;
       pointer-events: none;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 10px;
-      padding: 16px 16px 80px;
       overflow: hidden;
     }
 
     .wgt {
+      position: absolute;
       pointer-events: auto;
       background: rgba(18, 18, 30, 0.55);
       backdrop-filter: blur(12px);
@@ -252,7 +349,10 @@ function injectStyles() {
       border-radius: 14px;
       width: 220px;
       overflow: hidden;
-      transition: background 0.2s, border-color 0.2s;
+      transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     .wgt:hover {
@@ -260,8 +360,37 @@ function injectStyles() {
       border-color: rgba(255,255,255,0.1);
     }
 
+    .wgt:hover .wgt-drag-handle {
+      opacity: 1;
+    }
+
+    .wgt.wgt-dragging {
+      cursor: grabbing;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      border-color: rgba(0, 229, 255, 0.2);
+      background: rgba(18, 18, 30, 0.8);
+      transform: scale(1.02);
+      transition: background 0.1s, border-color 0.1s, box-shadow 0.1s, transform 0.15s;
+    }
+
+    .wgt-drag-handle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 0 0;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .wgt-drag-dots {
+      width: 32px;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255,255,255,0.15);
+    }
+
     .wgt-body {
-      padding: 14px;
+      padding: 10px 14px 14px;
     }
 
     /* ── Clock ── */
