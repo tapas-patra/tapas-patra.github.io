@@ -8,9 +8,9 @@ import { lockNow } from './lock-screen.js';
 
 // ── Platform Detection ──
 export const IS_MAC = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
-const MOD_KEY = IS_MAC ? 'metaKey' : 'altKey';  // Cmd on Mac, Alt on Windows/Linux (avoids Ctrl+W/K/M browser conflicts)
-const MOD_LABEL = IS_MAC ? '\u2318' : 'Alt+';   // ⌘ or Alt+
-const MOD_DISPLAY = IS_MAC ? 'Cmd' : 'Alt';
+const MOD_KEY = 'altKey';                        // Alt/Option on all platforms — Cmd+W/M/L conflict with browser shortcuts
+const MOD_LABEL = IS_MAC ? '\u2325' : 'Alt+';   // ⌥ (Option) on Mac, Alt+ on Windows
+const MOD_DISPLAY = IS_MAC ? 'Option' : 'Alt';
 
 // ── State ──
 const windows = new Map();     // appId -> { el, state, preMax }
