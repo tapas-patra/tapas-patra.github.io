@@ -362,6 +362,19 @@ html, body {
 
 /* ── Control Center ── */
 
+.cc-wifi-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 4px;
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+
+.cc-wifi-indicator.offline {
+  color: #FF5F56;
+}
+
 .cc-trigger {
   display: flex;
   align-items: center;

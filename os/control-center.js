@@ -4,22 +4,44 @@ import { isMuted, toggleMute, playClick, getVolume, setVolume } from './sounds.j
 import { lockNow } from './lock-screen.js';
 import { WALLPAPERS, setWallpaper, getWallpaperId } from './wallpaper.js';
 
-const LS_BT = 'tapasos-bluetooth';
 const LS_BRIGHT = 'tapasos-brightness';
 
 let panelEl = null;
 let isOpen = false;
 
+// ── Wi-Fi (real connectivity) ──
+let wifiListeners = []; // callbacks for connectivity changes
+
+export function isOnline() {
+  return navigator.onLine;
+}
+
+export function onConnectivityChange(cb) {
+  wifiListeners.push(cb);
+}
+
+function fireConnectivityChange() {
+  const online = navigator.onLine;
+  wifiListeners.forEach(cb => cb(online));
+}
+
 export function initControlCenter() {
-  // Add CC trigger icon to menubar-right (before the clock)
   const menuRight = document.querySelector('.menubar-right');
   if (!menuRight) return;
   const clock = menuRight.querySelector('.menubar-clock');
 
+  // Wi-Fi status indicator in menubar
+  const wifiIndicator = document.createElement('div');
+  wifiIndicator.className = 'cc-wifi-indicator';
+  wifiIndicator.id = 'cc-wifi-indicator';
+  wifiIndicator.title = navigator.onLine ? 'Wi-Fi: Connected' : 'Wi-Fi: Disconnected';
+  wifiIndicator.innerHTML = getWifiIcon(navigator.onLine);
+  menuRight.insertBefore(wifiIndicator, clock);
+
+  // CC trigger
   const trigger = document.createElement('div');
   trigger.className = 'cc-trigger';
   trigger.title = 'Control Center';
-  // Toggle switches icon (macOS-style control center)
   trigger.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><circle cx="8" cy="6" r="2" fill="currentColor"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="16" cy="12" r="2" fill="currentColor"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="11" cy="18" r="2" fill="currentColor"/></svg>`;
 
   menuRight.insertBefore(trigger, clock);
@@ -29,15 +51,47 @@ export function initControlCenter() {
     if (isOpen) close(); else open(trigger);
   });
 
-  // Close on outside click
   document.addEventListener('click', (e) => {
     if (isOpen && panelEl && !panelEl.contains(e.target) && !trigger.contains(e.target)) {
       close();
     }
   });
 
-  // Apply saved brightness
+  // Listen to real browser online/offline events
+  window.addEventListener('online', () => {
+    updateWifiIndicator(true);
+    fireConnectivityChange();
+  });
+  window.addEventListener('offline', () => {
+    updateWifiIndicator(false);
+    fireConnectivityChange();
+  });
+
   applyBrightness(getBrightness());
+}
+
+function updateWifiIndicator(online) {
+  const el = document.getElementById('cc-wifi-indicator');
+  if (!el) return;
+  el.title = online ? 'Wi-Fi: Connected' : 'Wi-Fi: Disconnected';
+  el.innerHTML = getWifiIcon(online);
+  el.classList.toggle('offline', !online);
+
+  // Also update the CC panel if open
+  if (isOpen && panelEl) {
+    const wifiTile = panelEl.querySelector('[data-toggle="wifi"]');
+    if (wifiTile) {
+      wifiTile.classList.toggle('active', online);
+      wifiTile.querySelector('.cc-tile-status').textContent = online ? 'Connected' : 'No Internet';
+    }
+  }
+}
+
+function getWifiIcon(online) {
+  if (online) {
+    return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg>`;
+  }
+  return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0" opacity="0.3"/><path d="M1.42 9a16 16 0 0 1 21.16 0" opacity="0.3"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0" opacity="0.3"/><circle cx="12" cy="20" r="1" opacity="0.3"/><line x1="2" y1="2" x2="22" y2="22" stroke="#FF5F56" stroke-width="2"/></svg>`;
 }
 
 function open(anchor) {
@@ -49,13 +103,11 @@ function open(anchor) {
   panelEl.innerHTML = buildPanel();
   document.body.appendChild(panelEl);
 
-  // Position below the trigger, right-aligned
   const rect = anchor.getBoundingClientRect();
   panelEl.style.top = `${rect.bottom + 6}px`;
   panelEl.style.right = `${window.innerWidth - rect.right - 20}px`;
 
   requestAnimationFrame(() => panelEl.classList.add('visible'));
-
   bindEvents();
 }
 
@@ -68,30 +120,20 @@ function close() {
 
 function buildPanel() {
   const muted = isMuted();
-  const bt = getBluetooth();
+  const online = navigator.onLine;
   const brightness = getBrightness();
   const volume = getVolume();
   const wpId = getWallpaperId();
 
   return `
     <div class="cc-grid">
-      <div class="cc-tile cc-tile-wide cc-toggle active" data-toggle="wifi">
+      <div class="cc-tile cc-tile-wide ${online ? 'active' : ''}" data-toggle="wifi">
         <div class="cc-tile-icon">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg>
         </div>
         <div class="cc-tile-info">
           <div class="cc-tile-label">Wi-Fi</div>
-          <div class="cc-tile-status">Connected</div>
-        </div>
-      </div>
-
-      <div class="cc-tile cc-toggle ${bt ? 'active' : ''}" data-toggle="bluetooth">
-        <div class="cc-tile-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5"/></svg>
-        </div>
-        <div class="cc-tile-info">
-          <div class="cc-tile-label">Bluetooth</div>
-          <div class="cc-tile-status">${bt ? 'On' : 'Off'}</div>
+          <div class="cc-tile-status">${online ? 'Connected' : 'No Internet'}</div>
         </div>
       </div>
 
@@ -159,20 +201,14 @@ function bindEvents() {
         const nowMuted = toggleMute();
         tile.classList.toggle('active', !nowMuted);
         tile.querySelector('.cc-tile-status').textContent = nowMuted ? 'Off' : 'On';
-        // Update icon
         const iconEl = tile.querySelector('.cc-tile-icon svg');
         if (iconEl) {
           iconEl.innerHTML = nowMuted
             ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>'
             : '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>';
         }
-      } else if (toggle === 'bluetooth') {
-        const newBt = !getBluetooth();
-        setBluetooth(newBt);
-        tile.classList.toggle('active', newBt);
-        tile.querySelector('.cc-tile-status').textContent = newBt ? 'On' : 'Off';
       }
-      // Wi-Fi is always "on" (cosmetic)
+      // Wi-Fi is read-only — reflects real connectivity
     });
   });
 
@@ -231,14 +267,4 @@ function applyBrightness(val) {
   if (desktop) {
     desktop.style.filter = val < 100 ? `brightness(${val / 100})` : '';
   }
-}
-
-// ── Bluetooth (cosmetic) ──
-
-function getBluetooth() {
-  return localStorage.getItem(LS_BT) !== 'off';
-}
-
-function setBluetooth(on) {
-  localStorage.setItem(LS_BT, on ? 'on' : 'off');
 }

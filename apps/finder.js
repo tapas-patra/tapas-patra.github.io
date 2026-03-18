@@ -116,6 +116,7 @@ function populateApps() {
       { id: 'photos', title: 'Photos.app', icon: '\uD83D\uDDBC\uFE0F' },
       { id: 'calendar', title: 'Calendar.app', icon: '\uD83D\uDCC5' },
       { id: 'launchpad', title: 'Launchpad', icon: '\uD83D\uDE80' },
+      { id: 'browser', title: 'Browser.app', icon: '\uD83C\uDF10' },
       { id: 'appstore', title: 'App Store', icon: '\uD83D\uDED2' },
       { id: 'classic', title: 'Classic.view', icon: '\uD83C\uDF10' },
     ];
