@@ -360,6 +360,227 @@ html, body {
   white-space: nowrap;
 }
 
+/* ── Control Center ── */
+
+.cc-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: background 0.15s, color 0.15s;
+}
+
+.cc-trigger:hover {
+  background: rgba(255,255,255,0.08);
+  color: var(--text-primary);
+}
+
+#control-center {
+  position: fixed;
+  z-index: 9100;
+  width: 320px;
+  background: rgba(20, 20, 35, 0.96);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  box-shadow: 0 16px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04) inset;
+  padding: 14px;
+  opacity: 0;
+  transform: translateY(-8px) scale(0.97);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+
+#control-center.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.cc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.cc-tile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.cc-tile:hover {
+  background: rgba(255,255,255,0.07);
+}
+
+.cc-tile.active {
+  background: rgba(0, 229, 255, 0.12);
+  border-color: rgba(0, 229, 255, 0.25);
+}
+
+.cc-tile.active .cc-tile-icon {
+  color: var(--cyan);
+}
+
+.cc-tile.active .cc-tile-label {
+  color: var(--text-primary);
+}
+
+.cc-tile-wide {
+  grid-column: span 2;
+}
+
+.cc-tile-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+
+.cc-tile.active .cc-tile-icon {
+  background: rgba(0, 229, 255, 0.15);
+}
+
+.cc-tile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.cc-tile-label {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: color 0.15s;
+}
+
+.cc-tile-status {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.cc-section {
+  margin-bottom: 12px;
+}
+
+.cc-section-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 8px;
+}
+
+.cc-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+}
+
+.cc-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.1);
+  outline: none;
+}
+
+.cc-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+
+.cc-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+
+.cc-wp-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.cc-wp-thumb {
+  aspect-ratio: 16/10;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.1s;
+}
+
+.cc-wp-thumb:hover {
+  transform: scale(1.05);
+}
+
+.cc-wp-thumb.active {
+  border-color: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan-glow);
+}
+
+.cc-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.cc-action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 0;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.cc-action-btn:hover {
+  background: rgba(255,255,255,0.08);
+  color: var(--text-primary);
+}
+
 /* ── Windows ── */
 .window {
   position: absolute;
