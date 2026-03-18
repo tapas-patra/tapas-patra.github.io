@@ -5,6 +5,7 @@
 let widgetLayer = null;
 let clockTimer = null;
 let githubData = null;
+let lastLayerWidth = 0;
 
 export function initWidgets() {
   injectStyles();
@@ -17,11 +18,29 @@ export function initWidgets() {
   // Fetch real data then render
   fetchGitHubData().then(() => render());
 
-  // Reposition widgets when browser resizes
+  // Reposition widgets when browser resizes — maintain distance from right edge
   let resizeTimer;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => render(), 150);
+    resizeTimer = setTimeout(() => {
+      const newW = widgetLayer.offsetWidth || window.innerWidth;
+      const newH = widgetLayer.offsetHeight || window.innerHeight;
+      if (!lastLayerWidth || !widgetLayer.children.length) {
+        lastLayerWidth = newW;
+        return;
+      }
+      const dw = newW - lastLayerWidth;
+      widgetLayer.querySelectorAll('.wgt').forEach(w => {
+        let x = parseInt(w.style.left) || 0;
+        let y = parseInt(w.style.top) || 0;
+        // Shift x by the width delta to keep distance from right edge
+        x = Math.max(0, Math.min(x + dw, newW - 240));
+        y = Math.max(0, Math.min(y, newH - 60));
+        w.style.left = `${x}px`;
+        w.style.top = `${y}px`;
+      });
+      lastLayerWidth = newW;
+    }, 100);
   });
 }
 
@@ -60,6 +79,8 @@ function render() {
       makeDraggable(w);
       nextY += w.offsetHeight + 10;
     });
+
+    lastLayerWidth = lw;
   });
 }
 
