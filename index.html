@@ -191,16 +191,23 @@
         notify('Welcome to TapasOS', 'Click any app in the dock to explore. Try Tapas.ai for a chat!', { icon: '\uD83D\uDC4B', duration: 5000, app: 'System' });
       }, 800);
       setTimeout(() => {
-        notify('Tip: Keyboard Shortcuts', `Press ${/Mac|iPhone|iPad/.test(navigator.platform || '') ? 'Option' : 'Alt'}+K for Spotlight, F3 for Mission Control`, { icon: '\u2328\uFE0F', duration: 6000, app: 'System', silent: true });
+        const mod = /Mac|iPhone|iPad/.test(navigator.platform || '') ? 'Option' : 'Alt';
+        notify('Keyboard Shortcuts', `${mod}+K Spotlight \u00b7 F3 Mission Control \u00b7 ${mod}+N Notifications`, { icon: '\u2328\uFE0F', duration: 6000, app: 'System', silent: true });
       }, 4000);
-      setTimeout(() => {
-        notify('Open to Opportunities', 'Looking for SDET / Backend / AI roles. Try Tapas.ai to learn more!', { icon: '\uD83D\uDCBC', duration: 6000, app: 'Career', silent: true });
-      }, 12000);
-      // Fetch GitHub status notification
+      // Real GitHub data notifications
       fetch('data.json').then(r => r.ok ? r.json() : null).then(data => {
-        if (data?.github?.committed_today) {
+        if (!data?.github) return;
+        const g = data.github;
+        const parts = [];
+        if (g.total_repos) parts.push(`${g.total_repos} repos`);
+        if (g.streak_days) parts.push(`${g.streak_days}-day streak`);
+        if (g.total_commits_year) parts.push(`${g.total_commits_year} commits this year`);
+        if (parts.length) {
           setTimeout(() => {
-            notify('GitHub Active Today', `${data.github.total_repos || '?'} repos, streak active`, { icon: '\uD83D\uDFE2', duration: 5000, app: 'GitHub', silent: true });
+            notify('GitHub Activity', parts.join(' \u00b7 '), {
+              icon: g.committed_today ? '\uD83D\uDFE2' : '\u26AA',
+              duration: 5000, app: 'GitHub', silent: true
+            });
           }, 8000);
         }
       }).catch(() => {});
