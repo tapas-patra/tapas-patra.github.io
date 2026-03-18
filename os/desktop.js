@@ -32,6 +32,7 @@ const APP_REGISTRY = [
   { id: 'experience',   title: 'Experience.app',     icon: '\uD83D\uDCBC', dock: true, default: false, width: 680, height: 540 },
   { id: 'education',    title: 'Education.app',      icon: '\uD83C\uDF93', dock: true, default: false, width: 640, height: 460 },
   { id: 'contact',      title: 'Contact.app',        icon: '\uD83D\uDCEC', dock: true, default: false, width: 640, height: 460 },
+  { id: 'settings',     title: 'Settings.app',       icon: '\u2699\uFE0F', dock: true, default: false, width: 720, height: 500 },
   { id: 'classic',      title: 'Classic.view',       icon: '\uD83C\uDF10', dock: true, default: false, width: 900, height: 600 },
 ];
 
