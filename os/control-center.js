@@ -5,15 +5,18 @@ import { lockNow } from './lock-screen.js';
 import { WALLPAPERS, setWallpaper, getWallpaperId } from './wallpaper.js';
 
 const LS_BRIGHT = 'tapasos-brightness';
+const LS_WIFI = 'tapasos-wifi';
 
 let panelEl = null;
 let isOpen = false;
 
-// ── Wi-Fi (real connectivity) ──
-let wifiListeners = []; // callbacks for connectivity changes
+// ── Wi-Fi (real + user toggle) ──
+// Wi-Fi is "on" only if BOTH the browser has connectivity AND the user hasn't toggled it off.
+let wifiListeners = [];
+let wifiUserEnabled = localStorage.getItem(LS_WIFI) !== 'off';
 
 export function isOnline() {
-  return navigator.onLine;
+  return navigator.onLine && wifiUserEnabled;
 }
 
 export function onConnectivityChange(cb) {
@@ -21,8 +24,15 @@ export function onConnectivityChange(cb) {
 }
 
 function fireConnectivityChange() {
-  const online = navigator.onLine;
+  const online = isOnline();
   wifiListeners.forEach(cb => cb(online));
+}
+
+function toggleWifi() {
+  wifiUserEnabled = !wifiUserEnabled;
+  localStorage.setItem(LS_WIFI, wifiUserEnabled ? 'on' : 'off');
+  updateWifiIndicator(isOnline());
+  fireConnectivityChange();
 }
 
 export function initControlCenter() {
@@ -34,8 +44,8 @@ export function initControlCenter() {
   const wifiIndicator = document.createElement('div');
   wifiIndicator.className = 'cc-wifi-indicator';
   wifiIndicator.id = 'cc-wifi-indicator';
-  wifiIndicator.title = navigator.onLine ? 'Wi-Fi: Connected' : 'Wi-Fi: Disconnected';
-  wifiIndicator.innerHTML = getWifiIcon(navigator.onLine);
+  wifiIndicator.title = isOnline() ? 'Wi-Fi: Connected' : 'Wi-Fi: Disconnected';
+  wifiIndicator.innerHTML = getWifiIcon(isOnline());
   menuRight.insertBefore(wifiIndicator, clock);
 
   // CC trigger
@@ -59,7 +69,7 @@ export function initControlCenter() {
 
   // Listen to real browser online/offline events
   window.addEventListener('online', () => {
-    updateWifiIndicator(true);
+    updateWifiIndicator(isOnline());
     fireConnectivityChange();
   });
   window.addEventListener('offline', () => {
@@ -82,7 +92,12 @@ function updateWifiIndicator(online) {
     const wifiTile = panelEl.querySelector('[data-toggle="wifi"]');
     if (wifiTile) {
       wifiTile.classList.toggle('active', online);
-      wifiTile.querySelector('.cc-tile-status').textContent = online ? 'Connected' : 'No Internet';
+      const status = wifiTile.querySelector('.cc-tile-status');
+      if (status) {
+        if (!wifiUserEnabled) status.textContent = 'Off';
+        else if (!navigator.onLine) status.textContent = 'No Internet';
+        else status.textContent = 'Connected';
+      }
     }
   }
 }
@@ -120,26 +135,32 @@ function close() {
 
 function buildPanel() {
   const muted = isMuted();
-  const online = navigator.onLine;
+  const online = isOnline();
   const brightness = getBrightness();
   const volume = getVolume();
   const wpId = getWallpaperId();
 
+  // Wi-Fi status text
+  let wifiStatus;
+  if (!wifiUserEnabled) wifiStatus = 'Off';
+  else if (!navigator.onLine) wifiStatus = 'No Internet';
+  else wifiStatus = 'Connected';
+
   return `
-    <div class="cc-grid">
-      <div class="cc-tile cc-tile-wide ${online ? 'active' : ''}" data-toggle="wifi">
+    <div class="cc-row">
+      <div class="cc-tile cc-toggle ${online ? 'active' : ''}" data-toggle="wifi">
         <div class="cc-tile-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg>
         </div>
         <div class="cc-tile-info">
           <div class="cc-tile-label">Wi-Fi</div>
-          <div class="cc-tile-status">${online ? 'Connected' : 'No Internet'}</div>
+          <div class="cc-tile-status">${wifiStatus}</div>
         </div>
       </div>
 
       <div class="cc-tile cc-toggle ${!muted ? 'active' : ''}" data-toggle="sound">
         <div class="cc-tile-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${
             muted
               ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>'
               : '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>'
@@ -207,8 +228,17 @@ function bindEvents() {
             ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>'
             : '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>';
         }
+      } else if (toggle === 'wifi') {
+        toggleWifi();
+        const online = isOnline();
+        tile.classList.toggle('active', online);
+        const status = tile.querySelector('.cc-tile-status');
+        if (status) {
+          if (!wifiUserEnabled) status.textContent = 'Off';
+          else if (!navigator.onLine) status.textContent = 'No Internet';
+          else status.textContent = 'Connected';
+        }
       }
-      // Wi-Fi is read-only — reflects real connectivity
     });
   });
 

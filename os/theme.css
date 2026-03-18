@@ -422,6 +422,16 @@ html, body {
   margin-bottom: 14px;
 }
 
+.cc-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.cc-row .cc-tile {
+  flex: 1;
+}
+
 .cc-tile {
   display: flex;
   align-items: center;
