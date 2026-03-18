@@ -158,6 +158,7 @@
     import { initLockScreen } from './os/lock-screen.js';
     import { initSounds } from './os/sounds.js';
     import { initControlCenter } from './os/control-center.js';
+    import { initWidgets } from './os/widgets.js';
 
     const mobileQuery = window.matchMedia('(max-width: 767px)');
     let desktopInitialized = false;
@@ -184,6 +185,7 @@
       initNotifications();
       initAnalytics();
       await runBoot();
+      initWidgets();
       openDefaults();
       initLeadCapture();
       initLockScreen();
