@@ -144,6 +144,28 @@ html, body {
   text-shadow: 0 0 8px rgba(212, 212, 216, 0.2);
 }
 
+#boot-post .line-fail {
+  color: #f87171;
+  text-shadow: 0 0 6px rgba(248, 113, 113, 0.3);
+}
+
+#boot-post .line-dim {
+  color: #6b7280;
+}
+
+#boot-post .line-prompt {
+  color: var(--cyan);
+  margin-top: 12px;
+  font-weight: 500;
+  text-shadow: 0 0 8px var(--cyan-glow);
+  animation: bootPromptBlink 1s step-end infinite;
+}
+
+@keyframes bootPromptBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
 #boot-progress-container {
   width: 400px;
   max-width: 80vw;
@@ -179,28 +201,6 @@ html, body {
 @keyframes progressShimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
-}
-
-#boot-start-prompt {
-  font-family: var(--font-mono);
-  font-size: 14px;
-  color: var(--cyan);
-  letter-spacing: 1px;
-  margin-top: 32px;
-  opacity: 0;
-  transition: opacity 0.6s ease;
-  animation: bootPromptPulse 2s ease-in-out infinite;
-  cursor: pointer;
-  text-shadow: 0 0 12px var(--cyan-glow);
-}
-
-#boot-start-prompt.visible {
-  opacity: 1;
-}
-
-@keyframes bootPromptPulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
 }
 
 #boot-skip {
