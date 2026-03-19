@@ -10,7 +10,7 @@ let historyIndex = -1;
 let iframeEl = null;
 
 const BOOKMARKS = [
-  { name: 'Google', url: 'https://www.google.com/webhp?igu=1', icon: '\uD83D\uDD0D' },
+  { name: 'DuckDuckGo', url: 'https://lite.duckduckgo.com/lite/', icon: '\uD83E\uDD86' },
   { name: 'Wikipedia', url: 'https://en.m.wikipedia.org/wiki/Main_Page', icon: '\uD83D\uDCD6' },
   { name: 'GitHub', url: 'https://github.com/tapas-patra', icon: '\uD83D\uDC19' },
   { name: 'MDN Docs', url: 'https://developer.mozilla.org/', icon: '\uD83D\uDCDA' },
@@ -28,7 +28,7 @@ const BLOCKED_DOMAINS = [
   'github.com', 'stackoverflow.com', 'medium.com', 'pinterest.com',
   'dropbox.com', 'slack.com', 'zoom.us', 'figma.com', 'notion.so',
   'chatgpt.com', 'openai.com', 'anthropic.com', 'claude.ai',
-  'google.com', 'bing.com', 'yahoo.com', 'duckduckgo.com',
+  'google.com', 'bing.com', 'yahoo.com',
   'cloudflare.com', 'vercel.com', 'netlify.com', 'heroku.com',
   'docker.com', 'npmjs.com', 'pypi.org', 'crates.io',
 ];
@@ -37,10 +37,6 @@ function isKnownBlocked(url) {
   try {
     const u = new URL(url);
     const hostname = u.hostname.replace(/^www\./, '');
-    // Google with igu=1 works in iframes
-    if ((hostname === 'google.com' || hostname.endsWith('.google.com')) && u.search.includes('igu=1')) {
-      return false;
-    }
     return BLOCKED_DOMAINS.some(d => hostname === d || hostname.endsWith('.' + d));
   } catch { return false; }
 }
@@ -120,8 +116,8 @@ function resolveUrl(input) {
   if (/^https?:\/\//i.test(input)) return input;
   // If it looks like a domain
   if (/^[\w-]+\.[\w.]+/.test(input)) return 'https://' + input;
-  // Otherwise treat as Google search
-  return `https://www.google.com/search?igu=1&q=${encodeURIComponent(input)}`;
+  // Otherwise treat as DuckDuckGo search (lite version works in iframes)
+  return `https://lite.duckduckgo.com/lite/?q=${encodeURIComponent(input)}`;
 }
 
 function navigateTo(url) {
