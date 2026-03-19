@@ -102,6 +102,7 @@ function renderHistoryView() {
             </div>
             <div class="fb-history-title">${escHtml(s.title)}</div>
             ${s.description ? `<div class="fb-history-desc">${escHtml(s.description)}</div>` : ''}
+            ${s.issueUrl ? `<a href="${escHtml(s.issueUrl)}" target="_blank" rel="noopener" class="fb-issue-link">View on GitHub →</a>` : ''}
           </div>
         `).join('')}
       </div>
@@ -186,9 +187,13 @@ async function handleSubmit() {
 
     const data = await res.json();
     if (data.status === 'saved') {
-      submissions.unshift({ type: currentType, title, description: desc, time: Date.now() });
-      status.textContent = 'Thanks! Your feedback has been submitted.';
+      submissions.unshift({ type: currentType, title, description: desc, time: Date.now(), issueUrl: data.issue_url });
       status.className = 'fb-status success';
+      if (data.issue_url) {
+        status.innerHTML = `Thanks! Your feedback has been submitted. <a href="${escHtml(data.issue_url)}" target="_blank" rel="noopener" class="fb-issue-link">Track it on GitHub →</a>`;
+      } else {
+        status.textContent = 'Thanks! Your feedback has been submitted.';
+      }
 
       // Clear form
       const titleEl = container.querySelector('#fb-title');
@@ -348,6 +353,12 @@ function injectStyles() {
     .fb-status { font-size: 12px; font-family: var(--font-mono); min-height: 18px; }
     .fb-status.success { color: #4caf50; }
     .fb-status.error { color: #ff5252; }
+    .fb-issue-link {
+      color: #00e5ff; text-decoration: none; font-weight: 600;
+      margin-left: 4px; font-family: var(--font-mono); font-size: 11px;
+    }
+    .fb-issue-link:hover { text-decoration: underline; }
+    .fb-history-item .fb-issue-link { display: inline-block; margin-top: 6px; margin-left: 0; }
 
     /* History */
     .fb-history-list { display: flex; flex-direction: column; gap: 10px; }

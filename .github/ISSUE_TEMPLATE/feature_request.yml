@@ -1,0 +1,25 @@
+name: Feature Request
+description: Suggest a new feature for TapasOS
+labels: ["enhancement"]
+body:
+  - type: input
+    id: title
+    attributes:
+      label: Title
+      placeholder: What feature would you like?
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      placeholder: Describe the feature in detail. Why would it be useful?
+    validations:
+      required: false
+  - type: input
+    id: email
+    attributes:
+      label: Contact Email (optional)
+      placeholder: your@email.com
+    validations:
+      required: false
