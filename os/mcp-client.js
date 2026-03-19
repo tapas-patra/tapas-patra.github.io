@@ -2,6 +2,7 @@
 // Receives commands from the server, executes via __tapasos_* bridges, returns results
 
 const WS_LOCAL = 'ws://localhost:3100';
+const WS_LOCAL_SAME = 'ws://localhost:8000/ws';
 const WS_REMOTE = 'wss://tapasos-mcp.onrender.com/ws';
 
 let ws = null;
@@ -69,21 +70,30 @@ function connect() {
 }
 
 function tryLocal() {
-  try {
-    ws = new WebSocket(WS_LOCAL);
-  } catch {
+  // Try local HTTP mode (same port /ws) first, then standalone WS port
+  tryUrl(WS_LOCAL_SAME, () => tryUrl(WS_LOCAL, () => {
     updateStatus(false);
     scheduleReconnect();
+  }));
+}
+
+function tryUrl(url, onFail) {
+  let socket;
+  try {
+    socket = new WebSocket(url);
+  } catch {
+    onFail();
     return;
   }
 
-  ws.onopen = () => {
-    console.log('[MCP] Connected to local server');
+  socket.onopen = () => {
+    ws = socket;
+    console.log('[MCP] Connected to', url);
     updateStatus(true);
     reconnectDelay = 2000;
   };
 
-  ws.onmessage = (e) => {
+  socket.onmessage = (e) => {
     try {
       const cmd = JSON.parse(e.data);
       handleCommand(cmd);
@@ -92,16 +102,19 @@ function tryLocal() {
     }
   };
 
-  ws.onclose = () => {
-    updateStatus(false);
-    ws = null;
-    scheduleReconnect();
+  socket.onclose = () => {
+    if (ws === socket) {
+      updateStatus(false);
+      ws = null;
+      scheduleReconnect();
+    }
   };
 
-  ws.onerror = () => {
-    ws = null;
-    updateStatus(false);
-    scheduleReconnect();
+  socket.onerror = () => {
+    if (ws !== socket) {
+      socket = null;
+      onFail();
+    }
   };
 }
 
