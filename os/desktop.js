@@ -256,9 +256,9 @@ function reinstallApp(appId) {
   rebuildDock();
   refreshAppListingWindows();
 
-  const { notify } = window.__tapasos_notify || {};
-  if (typeof notify === 'function' && appDef) {
-    notify('App Restored', `${appDef.title} has been reinstalled`, { icon: appDef.icon, duration: 3000, app: 'System' });
+  const notifyFn = window.__tapasos_notify;
+  if (typeof notifyFn === 'function' && appDef) {
+    notifyFn('App Restored', `${appDef.title} has been reinstalled`, { icon: appDef.icon, duration: 3000, app: 'System' });
   }
 }
 
