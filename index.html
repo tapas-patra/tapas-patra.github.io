@@ -160,6 +160,7 @@
     import { initControlCenter } from './os/control-center.js';
     import { initWidgets } from './os/widgets.js';
     import { initDragDrop } from './os/drag-drop.js';
+    import { initMcpClient } from './os/mcp-client.js';
 
     const mobileQuery = window.matchMedia('(max-width: 767px)');
     let desktopInitialized = false;
@@ -188,6 +189,7 @@
       await runBoot();
       initWidgets();
       initDragDrop();
+      initMcpClient();
       window.__tapasos_notify = { notify };
       openDefaults();
       initLeadCapture();

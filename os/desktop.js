@@ -78,6 +78,7 @@ const APP_REGISTRY = [
   { id: 'browser',      title: 'Browser.app',          icon: '\uD83E\uDDED', dock: false, default: false, width: 860, height: 580, desc: 'Web browser — search, browse, bookmarks', version: '1.0', size: '10 KB' },
   { id: 'appstore',     title: 'App Store',            icon: '\uD83D\uDED2', dock: false, default: false, width: 820, height: 560, desc: 'Browse, install, and manage TapasOS apps', version: '1.0', size: '8 KB' },
   { id: 'settings',     title: 'Settings.app',       icon: '\u2699\uFE0F', dock: true,  default: false, width: 720, height: 500, desc: 'System preferences — wallpaper, sound, display, lock screen', version: '1.0', size: '14 KB' },
+  { id: 'tapascode',    title: 'TapasCode',           icon: '\u2318', dock: false, default: false, width: 780, height: 520, desc: 'AI terminal — control TapasOS with natural language via MCP', version: '1.0', size: '12 KB' },
   { id: 'trash',        title: 'Trash',               icon: '\uD83D\uDDD1\uFE0F', dock: false, default: false, width: 600, height: 420, desc: 'Deleted items — restore or permanently remove', version: '1.0', size: '4 KB' },
   { id: 'classic',      title: 'Classic.view',       icon: '\uD83C\uDF10', dock: false, default: false, width: 900, height: 600, desc: 'Classic HTML portfolio — simple, crawlable', version: '1.0', size: '1 KB' },
 ];

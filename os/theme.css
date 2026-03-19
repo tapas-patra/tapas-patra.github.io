@@ -338,6 +338,19 @@ html, body {
   display: inline-block;
 }
 
+.mcp-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #555;
+  transition: background 0.3s, box-shadow 0.3s;
+  cursor: default;
+}
+.mcp-status-dot.connected {
+  background: #4caf50;
+  box-shadow: 0 0 6px rgba(76,175,80,0.5);
+}
+
 .menubar-github-dot {
   width: 6px;
   height: 6px;
