@@ -13,7 +13,7 @@ const HOME_URL = '__home__';
 const PROXY_BASE = 'https://portfolio-bot-5pwk.onrender.com/proxy';
 
 const BOOKMARKS = [
-  { name: 'Google', url: 'https://www.google.com/', icon: '\uD83D\uDD0D' },
+  { name: 'DuckDuckGo', url: 'https://html.duckduckgo.com/html/', icon: '\uD83E\uDD86' },
   { name: 'Wikipedia', url: 'https://en.wikipedia.org/wiki/Main_Page', icon: '\uD83D\uDCD6' },
   { name: 'GitHub', url: 'https://github.com/tapas-patra', icon: '\uD83D\uDC19' },
   { name: 'MDN Docs', url: 'https://developer.mozilla.org/', icon: '\uD83D\uDCDA' },
@@ -112,8 +112,8 @@ function resolveUrl(input) {
   if (/^https?:\/\//i.test(input)) return input;
   // If it looks like a domain
   if (/^[\w-]+\.[\w.]+/.test(input)) return 'https://' + input;
-  // Otherwise treat as a Google search
-  return `https://www.google.com/search?q=${encodeURIComponent(input)}`;
+  // Otherwise treat as a DuckDuckGo search (Google blocks server-side requests)
+  return `https://html.duckduckgo.com/html/?q=${encodeURIComponent(input)}`;
 }
 
 function navigateTo(url) {
