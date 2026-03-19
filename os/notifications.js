@@ -237,6 +237,20 @@ function renderPanelContent() {
   });
 }
 
+export function getNotifications() {
+  return history.slice();
+}
+
+export function getNotificationCount() {
+  return history.length;
+}
+
+export function clearNotifications() {
+  history = [];
+  updateBadge();
+  if (panelOpen) renderPanelContent();
+}
+
 function formatTime(ts, now) {
   const diff = now - ts;
   if (diff < 60000) return 'now';

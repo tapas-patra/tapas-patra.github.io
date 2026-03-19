@@ -364,6 +364,30 @@ async function executeAction(action, params) {
       return { message: 'Mission Control toggled' };
     }
 
+    // ── Notifications ──
+    case 'get_notifications': {
+      const notifs = window.__tapasos_getNotifications?.() || [];
+      return {
+        count: notifs.length,
+        notifications: notifs.map(n => ({
+          title: n.title,
+          body: n.body,
+          app: n.app,
+          time: n.timestamp,
+        })),
+      };
+    }
+
+    case 'toggle_notification_panel': {
+      window.__tapasos_toggleNotificationPanel?.();
+      return { message: 'Notification panel toggled' };
+    }
+
+    case 'clear_notifications': {
+      window.__tapasos_clearNotifications?.();
+      return { message: 'All notifications cleared' };
+    }
+
     // ── Info ──
     case 'get_wallpapers': {
       const { WALLPAPERS } = await import('./wallpaper.js');

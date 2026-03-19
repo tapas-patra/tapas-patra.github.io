@@ -2,7 +2,7 @@
 
 import { setActiveAppName } from './menubar.js';
 import { trackAppOpen, trackAppClose } from './analytics.js';
-import { notify, togglePanel as toggleNotificationCenter } from './notifications.js';
+import { notify, togglePanel as toggleNotificationCenter, getNotifications, getNotificationCount, clearNotifications } from './notifications.js';
 import { recordAppForLead } from './lead-capture.js';
 import { lockNow } from './lock-screen.js';
 import { playWindowOpen, playWindowClose, playClick, toggleMute, isMuted } from './sounds.js';
@@ -132,6 +132,10 @@ export function initDesktop() {
   window.__tapasos_notify = notify;
   window.__tapasos_openSpotlight = () => openSpotlight();
   window.__tapasos_toggleMissionControl = () => toggleMissionControl();
+  window.__tapasos_toggleNotificationPanel = () => toggleNotificationCenter();
+  window.__tapasos_getNotifications = getNotifications;
+  window.__tapasos_getNotificationCount = getNotificationCount;
+  window.__tapasos_clearNotifications = clearNotifications;
 }
 
 // Open default apps after boot — with welcome splash
