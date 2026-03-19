@@ -9,36 +9,32 @@ let historyStack = [];
 let historyIndex = -1;
 let iframeEl = null;
 
+const HOME_URL = '__home__';
+const PROXY_BASE = 'https://portfolio-bot-5pwk.onrender.com/proxy';
+
 const BOOKMARKS = [
-  { name: 'Search', url: HOME_URL, icon: '\uD83D\uDD0D' },
-  { name: 'Wikipedia', url: 'https://en.m.wikipedia.org/wiki/Main_Page', icon: '\uD83D\uDCD6' },
+  { name: 'Google', url: 'https://www.google.com/', icon: '\uD83D\uDD0D' },
+  { name: 'Wikipedia', url: 'https://en.wikipedia.org/wiki/Main_Page', icon: '\uD83D\uDCD6' },
   { name: 'GitHub', url: 'https://github.com/tapas-patra', icon: '\uD83D\uDC19' },
   { name: 'MDN Docs', url: 'https://developer.mozilla.org/', icon: '\uD83D\uDCDA' },
   { name: 'Hacker News', url: 'https://news.ycombinator.com/', icon: '\uD83D\uDCF0' },
 ];
 
-const HOME_URL = '__home__';
-
-// Sites known to block iframe embedding via X-Frame-Options / CSP frame-ancestors
-const BLOCKED_DOMAINS = [
-  'youtube.com', 'facebook.com', 'twitter.com', 'x.com', 'instagram.com',
-  'linkedin.com', 'netflix.com', 'amazon.com', 'reddit.com', 'tiktok.com',
-  'spotify.com', 'discord.com', 'twitch.tv', 'paypal.com', 'ebay.com',
-  'apple.com', 'microsoft.com', 'gmail.com', 'outlook.com', 'whatsapp.com',
-  'github.com', 'stackoverflow.com', 'medium.com', 'pinterest.com',
-  'dropbox.com', 'slack.com', 'zoom.us', 'figma.com', 'notion.so',
-  'chatgpt.com', 'openai.com', 'anthropic.com', 'claude.ai',
-  'google.com', 'bing.com', 'yahoo.com',
-  'cloudflare.com', 'vercel.com', 'netlify.com', 'heroku.com',
-  'docker.com', 'npmjs.com', 'pypi.org', 'crates.io',
+// Sites that break even through proxy (heavy SPAs, auth-gated)
+const SPA_DOMAINS = [
+  'youtube.com', 'netflix.com', 'spotify.com', 'discord.com', 'twitch.tv',
+  'figma.com', 'notion.so', 'chatgpt.com', 'claude.ai',
 ];
 
-function isKnownBlocked(url) {
+function isSpaOnly(url) {
   try {
-    const u = new URL(url);
-    const hostname = u.hostname.replace(/^www\./, '');
-    return BLOCKED_DOMAINS.some(d => hostname === d || hostname.endsWith('.' + d));
+    const hostname = new URL(url).hostname.replace(/^www\./, '');
+    return SPA_DOMAINS.some(d => hostname === d || hostname.endsWith('.' + d));
   } catch { return false; }
+}
+
+function proxyUrl(url) {
+  return `${PROXY_BASE}?url=${encodeURIComponent(url)}`;
 }
 
 export async function init(el) {
@@ -71,7 +67,7 @@ function render() {
         </div>
         <div class="brw-url-bar">
           <span class="brw-url-icon">${online ? '\uD83D\uDD12' : '\u26A0\uFE0F'}</span>
-          <input type="text" class="brw-url-input" id="brw-url" value="${currentUrl === HOME_URL ? '' : isSearchUrl(currentUrl) ? esc(getSearchQuery(currentUrl)) : esc(currentUrl)}" placeholder="Search or enter URL..." spellcheck="false">
+          <input type="text" class="brw-url-input" id="brw-url" value="${currentUrl === HOME_URL ? '' : esc(currentUrl)}" placeholder="Search or enter URL..." spellcheck="false">
         </div>
       </div>
       <div class="brw-viewport" id="brw-viewport"></div>
@@ -85,8 +81,6 @@ function render() {
     renderHomePage(viewport);
   } else if (!online) {
     showOfflinePage();
-  } else if (isSearchUrl(currentUrl)) {
-    renderSearchResults(getSearchQuery(currentUrl), viewport);
   } else {
     loadUrl(currentUrl);
   }
@@ -113,23 +107,13 @@ function bindEvents() {
   }
 }
 
-const SEARCH_PREFIX = '__search__:';
-
 function resolveUrl(input) {
   // If it looks like a URL, use it directly
   if (/^https?:\/\//i.test(input)) return input;
   // If it looks like a domain
   if (/^[\w-]+\.[\w.]+/.test(input)) return 'https://' + input;
-  // Otherwise treat as a search query
-  return SEARCH_PREFIX + input;
-}
-
-function isSearchUrl(url) {
-  return url && url.startsWith(SEARCH_PREFIX);
-}
-
-function getSearchQuery(url) {
-  return url.slice(SEARCH_PREFIX.length);
+  // Otherwise treat as a DuckDuckGo search
+  return `https://html.duckduckgo.com/html/?q=${encodeURIComponent(input)}`;
 }
 
 function navigateTo(url) {
@@ -175,8 +159,8 @@ function loadUrl(url) {
     return;
   }
 
-  // Immediately block known iframe-hostile sites
-  if (isKnownBlocked(url)) {
+  // SPA-heavy sites won't work even through proxy
+  if (isSpaOnly(url)) {
     showBlockedPage(url);
     return;
   }
@@ -192,41 +176,35 @@ function loadUrl(url) {
   iframeEl.className = 'brw-iframe';
   iframeEl.sandbox = 'allow-scripts allow-same-origin allow-forms allow-popups';
   iframeEl.referrerPolicy = 'no-referrer';
-  iframeEl.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope';
 
   let settled = false;
 
   iframeEl.addEventListener('load', () => {
     if (settled) return;
+    settled = true;
+    clearTimeout(timeout);
 
+    const loading = viewport.querySelector('.brw-loading');
+    if (loading) loading.remove();
+    iframeEl.style.opacity = '1';
+
+    // Try to read the final URL from the proxy for the URL bar
     try {
-      // Same-origin: we can inspect the document
       const doc = iframeEl.contentDocument;
       if (doc && doc.body) {
         const text = (doc.body.innerText || '').trim();
-        if (text.length > 0 && !text.includes('refused')) {
-          // Real same-origin content
-          settled = true;
-          clearTimeout(timeout);
-          const loading = viewport.querySelector('.brw-loading');
-          if (loading) loading.remove();
-          iframeEl.style.opacity = '1';
-          return;
+        // Check if it's an error response from the proxy
+        if (text.includes('"detail"') && text.length < 200) {
+          try {
+            const err = JSON.parse(text);
+            if (err.detail) {
+              showErrorPage(url, err.detail);
+              return;
+            }
+          } catch {}
         }
-        // Empty or error page
-        settled = true;
-        clearTimeout(timeout);
-        showBlockedPage(url);
-        return;
       }
-    } catch (e) {
-      // Cross-origin: page loaded something, assume it's real
-      settled = true;
-      clearTimeout(timeout);
-      const loading = viewport.querySelector('.brw-loading');
-      if (loading) loading.remove();
-      iframeEl.style.opacity = '1';
-    }
+    } catch {}
   });
 
   iframeEl.addEventListener('error', () => {
@@ -236,15 +214,16 @@ function loadUrl(url) {
     showErrorPage(url, 'Failed to load this page.');
   });
 
-  // Fallback timeout for pages that never fire load
+  // Timeout for slow pages
   const timeout = setTimeout(() => {
     if (settled) return;
     settled = true;
-    showBlockedPage(url);
-  }, 8000);
+    showErrorPage(url, 'Page took too long to load.');
+  }, 15000);
 
   iframeEl.style.opacity = '0';
-  iframeEl.src = url;
+  // Route through the proxy
+  iframeEl.src = proxyUrl(url);
   viewport.appendChild(iframeEl);
 }
 
@@ -406,149 +385,6 @@ function renderHomePage(viewport) {
         navigateTo(resolveUrl(homeSearch.value.trim()));
       }
     });
-  }
-}
-
-async function renderSearchResults(query, viewport) {
-  viewport.innerHTML = `
-    <div class="brw-loading">
-      <div class="brw-spinner"></div>
-      <div>Searching "${esc(query)}"...</div>
-    </div>
-  `;
-
-  try {
-    // DuckDuckGo Instant Answer API
-    const resp = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`);
-    const data = await resp.json();
-
-    const results = [];
-
-    // Abstract / instant answer
-    if (data.Abstract) {
-      results.push({
-        title: data.Heading || query,
-        snippet: data.Abstract,
-        url: data.AbstractURL || '',
-        source: data.AbstractSource || '',
-      });
-    }
-
-    // Answer (calculations, conversions, etc.)
-    if (data.Answer) {
-      results.push({
-        title: 'Answer',
-        snippet: data.Answer,
-        url: '',
-        source: 'DuckDuckGo',
-      });
-    }
-
-    // Definition
-    if (data.Definition) {
-      results.push({
-        title: 'Definition',
-        snippet: data.Definition,
-        url: data.DefinitionURL || '',
-        source: data.DefinitionSource || '',
-      });
-    }
-
-    // Related topics
-    if (data.RelatedTopics) {
-      for (const topic of data.RelatedTopics) {
-        if (topic.Text && topic.FirstURL) {
-          results.push({
-            title: topic.Text.split(' - ')[0]?.slice(0, 80) || topic.Text.slice(0, 80),
-            snippet: topic.Text,
-            url: topic.FirstURL,
-            source: '',
-          });
-        }
-        // Subtopics
-        if (topic.Topics) {
-          for (const sub of topic.Topics) {
-            if (sub.Text && sub.FirstURL) {
-              results.push({
-                title: sub.Text.split(' - ')[0]?.slice(0, 80) || sub.Text.slice(0, 80),
-                snippet: sub.Text,
-                url: sub.FirstURL,
-                source: '',
-              });
-            }
-          }
-        }
-      }
-    }
-
-    // Render
-    if (results.length === 0) {
-      viewport.innerHTML = `
-        <div class="brw-search-page">
-          <div class="brw-search-header">
-            <span class="brw-search-icon">\uD83D\uDD0D</span>
-            <span class="brw-search-query">${esc(query)}</span>
-          </div>
-          <div class="brw-search-empty">
-            <div>No instant results found for this query.</div>
-            <a class="brw-search-ext-link" href="https://duckduckgo.com/?q=${encodeURIComponent(query)}" target="_blank" rel="noopener">
-              Search on DuckDuckGo ↗
-            </a>
-          </div>
-        </div>
-      `;
-      return;
-    }
-
-    viewport.innerHTML = `
-      <div class="brw-search-page">
-        <div class="brw-search-header">
-          <span class="brw-search-icon">\uD83D\uDD0D</span>
-          <span class="brw-search-query">${esc(query)}</span>
-          <span class="brw-search-count">${results.length} result${results.length !== 1 ? 's' : ''}</span>
-        </div>
-        <div class="brw-search-results">
-          ${results.map(r => `
-            <div class="brw-search-result">
-              ${r.url ? `<a class="brw-result-url" href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.url.length > 60 ? r.url.slice(0, 60) + '...' : r.url)}</a>` : ''}
-              <div class="brw-result-title">${esc(r.title)}</div>
-              <div class="brw-result-snippet">${esc(r.snippet)}</div>
-              ${r.source ? `<span class="brw-result-source">${esc(r.source)}</span>` : ''}
-            </div>
-          `).join('')}
-        </div>
-        <div class="brw-search-footer">
-          <a class="brw-search-ext-link" href="https://duckduckgo.com/?q=${encodeURIComponent(query)}" target="_blank" rel="noopener">
-            View full results on DuckDuckGo ↗
-          </a>
-        </div>
-      </div>
-    `;
-
-    // Make result titles clickable to navigate in browser
-    viewport.querySelectorAll('.brw-result-title').forEach((el, i) => {
-      const url = results[i]?.url;
-      if (url) {
-        el.style.cursor = 'pointer';
-        el.addEventListener('click', () => navigateTo(url));
-      }
-    });
-
-  } catch (e) {
-    viewport.innerHTML = `
-      <div class="brw-search-page">
-        <div class="brw-search-header">
-          <span class="brw-search-icon">\uD83D\uDD0D</span>
-          <span class="brw-search-query">${esc(query)}</span>
-        </div>
-        <div class="brw-search-empty">
-          <div>Search failed: ${esc(e.message)}</div>
-          <a class="brw-search-ext-link" href="https://duckduckgo.com/?q=${encodeURIComponent(query)}" target="_blank" rel="noopener">
-            Try on DuckDuckGo ↗
-          </a>
-        </div>
-      </div>
-    `;
   }
 }
 
@@ -965,136 +801,6 @@ function injectStyles() {
       margin-top: 8px;
     }
 
-    /* ── Search Results ── */
-    .brw-search-page {
-      height: 100%;
-      overflow-y: auto;
-      padding: 24px 32px;
-      background: #0d0d14;
-    }
-
-    .brw-search-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 20px;
-      padding-bottom: 14px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-
-    .brw-search-icon { font-size: 18px; }
-
-    .brw-search-query {
-      font-family: var(--font-display);
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-
-    .brw-search-count {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--text-dim);
-      margin-left: auto;
-    }
-
-    .brw-search-results {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .brw-search-result {
-      padding: 14px 16px;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.02);
-      border: 1px solid rgba(255,255,255,0.04);
-      transition: border-color 0.15s, background 0.15s;
-    }
-
-    .brw-search-result:hover {
-      background: rgba(255,255,255,0.04);
-      border-color: rgba(0,229,255,0.15);
-    }
-
-    .brw-result-url {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--cyan);
-      text-decoration: none;
-      display: block;
-      margin-bottom: 4px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .brw-result-url:hover { text-decoration: underline; }
-
-    .brw-result-title {
-      font-family: var(--font-display);
-      font-size: 14px;
-      font-weight: 600;
-      color: #8ab4f8;
-      margin-bottom: 6px;
-      line-height: 1.4;
-    }
-
-    .brw-result-title:hover { text-decoration: underline; }
-
-    .brw-result-snippet {
-      font-size: 12px;
-      color: var(--text-muted);
-      line-height: 1.6;
-    }
-
-    .brw-result-source {
-      display: inline-block;
-      margin-top: 6px;
-      font-family: var(--font-mono);
-      font-size: 9px;
-      color: var(--text-dim);
-      background: rgba(255,255,255,0.04);
-      padding: 2px 8px;
-      border-radius: 4px;
-    }
-
-    .brw-search-empty {
-      text-align: center;
-      padding: 48px 20px;
-      color: var(--text-dim);
-      font-size: 13px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .brw-search-ext-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      color: var(--cyan);
-      text-decoration: none;
-      font-size: 12px;
-      font-weight: 600;
-      padding: 8px 16px;
-      border-radius: 8px;
-      border: 1px solid rgba(0,229,255,0.2);
-      background: rgba(0,229,255,0.06);
-      transition: background 0.15s;
-    }
-
-    .brw-search-ext-link:hover {
-      background: rgba(0,229,255,0.12);
-    }
-
-    .brw-search-footer {
-      margin-top: 20px;
-      padding-top: 14px;
-      border-top: 1px solid rgba(255,255,255,0.06);
-      text-align: center;
-    }
   `;
   document.head.appendChild(style);
 }
