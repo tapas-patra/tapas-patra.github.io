@@ -1,15 +1,17 @@
 // TapasCode — AI terminal for controlling TapasOS via MCP
-// Connect your API key, choose a provider, and control the OS with natural language
+// Connect your API key, choose a provider and model, and control the OS with natural language
 
 const MCP_URL_REMOTE = 'https://tapasos-mcp.onrender.com';
 const MCP_URL_LOCAL = 'http://localhost:8000';
 const LS_PROVIDER = 'tapascode-provider';
+const LS_MODEL = 'tapascode-model';
 const LS_KEY = 'tapascode-api-key';
 
 let container = null;
 let chatHistory = [];
 let mpcUrl = MCP_URL_REMOTE;
 let isProcessing = false;
+let providerModels = {};
 
 export function init(el) {
   container = el;
@@ -21,13 +23,23 @@ async function detectServer() {
   // Try remote first, fallback to local
   try {
     const r = await fetch(`${MCP_URL_REMOTE}/health`, { signal: AbortSignal.timeout(3000) });
-    if (r.ok) { mpcUrl = MCP_URL_REMOTE; updateStatus(true); return; }
+    if (r.ok) { mpcUrl = MCP_URL_REMOTE; updateStatus(true); fetchModels(); return; }
   } catch { /* ignore */ }
   try {
     const r = await fetch(`${MCP_URL_LOCAL}/health`, { signal: AbortSignal.timeout(2000) });
-    if (r.ok) { mpcUrl = MCP_URL_LOCAL; updateStatus(true); return; }
+    if (r.ok) { mpcUrl = MCP_URL_LOCAL; updateStatus(true); fetchModels(); return; }
   } catch { /* ignore */ }
   updateStatus(false);
+}
+
+async function fetchModels() {
+  try {
+    const r = await fetch(`${mpcUrl}/models`);
+    if (r.ok) {
+      providerModels = await r.json();
+      updateModelDropdown();
+    }
+  } catch { /* ignore — use empty */ }
 }
 
 function updateStatus(connected) {
@@ -36,6 +48,25 @@ function updateStatus(connected) {
   const label = container.querySelector('.tc-status-label');
   if (dot) dot.className = `tc-status-dot ${connected ? 'on' : 'off'}`;
   if (label) label.textContent = connected ? 'MCP Connected' : 'MCP Disconnected';
+}
+
+function updateModelDropdown() {
+  const providerSelect = container?.querySelector('.tc-provider');
+  const modelSelect = container?.querySelector('.tc-model');
+  if (!providerSelect || !modelSelect) return;
+
+  const provider = providerSelect.value;
+  const models = providerModels[provider] || [];
+  const savedModel = localStorage.getItem(LS_MODEL) || '';
+
+  modelSelect.innerHTML = models.map(m =>
+    `<option value="${escHtml(m.id)}" ${m.id === savedModel ? 'selected' : ''}>${escHtml(m.label)}</option>`
+  ).join('');
+
+  // If saved model isn't in this provider's list, select first
+  if (models.length && !models.find(m => m.id === savedModel)) {
+    modelSelect.value = models[0].id;
+  }
 }
 
 function getSavedProvider() {
@@ -65,6 +96,7 @@ function render() {
             <option value="gemini" ${provider === 'gemini' ? 'selected' : ''}>Gemini</option>
             <option value="mistral" ${provider === 'mistral' ? 'selected' : ''}>Mistral</option>
           </select>
+          <select class="tc-model" title="Model"></select>
           <input type="password" class="tc-api-key" placeholder="API Key" value="${escHtml(apiKey)}" spellcheck="false">
           <button class="tc-clear-btn" title="Clear chat">Clear</button>
         </div>
@@ -90,11 +122,15 @@ function render() {
   // Styles
   injectStyles();
 
+  // Populate model dropdown
+  updateModelDropdown();
+
   // Events
   const input = container.querySelector('.tc-input');
   const sendBtn = container.querySelector('.tc-send-btn');
   const clearBtn = container.querySelector('.tc-clear-btn');
   const providerSelect = container.querySelector('.tc-provider');
+  const modelSelect = container.querySelector('.tc-model');
   const apiKeyInput = container.querySelector('.tc-api-key');
 
   input.addEventListener('keydown', (e) => {
@@ -114,6 +150,11 @@ function render() {
 
   providerSelect.addEventListener('change', () => {
     localStorage.setItem(LS_PROVIDER, providerSelect.value);
+    updateModelDropdown();
+  });
+
+  modelSelect.addEventListener('change', () => {
+    localStorage.setItem(LS_MODEL, modelSelect.value);
   });
 
   apiKeyInput.addEventListener('change', () => {
@@ -129,6 +170,7 @@ async function sendMessage() {
 
   const apiKey = container.querySelector('.tc-api-key')?.value?.trim();
   const provider = container.querySelector('.tc-provider')?.value;
+  const model = container.querySelector('.tc-model')?.value || '';
 
   if (!apiKey) {
     appendMessage('system', 'Please enter your API key first.');
@@ -152,8 +194,9 @@ async function sendMessage() {
       body: JSON.stringify({
         message,
         provider,
+        model,
         api_key: apiKey,
-        history: chatHistory.slice(-20), // last 20 messages for context
+        history: chatHistory.slice(-20),
       }),
     });
 
@@ -248,7 +291,6 @@ function removeThinking(id) {
 }
 
 function formatResponse(text) {
-  // Basic markdown-like formatting
   return escHtml(text)
     .replace(/`([^`]+)`/g, '<code class="tc-code">$1</code>')
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
@@ -321,7 +363,7 @@ function injectStyles() {
       color: #888;
     }
 
-    .tc-provider {
+    .tc-provider, .tc-model {
       background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.1);
       color: #ccc;
@@ -330,6 +372,10 @@ function injectStyles() {
       border-radius: 4px;
       font-family: inherit;
       cursor: pointer;
+    }
+
+    .tc-model {
+      max-width: 140px;
     }
 
     .tc-api-key {
