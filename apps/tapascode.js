@@ -63,6 +63,7 @@ function render() {
             <option value="anthropic" ${provider === 'anthropic' ? 'selected' : ''}>Claude</option>
             <option value="openai" ${provider === 'openai' ? 'selected' : ''}>GPT</option>
             <option value="gemini" ${provider === 'gemini' ? 'selected' : ''}>Gemini</option>
+            <option value="mistral" ${provider === 'mistral' ? 'selected' : ''}>Mistral</option>
           </select>
           <input type="password" class="tc-api-key" placeholder="API Key" value="${escHtml(apiKey)}" spellcheck="false">
           <button class="tc-clear-btn" title="Clear chat">Clear</button>
