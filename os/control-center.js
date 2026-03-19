@@ -28,7 +28,7 @@ function fireConnectivityChange() {
   wifiListeners.forEach(cb => cb(online));
 }
 
-function toggleWifi() {
+export function toggleWifi() {
   wifiUserEnabled = !wifiUserEnabled;
   localStorage.setItem(LS_WIFI, wifiUserEnabled ? 'on' : 'off');
   updateWifiIndicator(isOnline());

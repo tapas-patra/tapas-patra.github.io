@@ -180,7 +180,7 @@ function initDesktopDropZone() {
       if (openApp) openApp('notes');
 
       // Notify
-      const { notify } = window.__tapasos_notify || {};
+      const notify = window.__tapasos_notify;
       if (typeof notify === 'function') {
         notify('Note Created', `"${title}" saved to Notes`, { icon: '\uD83D\uDCDD', duration: 3000, app: 'Notes' });
       }

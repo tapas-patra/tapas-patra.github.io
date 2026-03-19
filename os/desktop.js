@@ -129,6 +129,9 @@ export function initDesktop() {
   window.__tapasos_uninstallApp = uninstallApp;
   window.__tapasos_isInstalled = (id) => !uninstalledApps.has(id) && (!APP_REGISTRY.find(a => a.id === id)?.storeOnly || installedStoreApps.has(id));
   window.__tapasos_reinstallApp = reinstallApp;
+  window.__tapasos_notify = notify;
+  window.__tapasos_openSpotlight = () => openSpotlight();
+  window.__tapasos_toggleMissionControl = () => toggleMissionControl();
 }
 
 // Open default apps after boot — with welcome splash
@@ -192,7 +195,6 @@ function installApp(appId) {
   rebuildDock();
   refreshAppListingWindows();
 
-  const { notify } = window.__tapasos_notify || {};
   if (typeof notify === 'function') {
     notify('App Installed', `${appDef.title} is ready to use`, { icon: appDef.icon, duration: 3000, app: 'App Store' });
   }
@@ -229,7 +231,6 @@ function uninstallApp(appId) {
   refreshAppListingWindows();
 
   // Notify
-  const { notify } = window.__tapasos_notify || {};
   if (typeof notify === 'function') {
     notify('App Uninstalled', `${appDef.title} moved to Trash`, { icon: '\uD83D\uDDD1\uFE0F', duration: 3000, app: 'System' });
   }

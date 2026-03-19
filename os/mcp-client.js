@@ -139,7 +139,7 @@ async function executeAction(action, params) {
   const openApp = window.__tapasos_openApp;
   const getWindows = window.__tapasos_getWindows;
   const getRegistry = window.__tapasos_getAppRegistry;
-  const notifyFn = window.__tapasos_notify?.notify;
+  const notifyFn = window.__tapasos_notify;
 
   switch (action) {
     // ── Apps ──
@@ -219,7 +219,7 @@ async function executeAction(action, params) {
       if (!wins || wins.size === 0) return { message: 'No windows open' };
       const closed = [];
       for (const [appId, entry] of wins) {
-        const closeBtn = entry.el?.querySelector('.win-close');
+        const closeBtn = entry.el?.querySelector('.traffic-light.close');
         if (closeBtn) { closeBtn.click(); closed.push(appId); }
       }
       return { message: `Closed ${closed.length} windows`, closed };
@@ -245,10 +245,10 @@ async function executeAction(action, params) {
     case 'change_wallpaper': {
       const wpName = params.wallpaper || params.wallpaper_id || '';
       const { setWallpaper, WALLPAPERS } = await import('./wallpaper.js');
-      const wp = WALLPAPERS.find(w => w.id === wpName || w.label.toLowerCase().includes(wpName.toLowerCase()));
+      const wp = WALLPAPERS.find(w => w.id === wpName || w.name.toLowerCase().includes(wpName.toLowerCase()));
       if (!wp) return { message: `Wallpaper "${wpName}" not found`, available: WALLPAPERS.map(w => w.id) };
       setWallpaper(wp.id);
-      return { message: `Wallpaper changed to ${wp.label}` };
+      return { message: `Wallpaper changed to ${wp.name}` };
     }
 
     case 'set_brightness': {
@@ -275,9 +275,10 @@ async function executeAction(action, params) {
     }
 
     case 'toggle_wifi': {
-      const tile = document.querySelector('[data-toggle="wifi"]');
-      if (tile) { tile.click(); return { message: 'Wi-Fi toggled' }; }
-      return { message: 'Wi-Fi toggle not available — open Control Center first' };
+      const { toggleWifi, isOnline } = await import('./control-center.js');
+      toggleWifi();
+      const online = isOnline();
+      return { message: online ? 'Wi-Fi enabled' : 'Wi-Fi disabled', wifi: online };
     }
 
     case 'lock_screen': {
@@ -354,21 +355,19 @@ async function executeAction(action, params) {
     }
 
     case 'open_spotlight': {
-      // Simulate Alt+K
-      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', code: 'KeyK', altKey: true, bubbles: true }));
+      window.__tapasos_openSpotlight?.();
       return { message: 'Spotlight opened' };
     }
 
     case 'toggle_mission_control': {
-      // Simulate F3
-      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'F3', bubbles: true }));
+      window.__tapasos_toggleMissionControl?.();
       return { message: 'Mission Control toggled' };
     }
 
     // ── Info ──
     case 'get_wallpapers': {
       const { WALLPAPERS } = await import('./wallpaper.js');
-      return { wallpapers: WALLPAPERS.map(w => ({ id: w.id, label: w.label })) };
+      return { wallpapers: WALLPAPERS.map(w => ({ id: w.id, name: w.name })) };
     }
 
     case 'get_system_info': {
