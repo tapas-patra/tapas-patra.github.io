@@ -1,5 +1,7 @@
 // Tapas.ai — AI Assistant Chat App
 
+import { isOnline } from '../os/control-center.js';
+
 const API_BASE = window.location.hostname === 'localhost' && window.location.port === '8000'
   ? 'http://localhost:8000'
   : 'https://portfolio-bot-5pwk.onrender.com';
@@ -85,6 +87,11 @@ async function sendMessage(text) {
   const messages = document.getElementById('ai-messages');
   const input = document.getElementById('ai-input');
   const sendBtn = document.getElementById('ai-send');
+
+  if (!isOnline()) {
+    appendMessage('bot', "I can't connect right now — Wi-Fi is disabled. Turn it on from Control Center and try again.");
+    return;
+  }
 
   // Hide starters
   const starters = document.getElementById('ai-starters');

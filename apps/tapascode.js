@@ -1,6 +1,8 @@
 // TapasCode — AI terminal for controlling TapasOS via MCP
 // Connect your API key, choose a provider and model, and control the OS with natural language
 
+import { isOnline, onConnectivityChange } from '../os/control-center.js';
+
 const MCP_URL_REMOTE = 'https://tapasos-mcp.onrender.com';
 const MCP_URL_LOCAL = 'http://localhost:8000';
 const LS_PROVIDER = 'tapascode-provider';
@@ -171,6 +173,11 @@ async function sendMessage() {
   const apiKey = container.querySelector('.tc-api-key')?.value?.trim();
   const provider = container.querySelector('.tc-provider')?.value;
   const model = container.querySelector('.tc-model')?.value || '';
+
+  if (!isOnline()) {
+    appendMessage('system', 'Wi-Fi is disabled. Enable it from Control Center to use TapasCode.');
+    return;
+  }
 
   if (!apiKey) {
     appendMessage('system', 'Please enter your API key first.');
