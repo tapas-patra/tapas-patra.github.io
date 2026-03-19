@@ -144,75 +144,74 @@ async function executeAction(action, params) {
   switch (action) {
     // ── Apps ──
     case 'open_app': {
-      const { app_name } = params;
+      const name = params.app_id || params.app_name || '';
       const registry = getRegistry?.() || [];
       const app = registry.find(a =>
-        a.id === app_name ||
-        a.title.toLowerCase().includes(app_name.toLowerCase()) ||
-        a.id.replace(/-/g, ' ').includes(app_name.toLowerCase())
+        a.id === name ||
+        a.title.toLowerCase().includes(name.toLowerCase()) ||
+        a.id.replace(/-/g, ' ').includes(name.toLowerCase())
       );
-      if (!app) return { message: `App "${app_name}" not found`, apps: registry.map(a => a.id) };
+      if (!app) return { message: `App "${name}" not found`, apps: registry.map(a => a.id) };
       openApp?.(app.id);
       return { message: `Opened ${app.title}`, app_id: app.id };
     }
 
     case 'close_app': {
-      const { app_name } = params;
+      const name = params.app_id || params.app_name || '';
       const wins = getWindows?.();
       if (!wins) return { message: 'No windows open' };
       const registry = getRegistry?.() || [];
       const app = registry.find(a =>
-        a.id === app_name ||
-        a.title.toLowerCase().includes(app_name.toLowerCase())
+        a.id === name ||
+        a.title.toLowerCase().includes(name.toLowerCase())
       );
-      const appId = app?.id || app_name;
-      if (!wins.has(appId)) return { message: `"${app_name}" is not open` };
-      // Close via the window's close button
+      const appId = app?.id || name;
+      if (!wins.has(appId)) return { message: `"${name}" is not open` };
       const winEl = wins.get(appId)?.el;
       if (winEl) {
-        const closeBtn = winEl.querySelector('.win-close');
+        const closeBtn = winEl.querySelector('.traffic-light.close');
         if (closeBtn) closeBtn.click();
-        return { message: `Closed ${app?.title || app_name}` };
+        return { message: `Closed ${app?.title || name}` };
       }
-      return { message: `Could not close "${app_name}"` };
+      return { message: `Could not close "${name}"` };
     }
 
     case 'minimize_app': {
-      const { app_name } = params;
+      const name = params.app_id || params.app_name || '';
       const wins = getWindows?.();
       const registry = getRegistry?.() || [];
       const app = registry.find(a =>
-        a.id === app_name ||
-        a.title.toLowerCase().includes(app_name.toLowerCase())
+        a.id === name ||
+        a.title.toLowerCase().includes(name.toLowerCase())
       );
-      const appId = app?.id || app_name;
-      if (!wins?.has(appId)) return { message: `"${app_name}" is not open` };
+      const appId = app?.id || name;
+      if (!wins?.has(appId)) return { message: `"${name}" is not open` };
       const winEl = wins.get(appId)?.el;
       if (winEl) {
-        const minBtn = winEl.querySelector('.win-minimize');
+        const minBtn = winEl.querySelector('.traffic-light.minimize');
         if (minBtn) minBtn.click();
-        return { message: `Minimized ${app?.title || app_name}` };
+        return { message: `Minimized ${app?.title || name}` };
       }
-      return { message: `Could not minimize "${app_name}"` };
+      return { message: `Could not minimize "${name}"` };
     }
 
     case 'maximize_app': {
-      const { app_name } = params;
+      const name = params.app_id || params.app_name || '';
       const wins = getWindows?.();
       const registry = getRegistry?.() || [];
       const app = registry.find(a =>
-        a.id === app_name ||
-        a.title.toLowerCase().includes(app_name.toLowerCase())
+        a.id === name ||
+        a.title.toLowerCase().includes(name.toLowerCase())
       );
-      const appId = app?.id || app_name;
-      if (!wins?.has(appId)) return { message: `"${app_name}" is not open` };
+      const appId = app?.id || name;
+      if (!wins?.has(appId)) return { message: `"${name}" is not open` };
       const winEl = wins.get(appId)?.el;
       if (winEl) {
-        const maxBtn = winEl.querySelector('.win-maximize');
+        const maxBtn = winEl.querySelector('.traffic-light.maximize');
         if (maxBtn) maxBtn.click();
-        return { message: `Maximized ${app?.title || app_name}` };
+        return { message: `Maximized ${app?.title || name}` };
       }
-      return { message: `Could not maximize "${app_name}"` };
+      return { message: `Could not maximize "${name}"` };
     }
 
     case 'close_all_apps': {
@@ -244,16 +243,16 @@ async function executeAction(action, params) {
 
     // ── System ──
     case 'change_wallpaper': {
-      const { wallpaper_id } = params;
+      const wpName = params.wallpaper || params.wallpaper_id || '';
       const { setWallpaper, WALLPAPERS } = await import('./wallpaper.js');
-      const wp = WALLPAPERS.find(w => w.id === wallpaper_id || w.label.toLowerCase().includes(wallpaper_id.toLowerCase()));
-      if (!wp) return { message: `Wallpaper "${wallpaper_id}" not found`, available: WALLPAPERS.map(w => w.id) };
+      const wp = WALLPAPERS.find(w => w.id === wpName || w.label.toLowerCase().includes(wpName.toLowerCase()));
+      if (!wp) return { message: `Wallpaper "${wpName}" not found`, available: WALLPAPERS.map(w => w.id) };
       setWallpaper(wp.id);
       return { message: `Wallpaper changed to ${wp.label}` };
     }
 
     case 'set_brightness': {
-      const { level } = params;
+      const level = params.value ?? params.level ?? 100;
       const val = Math.max(50, Math.min(100, Number(level)));
       localStorage.setItem('tapasos-brightness', String(val));
       const desktop = document.getElementById('desktop');
@@ -262,7 +261,7 @@ async function executeAction(action, params) {
     }
 
     case 'set_volume': {
-      const { level } = params;
+      const level = params.value ?? params.level ?? 50;
       const { setVolume } = await import('./sounds.js');
       setVolume(Number(level));
       return { message: `Volume set to ${level}%`, volume: Number(level) };
@@ -303,7 +302,7 @@ async function executeAction(action, params) {
     }
 
     case 'delete_folder': {
-      const { folder_name } = params;
+      const folder_name = params.name || params.folder_name || '';
       const folders = JSON.parse(localStorage.getItem('tapasos-desktop-folders') || '[]');
       const folder = folders.find(f => f.name.toLowerCase() === folder_name.toLowerCase() || f.id === folder_name);
       if (!folder) return { message: `Folder "${folder_name}" not found` };
@@ -338,18 +337,19 @@ async function executeAction(action, params) {
     }
 
     case 'create_note': {
-      const { title, content } = params;
+      const title = params.title || 'Untitled';
+      const body = params.body || params.content || '';
       openApp?.('notes');
-      // Add note to localStorage
       const notes = JSON.parse(localStorage.getItem('tapasos-notes') || '[]');
-      notes.unshift({ id: Date.now(), title: title || 'Untitled', body: content || '', createdAt: Date.now(), updatedAt: Date.now() });
+      notes.unshift({ id: Date.now(), title, body, createdAt: Date.now(), updatedAt: Date.now() });
       localStorage.setItem('tapasos-notes', JSON.stringify(notes));
-      return { message: `Note "${title || 'Untitled'}" created` };
+      return { message: `Note "${title}" created` };
     }
 
     case 'show_notification': {
-      const { title, message } = params;
-      if (notifyFn) notifyFn(title, message, { icon: '\uD83D\uDD14', duration: 5000, app: 'MCP' });
+      const title = params.title || '';
+      const body = params.body || params.message || '';
+      if (notifyFn) notifyFn(title, body, { icon: '\uD83D\uDD14', duration: 5000, app: 'MCP' });
       return { message: `Notification shown: ${title}` };
     }
 

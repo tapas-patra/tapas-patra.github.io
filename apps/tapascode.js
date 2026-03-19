@@ -5,7 +5,7 @@ const MCP_URL_REMOTE = 'https://tapasos-mcp.onrender.com';
 const MCP_URL_LOCAL = 'http://localhost:8000';
 const LS_PROVIDER = 'tapascode-provider';
 const LS_MODEL = 'tapascode-model';
-const LS_KEY = 'tapascode-api-key';
+const SS_KEY = 'tapascode-api-key';
 
 let container = null;
 let chatHistory = [];
@@ -74,7 +74,7 @@ function getSavedProvider() {
 }
 
 function getSavedKey() {
-  return localStorage.getItem(LS_KEY) || '';
+  return sessionStorage.getItem(SS_KEY) || '';
 }
 
 function render() {
@@ -158,7 +158,7 @@ function render() {
   });
 
   apiKeyInput.addEventListener('change', () => {
-    localStorage.setItem(LS_KEY, apiKeyInput.value);
+    sessionStorage.setItem(SS_KEY, apiKeyInput.value);
   });
 }
 
