@@ -112,8 +112,8 @@ function resolveUrl(input) {
   if (/^https?:\/\//i.test(input)) return input;
   // If it looks like a domain
   if (/^[\w-]+\.[\w.]+/.test(input)) return 'https://' + input;
-  // Otherwise treat as a DuckDuckGo search
-  return `https://html.duckduckgo.com/html/?q=${encodeURIComponent(input)}`;
+  // Otherwise treat as a Google search
+  return `https://www.google.com/search?q=${encodeURIComponent(input)}`;
 }
 
 function navigateTo(url) {
@@ -214,12 +214,12 @@ function loadUrl(url) {
     showErrorPage(url, 'Failed to load this page.');
   });
 
-  // Timeout for slow pages
+  // Timeout for slow pages (Render cold starts can take ~30s)
   const timeout = setTimeout(() => {
     if (settled) return;
     settled = true;
     showErrorPage(url, 'Page took too long to load.');
-  }, 15000);
+  }, 35000);
 
   iframeEl.style.opacity = '0';
   // Route through the proxy
