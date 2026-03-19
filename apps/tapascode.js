@@ -19,6 +19,12 @@ export function init(el) {
   container = el;
   render();
   detectServer();
+
+  // Re-detect MCP server when Wi-Fi is toggled back on
+  onConnectivityChange((online) => {
+    if (online) detectServer();
+    else updateStatus(false);
+  });
 }
 
 async function detectServer() {
