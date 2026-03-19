@@ -4,6 +4,7 @@
 const WS_LOCAL = 'ws://localhost:3100';
 const WS_LOCAL_SAME = 'ws://localhost:8000/ws';
 const WS_REMOTE = 'wss://tapasos-mcp.onrender.com/ws';
+const WS_TOKEN = '66S-_vt0A8sckk9MKqY1Ai5VA_z_Xmxz';
 
 let ws = null;
 let reconnectTimer = null;
@@ -29,56 +30,20 @@ function updateStatus(isConnected) {
 function connect() {
   if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
 
-  // Try remote first (deployed MCP server), fallback to local
-  const url = WS_REMOTE;
-  try {
-    ws = new WebSocket(url);
-  } catch {
-    tryLocal();
-    return;
-  }
-
-  ws.onopen = () => {
-    console.log('[MCP] Connected to', url);
-    updateStatus(true);
-    reconnectDelay = 2000;
-  };
-
-  ws.onmessage = (e) => {
-    try {
-      const cmd = JSON.parse(e.data);
-      handleCommand(cmd);
-    } catch (err) {
-      console.warn('[MCP] Invalid message:', err);
-    }
-  };
-
-  ws.onclose = () => {
-    console.log('[MCP] Disconnected');
-    updateStatus(false);
-    ws = null;
-    scheduleReconnect();
-  };
-
-  ws.onerror = () => {
-    // If remote fails, try local
-    if (url === WS_REMOTE) {
-      ws = null;
-      tryLocal();
-    }
-  };
-}
-
-function tryLocal() {
-  // Try local HTTP mode (same port /ws) first, then standalone WS port
-  tryUrl(WS_LOCAL_SAME, () => tryUrl(WS_LOCAL, () => {
-    updateStatus(false);
-    scheduleReconnect();
-  }));
+  // Try remote → local same-port → local standalone
+  tryUrl(WS_REMOTE, () =>
+    tryUrl(WS_LOCAL_SAME, () =>
+      tryUrl(WS_LOCAL, () => {
+        updateStatus(false);
+        scheduleReconnect();
+      })
+    )
+  );
 }
 
 function tryUrl(url, onFail) {
   let socket;
+  let authed = false;
   try {
     socket = new WebSocket(url);
   } catch {
@@ -87,16 +52,31 @@ function tryUrl(url, onFail) {
   }
 
   socket.onopen = () => {
-    ws = socket;
-    console.log('[MCP] Connected to', url);
-    updateStatus(true);
-    reconnectDelay = 2000;
+    // Send auth token as first message
+    socket.send(JSON.stringify({ auth: WS_TOKEN }));
   };
 
   socket.onmessage = (e) => {
     try {
-      const cmd = JSON.parse(e.data);
-      handleCommand(cmd);
+      const msg = JSON.parse(e.data);
+
+      // Handle auth response (first message back from server)
+      if (!authed) {
+        if (msg.auth === 'ok') {
+          authed = true;
+          ws = socket;
+          console.log('[MCP] Authenticated with', url);
+          updateStatus(true);
+          reconnectDelay = 2000;
+        } else {
+          console.warn('[MCP] Auth rejected by', url);
+          socket.close();
+          onFail();
+        }
+        return;
+      }
+
+      handleCommand(msg);
     } catch (err) {
       console.warn('[MCP] Invalid message:', err);
     }
