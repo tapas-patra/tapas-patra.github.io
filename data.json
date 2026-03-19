@@ -9,24 +9,24 @@
     "pinned_repos": [],
     "all_repos": [
       {
-        "name": "tapas-patra.github.io",
-        "description": null,
-        "url": "https://github.com/tapas-patra/tapas-patra.github.io",
-        "stars": 0,
-        "language": "JavaScript",
-        "updated_at": "2026-03-18T19:56:42Z",
-        "topics": [],
-        "is_private": false
-      },
-      {
         "name": "portfolio-bot",
         "description": null,
         "url": null,
         "stars": 0,
         "language": "Python",
-        "updated_at": "2026-03-18T11:03:01Z",
+        "updated_at": "2026-03-19T19:30:00Z",
         "topics": [],
         "is_private": true
+      },
+      {
+        "name": "tapas-patra.github.io",
+        "description": null,
+        "url": "https://github.com/tapas-patra/tapas-patra.github.io",
+        "stars": 0,
+        "language": "JavaScript",
+        "updated_at": "2026-03-19T19:12:53Z",
+        "topics": [],
+        "is_private": false
       },
       {
         "name": "tapas-data",
@@ -34,9 +34,19 @@
         "url": "https://github.com/tapas-patra/tapas-data",
         "stars": 0,
         "language": "HTML",
-        "updated_at": "2026-03-18T07:32:56Z",
+        "updated_at": "2026-03-19T14:42:31Z",
         "topics": [],
         "is_private": false
+      },
+      {
+        "name": "tapasos-mcp",
+        "description": null,
+        "url": null,
+        "stars": 0,
+        "language": "Python",
+        "updated_at": "2026-03-19T08:14:03Z",
+        "topics": [],
+        "is_private": true
       },
       {
         "name": "testpilot",
@@ -200,33 +210,33 @@
       }
     ],
     "languages": {
-      "JavaScript": {
-        "bytes": 1043596,
-        "percentage": 5.3
-      },
-      "HTML": {
-        "bytes": 2342511,
-        "percentage": 11.8
-      },
-      "CSS": {
-        "bytes": 194802,
-        "percentage": 1
-      },
       "Python": {
-        "bytes": 14233572,
-        "percentage": 71.6
+        "bytes": 14311864,
+        "percentage": 71.7
+      },
+      "JavaScript": {
+        "bytes": 1175233,
+        "percentage": 5.9
       },
       "PLpgSQL": {
         "bytes": 33510,
         "percentage": 0.2
       },
+      "HTML": {
+        "bytes": 2237084,
+        "percentage": 11.2
+      },
+      "CSS": {
+        "bytes": 183127,
+        "percentage": 0.9
+      },
       "Dockerfile": {
-        "bytes": 1922,
+        "bytes": 2101,
         "percentage": 0
       },
       "C#": {
         "bytes": 527096,
-        "percentage": 2.7
+        "percentage": 2.6
       },
       "Shell": {
         "bytes": 3805,
@@ -1933,19 +1943,23 @@
             "date": "2026-03-18"
           },
           {
-            "count": 5,
+            "count": 31,
             "date": "2026-03-19"
+          },
+          {
+            "count": 3,
+            "date": "2026-03-20"
           }
         ]
       }
     ],
-    "streak_days": 5,
+    "streak_days": 6,
     "committed_today": true,
-    "total_commits_year": 219,
-    "total_repos": 19
+    "total_commits_year": 248,
+    "total_repos": 20
   },
   "meta": {
-    "last_updated": "2026-03-18T21:02:37.581Z",
+    "last_updated": "2026-03-19T21:02:19.830Z",
     "generator": "TapasOS sync-github.yml"
   }
 }
