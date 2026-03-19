@@ -68,6 +68,7 @@ const APP_REGISTRY = [
   { id: 'trash',        title: 'Trash',               icon: '\uD83D\uDDD1\uFE0F', dock: false, default: false, width: 600, height: 420, desc: 'Deleted items — restore or permanently remove', version: '1.0', size: '4 KB', category: 'system', system: true },
   { id: 'launchpad',    title: 'Launchpad',            icon: '\uD83D\uDE80', dock: false, default: false, width: 680, height: 520, desc: 'View and launch all installed applications', version: '1.0', size: '5 KB', category: 'system', system: true },
   { id: 'appstore',     title: 'App Store',            icon: '\uD83D\uDED2', dock: false, default: false, width: 820, height: 560, desc: 'Browse, install, and manage TapasOS apps', version: '1.0', size: '8 KB', category: 'system', system: true },
+  { id: 'guide',        title: 'User Guide',           icon: '\uD83D\uDCD6', dock: false, default: false, width: 800, height: 560, desc: 'TapasOS user manual — features, shortcuts, tips', version: '1.0', size: '10 KB', category: 'system', system: true },
   // ── Productivity ──
   { id: 'notes',        title: 'Notes',               icon: '\uD83D\uDCDD', dock: false, default: false, width: 700, height: 480, desc: 'Create and manage notes — auto-saved locally', version: '1.0', size: '8 KB', category: 'productivity' },
   { id: 'calendar',     title: 'Calendar',            icon: '\uD83D\uDCC5', dock: false, default: false, width: 780, height: 520, desc: 'Career timeline, key dates, and availability', version: '1.0', size: '10 KB', category: 'productivity' },
