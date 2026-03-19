@@ -366,6 +366,11 @@ async function executeAction(action, params) {
     }
 
     // ── Info ──
+    case 'get_wallpapers': {
+      const { WALLPAPERS } = await import('./wallpaper.js');
+      return { wallpapers: WALLPAPERS.map(w => ({ id: w.id, label: w.label })) };
+    }
+
     case 'get_system_info': {
       const { getWallpaperId } = await import('./wallpaper.js');
       const { isMuted, getVolume } = await import('./sounds.js');
