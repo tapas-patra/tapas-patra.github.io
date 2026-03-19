@@ -21,8 +21,9 @@ const zStack = [];             // window elements ordered by z-index
 let zCounter = 100;
 let cascadeOffset = 0;
 
-// ── Uninstalled Apps (session-only, resets on reload) ──
+// ── App State (session-only, resets on reload) ──
 const uninstalledApps = new Set();
+const installedStoreApps = new Set(); // store-only apps the user has installed this session
 
 // ── Dock Persistence ──
 const LS_DOCK = 'tapasos-dock-apps';
@@ -59,28 +60,39 @@ export function removeFromDock(appId) {
 }
 
 // ── App Registry ──
+// category: system apps can't be uninstalled, storeOnly apps must be installed from App Store first
 const APP_REGISTRY = [
-  { id: 'ai-assistant', title: 'Tapas.ai',          icon: '\uD83E\uDD16', dock: true,  default: false, width: 760, height: 560, desc: 'AI chatbot powered by RAG — ask anything about Tapas', version: '2.1', size: '48 KB' },
-  { id: 'projects',     title: 'Projects.finder',    icon: '\uD83D\uDCC2', dock: true,  default: false, width: 800, height: 560, desc: 'Browse GitHub projects and repositories', version: '1.4', size: '16 KB' },
-  { id: 'skills',       title: 'Skills.app',         icon: '\u26A1',       dock: true,  default: false, width: 700, height: 500, desc: 'Technical skills — languages, frameworks, tools', version: '1.2', size: '8 KB' },
-  { id: 'activity',     title: 'Activity.monitor',   icon: '\uD83D\uDCC8', dock: true,  default: false, width: 820, height: 540, desc: 'GitHub contribution activity and stats', version: '1.3', size: '12 KB' },
-  { id: 'awards',       title: 'Awards.app',         icon: '\uD83C\uDFC6', dock: false, default: false, width: 700, height: 500, desc: '19 performance awards and recognition at Wipro', version: '1.0', size: '10 KB' },
-  { id: 'resume',       title: 'Resume.app',         icon: '\uD83D\uDCC4', dock: false, default: false, width: 640, height: 500, desc: 'Download or preview resume / CV', version: '1.1', size: '9 KB' },
-  { id: 'terminal',     title: 'Terminal.app',       icon: '\u2328\uFE0F', dock: false, default: false, width: 720, height: 460, desc: 'Interactive command-line shell with real commands', version: '2.0', size: '17 KB' },
-  { id: 'experience',   title: 'Experience.app',     icon: '\uD83D\uDCBC', dock: false, default: false, width: 680, height: 540, desc: 'Work experience timeline — Wipro, Setu', version: '1.0', size: '6 KB' },
-  { id: 'education',    title: 'Education.app',      icon: '\uD83C\uDF93', dock: false, default: false, width: 640, height: 460, desc: 'Educational background — BITS Pilani, NCC', version: '1.0', size: '4 KB' },
-  { id: 'contact',      title: 'Contact.app',        icon: '\uD83D\uDCEC', dock: false, default: false, width: 640, height: 460, desc: 'Get in touch — email, LinkedIn, GitHub', version: '1.0', size: '10 KB' },
-  { id: 'finder',       title: 'Finder',              icon: '\uD83D\uDCBB', dock: false, default: false, width: 760, height: 480, desc: 'Browse the TapasOS virtual filesystem', version: '1.0', size: '12 KB' },
-  { id: 'notes',        title: 'Notes.app',           icon: '\uD83D\uDCDD', dock: false, default: false, width: 700, height: 480, desc: 'Create and manage notes — auto-saved locally', version: '1.0', size: '8 KB' },
-  { id: 'photos',       title: 'Photos.app',          icon: '\uD83C\uDFA8', dock: false, default: false, width: 800, height: 540, desc: 'Gallery of project screenshots and award images', version: '1.0', size: '6 KB' },
-  { id: 'calendar',     title: 'Calendar.app',        icon: '\uD83D\uDCC5', dock: false, default: false, width: 780, height: 520, desc: 'Career timeline, key dates, and availability', version: '1.0', size: '10 KB' },
-  { id: 'launchpad',    title: 'Launchpad',            icon: '\uD83D\uDE80', dock: false, default: false, width: 680, height: 520, desc: 'View and launch all installed applications', version: '1.0', size: '5 KB' },
-  { id: 'browser',      title: 'Browser.app',          icon: '\uD83E\uDDED', dock: false, default: false, width: 860, height: 580, desc: 'Web browser — search, browse, bookmarks', version: '1.0', size: '10 KB' },
-  { id: 'appstore',     title: 'App Store',            icon: '\uD83D\uDED2', dock: false, default: false, width: 820, height: 560, desc: 'Browse, install, and manage TapasOS apps', version: '1.0', size: '8 KB' },
-  { id: 'settings',     title: 'Settings.app',       icon: '\u2699\uFE0F', dock: true,  default: false, width: 720, height: 500, desc: 'System preferences — wallpaper, sound, display, lock screen', version: '1.0', size: '14 KB' },
-  { id: 'tapascode',    title: 'TapasCode',           icon: '\u2318', dock: false, default: false, width: 780, height: 520, desc: 'AI terminal — control TapasOS with natural language via MCP', version: '1.0', size: '12 KB' },
-  { id: 'trash',        title: 'Trash',               icon: '\uD83D\uDDD1\uFE0F', dock: false, default: false, width: 600, height: 420, desc: 'Deleted items — restore or permanently remove', version: '1.0', size: '4 KB' },
-  { id: 'classic',      title: 'Classic.view',       icon: '\uD83C\uDF10', dock: false, default: false, width: 900, height: 600, desc: 'Classic HTML portfolio — simple, crawlable', version: '1.0', size: '1 KB' },
+  // ── System ──
+  { id: 'settings',     title: 'Settings',           icon: '\u2699\uFE0F', dock: true,  default: false, width: 720, height: 500, desc: 'System preferences — wallpaper, sound, display, lock screen', version: '1.0', size: '14 KB', category: 'system', system: true },
+  { id: 'finder',       title: 'Finder',              icon: '\uD83D\uDCBB', dock: false, default: false, width: 760, height: 480, desc: 'Browse the TapasOS virtual filesystem', version: '1.0', size: '12 KB', category: 'system', system: true },
+  { id: 'trash',        title: 'Trash',               icon: '\uD83D\uDDD1\uFE0F', dock: false, default: false, width: 600, height: 420, desc: 'Deleted items — restore or permanently remove', version: '1.0', size: '4 KB', category: 'system', system: true },
+  { id: 'launchpad',    title: 'Launchpad',            icon: '\uD83D\uDE80', dock: false, default: false, width: 680, height: 520, desc: 'View and launch all installed applications', version: '1.0', size: '5 KB', category: 'system', system: true },
+  { id: 'appstore',     title: 'App Store',            icon: '\uD83D\uDED2', dock: false, default: false, width: 820, height: 560, desc: 'Browse, install, and manage TapasOS apps', version: '1.0', size: '8 KB', category: 'system', system: true },
+  // ── Productivity ──
+  { id: 'notes',        title: 'Notes',               icon: '\uD83D\uDCDD', dock: false, default: false, width: 700, height: 480, desc: 'Create and manage notes — auto-saved locally', version: '1.0', size: '8 KB', category: 'productivity' },
+  { id: 'calendar',     title: 'Calendar',            icon: '\uD83D\uDCC5', dock: false, default: false, width: 780, height: 520, desc: 'Career timeline, key dates, and availability', version: '1.0', size: '10 KB', category: 'productivity' },
+  { id: 'terminal',     title: 'Terminal',            icon: '\u2328\uFE0F', dock: false, default: false, width: 720, height: 460, desc: 'Interactive command-line shell with real commands', version: '2.0', size: '17 KB', category: 'productivity' },
+  { id: 'browser',      title: 'Browser',             icon: '\uD83E\uDDED', dock: false, default: false, width: 860, height: 580, desc: 'Web browser — search, browse, bookmarks', version: '1.0', size: '10 KB', category: 'productivity' },
+  { id: 'photos',       title: 'Photos',              icon: '\uD83C\uDFA8', dock: false, default: false, width: 800, height: 540, desc: 'Gallery of project screenshots and award images', version: '1.0', size: '6 KB', category: 'productivity' },
+  // ── Portfolio ──
+  { id: 'ai-assistant', title: 'Tapas.ai',          icon: '\uD83E\uDD16', dock: true,  default: false, width: 760, height: 560, desc: 'AI chatbot powered by RAG — ask anything about Tapas', version: '2.1', size: '48 KB', category: 'portfolio' },
+  { id: 'projects',     title: 'Projects',           icon: '\uD83D\uDCC2', dock: true,  default: false, width: 800, height: 560, desc: 'Browse GitHub projects and repositories', version: '1.4', size: '16 KB', category: 'portfolio' },
+  { id: 'skills',       title: 'Skills',             icon: '\u26A1',       dock: true,  default: false, width: 700, height: 500, desc: 'Technical skills — languages, frameworks, tools', version: '1.2', size: '8 KB', category: 'portfolio' },
+  { id: 'activity',     title: 'Activity Monitor',   icon: '\uD83D\uDCC8', dock: true,  default: false, width: 820, height: 540, desc: 'GitHub contribution activity and stats', version: '1.3', size: '12 KB', category: 'portfolio' },
+  { id: 'awards',       title: 'Awards',             icon: '\uD83C\uDFC6', dock: false, default: false, width: 700, height: 500, desc: '19 performance awards and recognition at Wipro', version: '1.0', size: '10 KB', category: 'portfolio' },
+  { id: 'resume',       title: 'Resume',             icon: '\uD83D\uDCC4', dock: false, default: false, width: 640, height: 500, desc: 'Download or preview resume / CV', version: '1.1', size: '9 KB', category: 'portfolio' },
+  { id: 'experience',   title: 'Experience',         icon: '\uD83D\uDCBC', dock: false, default: false, width: 680, height: 540, desc: 'Work experience timeline — Wipro, Setu', version: '1.0', size: '6 KB', category: 'portfolio' },
+  { id: 'education',    title: 'Education',          icon: '\uD83C\uDF93', dock: false, default: false, width: 640, height: 460, desc: 'Educational background — BITS Pilani, NCC', version: '1.0', size: '4 KB', category: 'portfolio' },
+  { id: 'contact',      title: 'Contact',            icon: '\uD83D\uDCEC', dock: false, default: false, width: 640, height: 460, desc: 'Get in touch — email, LinkedIn, GitHub', version: '1.0', size: '10 KB', category: 'portfolio' },
+  { id: 'classic',      title: 'Classic View',       icon: '\uD83C\uDF10', dock: false, default: false, width: 900, height: 600, desc: 'Classic HTML portfolio — simple, crawlable', version: '1.0', size: '1 KB', category: 'portfolio' },
+  // ── Developer Tools ──
+  { id: 'tapascode',    title: 'TapasCode',           icon: '\u2318', dock: false, default: false, width: 780, height: 520, desc: 'AI terminal — control TapasOS with natural language via MCP', version: '1.0', size: '12 KB', category: 'developer' },
+  // ── Games (store-only — not installed by default) ──
+  { id: 'snake',        title: 'Snake',               icon: '\uD83D\uDC0D', dock: false, default: false, width: 480, height: 540, desc: 'Classic snake game — eat, grow, survive', version: '1.0', size: '5 KB', category: 'games', storeOnly: true },
+  { id: '2048',         title: '2048',                icon: '\uD83E\uDDE9', dock: false, default: false, width: 420, height: 540, desc: 'Slide and merge tiles to reach 2048', version: '1.0', size: '6 KB', category: 'games', storeOnly: true },
+  { id: 'minesweeper',  title: 'Minesweeper',         icon: '\uD83D\uDCA3', dock: false, default: false, width: 480, height: 540, desc: 'Classic mine-clearing puzzle game', version: '1.0', size: '7 KB', category: 'games', storeOnly: true },
+  { id: 'memory',       title: 'Memory Match',        icon: '\uD83C\uDFB4', dock: false, default: false, width: 500, height: 540, desc: 'Flip cards and find matching pairs', version: '1.0', size: '4 KB', category: 'games', storeOnly: true },
+  { id: 'breakout',     title: 'Breakout',            icon: '\uD83C\uDFBE', dock: false, default: false, width: 500, height: 560, desc: 'Break all the bricks with a bouncing ball', version: '1.0', size: '5 KB', category: 'games', storeOnly: true },
 ];
 
 // ── Init ──
@@ -105,6 +117,7 @@ export function initDesktop() {
   // Expose openApp for child modules (e.g. Finder)
   window.__tapasos_openApp = openApp;
   window.__tapasos_getAppRegistry = getAppRegistry;
+  window.__tapasos_getFullRegistry = getFullRegistry;
   window.__tapasos_getWindows = () => windows;
   window.__tapasos_focusWindow = focusWindow;
   window.__tapasos_restoreWindow = restoreWindow;
@@ -112,8 +125,9 @@ export function initDesktop() {
   window.__tapasos_addToDock = addToDock;
   window.__tapasos_removeFromDock = removeFromDock;
   window.__tapasos_renderFolders = renderDesktopFolders;
+  window.__tapasos_installApp = installApp;
   window.__tapasos_uninstallApp = uninstallApp;
-  window.__tapasos_isInstalled = (id) => !uninstalledApps.has(id);
+  window.__tapasos_isInstalled = (id) => !uninstalledApps.has(id) && (!APP_REGISTRY.find(a => a.id === id)?.storeOnly || installedStoreApps.has(id));
   window.__tapasos_reinstallApp = reinstallApp;
 }
 
@@ -147,16 +161,52 @@ export function openApp(appId) {
   createWindow(appDef);
 }
 
+// Installed apps = all non-storeOnly + explicitly installed store apps, minus uninstalled
 export function getAppRegistry() {
-  return APP_REGISTRY.filter(a => !uninstalledApps.has(a.id));
+  return APP_REGISTRY.filter(a => {
+    if (uninstalledApps.has(a.id)) return false;
+    if (a.storeOnly && !installedStoreApps.has(a.id)) return false;
+    return true;
+  });
+}
+
+// Full registry for App Store (includes everything)
+export function getFullRegistry() {
+  return APP_REGISTRY.slice();
+}
+
+function installApp(appId) {
+  const appDef = APP_REGISTRY.find(a => a.id === appId);
+  if (!appDef) return false;
+
+  // If it was uninstalled, restore it
+  uninstalledApps.delete(appId);
+
+  // If it's a store-only app, mark as installed
+  if (appDef.storeOnly) {
+    installedStoreApps.add(appId);
+  }
+
+  rebuildDock();
+
+  const { notify } = window.__tapasos_notify || {};
+  if (typeof notify === 'function') {
+    notify('App Installed', `${appDef.title} is ready to use`, { icon: appDef.icon, duration: 3000, app: 'App Store' });
+  }
+
+  return true;
 }
 
 function uninstallApp(appId) {
-  // Can't uninstall core system apps
-  const PROTECTED = ['settings', 'finder', 'trash', 'launchpad'];
-  if (PROTECTED.includes(appId)) return false;
+  const appDef = APP_REGISTRY.find(a => a.id === appId);
+  if (!appDef || appDef.system) return false;
 
   uninstalledApps.add(appId);
+
+  // If store-only, also remove from installed set
+  if (appDef.storeOnly) {
+    installedStoreApps.delete(appId);
+  }
 
   // Close window if open
   if (windows.has(appId)) closeWindow(appId);
@@ -165,19 +215,16 @@ function uninstallApp(appId) {
   removeFromDock(appId);
 
   // Add to trash list (session-only — won't persist on reload)
-  const appDef = APP_REGISTRY.find(a => a.id === appId);
-  if (appDef) {
-    const trash = JSON.parse(localStorage.getItem('tapasos-trash') || '[]');
-    trash.unshift({ type: 'app', id: appId, name: appDef.title, icon: appDef.icon, deletedAt: Date.now() });
-    localStorage.setItem('tapasos-trash', JSON.stringify(trash));
-  }
+  const trash = JSON.parse(localStorage.getItem('tapasos-trash') || '[]');
+  trash.unshift({ type: 'app', id: appId, name: appDef.title, icon: appDef.icon, deletedAt: Date.now() });
+  localStorage.setItem('tapasos-trash', JSON.stringify(trash));
 
   // Rebuild dock to reflect removal
   rebuildDock();
 
   // Notify
   const { notify } = window.__tapasos_notify || {};
-  if (typeof notify === 'function' && appDef) {
+  if (typeof notify === 'function') {
     notify('App Uninstalled', `${appDef.title} moved to Trash`, { icon: '\uD83D\uDDD1\uFE0F', duration: 3000, app: 'System' });
   }
 
@@ -186,9 +233,15 @@ function uninstallApp(appId) {
 
 function reinstallApp(appId) {
   uninstalledApps.delete(appId);
+
+  // Re-add store-only apps to installed set
+  const appDef = APP_REGISTRY.find(a => a.id === appId);
+  if (appDef?.storeOnly) {
+    installedStoreApps.add(appId);
+  }
+
   rebuildDock();
 
-  const appDef = APP_REGISTRY.find(a => a.id === appId);
   const { notify } = window.__tapasos_notify || {};
   if (typeof notify === 'function' && appDef) {
     notify('App Restored', `${appDef.title} has been reinstalled`, { icon: appDef.icon, duration: 3000, app: 'System' });
