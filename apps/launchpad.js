@@ -60,12 +60,28 @@ function bindEvents() {
     });
   }
 
-  // App click → open
+  // App click → open, drag → uninstall via trash
   container.querySelectorAll('.lp-item').forEach(el => {
     el.addEventListener('click', () => {
       const openApp = window.__tapasos_openApp;
       if (openApp) openApp(el.dataset.id);
     });
+
+    // Make non-system apps draggable to trash
+    const appId = el.dataset.id;
+    const registry = window.__tapasos_getFullRegistry?.() || [];
+    const appDef = registry.find(a => a.id === appId);
+    if (appDef && !appDef.system) {
+      el.draggable = true;
+      el.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('application/x-tapasos-app', appId);
+        e.dataTransfer.effectAllowed = 'move';
+        el.classList.add('lp-dragging');
+      });
+      el.addEventListener('dragend', () => {
+        el.classList.remove('lp-dragging');
+      });
+    }
   });
 }
 
@@ -91,12 +107,27 @@ function renderGrid() {
       </div>
     `).join('');
 
-  // Re-bind click events
+  // Re-bind click + drag events
   grid.querySelectorAll('.lp-item').forEach(el => {
     el.addEventListener('click', () => {
       const openApp = window.__tapasos_openApp;
       if (openApp) openApp(el.dataset.id);
     });
+
+    const appId = el.dataset.id;
+    const registry = window.__tapasos_getFullRegistry?.() || [];
+    const appDef = registry.find(a => a.id === appId);
+    if (appDef && !appDef.system) {
+      el.draggable = true;
+      el.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('application/x-tapasos-app', appId);
+        e.dataTransfer.effectAllowed = 'move';
+        el.classList.add('lp-dragging');
+      });
+      el.addEventListener('dragend', () => {
+        el.classList.remove('lp-dragging');
+      });
+    }
   });
 }
 
@@ -236,6 +267,19 @@ function injectStyles() {
       font-size: 8px;
       color: var(--text-dim);
       opacity: 0.6;
+    }
+
+    .lp-item[draggable="true"] {
+      cursor: grab;
+    }
+
+    .lp-item[draggable="true"]:active {
+      cursor: grabbing;
+    }
+
+    .lp-dragging {
+      opacity: 0.4;
+      transform: scale(0.95);
     }
 
     .lp-empty {

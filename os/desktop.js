@@ -144,6 +144,8 @@ export function openDefaults() {
 // ── Public API ──
 export function openApp(appId) {
   if (uninstalledApps.has(appId)) return; // App is uninstalled
+  const appCheck = APP_REGISTRY.find(a => a.id === appId);
+  if (appCheck?.storeOnly && !installedStoreApps.has(appId)) return; // Not installed from store
 
   const existing = windows.get(appId);
   if (existing) {
@@ -188,6 +190,7 @@ function installApp(appId) {
   }
 
   rebuildDock();
+  refreshAppListingWindows();
 
   const { notify } = window.__tapasos_notify || {};
   if (typeof notify === 'function') {
@@ -222,6 +225,9 @@ function uninstallApp(appId) {
   // Rebuild dock to reflect removal
   rebuildDock();
 
+  // Refresh open app-listing windows (Launchpad, Finder, App Store)
+  refreshAppListingWindows();
+
   // Notify
   const { notify } = window.__tapasos_notify || {};
   if (typeof notify === 'function') {
@@ -241,10 +247,20 @@ function reinstallApp(appId) {
   }
 
   rebuildDock();
+  refreshAppListingWindows();
 
   const { notify } = window.__tapasos_notify || {};
   if (typeof notify === 'function' && appDef) {
     notify('App Restored', `${appDef.title} has been reinstalled`, { icon: appDef.icon, duration: 3000, app: 'System' });
+  }
+}
+
+// Refresh any open windows that list apps (Launchpad, Finder, App Store)
+function refreshAppListingWindows() {
+  for (const appId of ['launchpad', 'finder', 'appstore']) {
+    if (windows.has(appId)) {
+      loadAppContent(appId);
+    }
   }
 }
 
@@ -768,7 +784,7 @@ function initDock() {
 
 function populateDockItems(dock) {
   // Clear existing items but keep event listeners on dock itself
-  dock.querySelectorAll('.dock-item, .dock-empty').forEach(el => el.remove());
+  dock.querySelectorAll('.dock-item, .dock-empty, .dock-separator').forEach(el => el.remove());
 
   const dockIds = getDockApps();
   const dockApps = dockIds.map(id => APP_REGISTRY.find(a => a.id === id)).filter(Boolean);

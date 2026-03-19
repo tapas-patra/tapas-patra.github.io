@@ -198,7 +198,8 @@ function renderAppCard(app) {
   if (isSystem) {
     actionBtn = `<button class="as-btn-open" data-id="${app.id}">Open</button>`;
   } else if (installed) {
-    actionBtn = `<button class="as-btn-open" data-id="${app.id}">Open</button>`;
+    actionBtn = `<button class="as-btn-open" data-id="${app.id}">Open</button>
+      <button class="as-btn-uninstall" data-id="${app.id}">Uninstall</button>`;
   } else {
     actionBtn = `<button class="as-btn-get" data-id="${app.id}">Get</button>`;
   }
