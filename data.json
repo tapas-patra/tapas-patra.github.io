@@ -9,6 +9,16 @@
     "pinned_repos": [],
     "all_repos": [
       {
+        "name": "tapas-patra.github.io",
+        "description": null,
+        "url": "https://github.com/tapas-patra/tapas-patra.github.io",
+        "stars": 0,
+        "language": "JavaScript",
+        "updated_at": "2026-03-20T20:57:11Z",
+        "topics": [],
+        "is_private": false
+      },
+      {
         "name": "portfolio-bot",
         "description": null,
         "url": null,
@@ -17,16 +27,6 @@
         "updated_at": "2026-03-20T12:12:15Z",
         "topics": [],
         "is_private": true
-      },
-      {
-        "name": "tapas-patra.github.io",
-        "description": null,
-        "url": "https://github.com/tapas-patra/tapas-patra.github.io",
-        "stars": 0,
-        "language": "JavaScript",
-        "updated_at": "2026-03-19T21:02:26Z",
-        "topics": [],
-        "is_private": false
       },
       {
         "name": "tapas-data",
@@ -210,17 +210,9 @@
       }
     ],
     "languages": {
-      "Python": {
-        "bytes": 14312104,
-        "percentage": 71.7
-      },
       "JavaScript": {
         "bytes": 1175233,
         "percentage": 5.9
-      },
-      "PLpgSQL": {
-        "bytes": 33510,
-        "percentage": 0.2
       },
       "HTML": {
         "bytes": 2237084,
@@ -229,6 +221,14 @@
       "CSS": {
         "bytes": 183127,
         "percentage": 0.9
+      },
+      "Python": {
+        "bytes": 14312104,
+        "percentage": 71.7
+      },
+      "PLpgSQL": {
+        "bytes": 33510,
+        "percentage": 0.2
       },
       "Dockerfile": {
         "bytes": 2101,
@@ -260,38 +260,6 @@
       }
     },
     "commit_weeks": [
-      {
-        "days": [
-          {
-            "count": 0,
-            "date": "2025-03-16"
-          },
-          {
-            "count": 0,
-            "date": "2025-03-17"
-          },
-          {
-            "count": 0,
-            "date": "2025-03-18"
-          },
-          {
-            "count": 0,
-            "date": "2025-03-19"
-          },
-          {
-            "count": 0,
-            "date": "2025-03-20"
-          },
-          {
-            "count": 0,
-            "date": "2025-03-21"
-          },
-          {
-            "count": 0,
-            "date": "2025-03-22"
-          }
-        ]
-      },
       {
         "days": [
           {
@@ -1955,6 +1923,14 @@
             "date": "2026-03-21"
           }
         ]
+      },
+      {
+        "days": [
+          {
+            "count": 0,
+            "date": "2026-03-22"
+          }
+        ]
       }
     ],
     "streak_days": 0,
@@ -1963,7 +1939,7 @@
     "total_repos": 20
   },
   "meta": {
-    "last_updated": "2026-03-20T20:57:06.440Z",
+    "last_updated": "2026-03-21T20:49:52.570Z",
     "generator": "TapasOS sync-github.yml"
   }
 }
