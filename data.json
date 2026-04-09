@@ -9,22 +9,22 @@
     "pinned_repos": [],
     "all_repos": [
       {
+        "name": "tapas-patra.github.io",
+        "description": null,
+        "url": "https://github.com/tapas-patra/tapas-patra.github.io",
+        "stars": 0,
+        "language": "JavaScript",
+        "updated_at": "2026-04-08T21:09:03Z",
+        "topics": [],
+        "is_private": false
+      },
+      {
         "name": "SleepLatch",
         "description": "Lightweight macOS menu bar utility to manage caffeinate sessions with timers, safe controls, and visibility into external sleep-prevention processes.",
         "url": "https://github.com/tapas-patra/SleepLatch",
         "stars": 0,
         "language": "Swift",
         "updated_at": "2026-04-08T15:01:04Z",
-        "topics": [],
-        "is_private": false
-      },
-      {
-        "name": "tapas-patra.github.io",
-        "description": null,
-        "url": "https://github.com/tapas-patra/tapas-patra.github.io",
-        "stars": 0,
-        "language": "JavaScript",
-        "updated_at": "2026-04-07T21:09:53Z",
         "topics": [],
         "is_private": false
       },
@@ -220,18 +220,6 @@
       }
     ],
     "languages": {
-      "Swift": {
-        "bytes": 52507,
-        "percentage": 0.3
-      },
-      "Python": {
-        "bytes": 14341036,
-        "percentage": 71.5
-      },
-      "Shell": {
-        "bytes": 5851,
-        "percentage": 0
-      },
       "JavaScript": {
         "bytes": 1175233,
         "percentage": 5.9
@@ -243,6 +231,18 @@
       "CSS": {
         "bytes": 183127,
         "percentage": 0.9
+      },
+      "Swift": {
+        "bytes": 52507,
+        "percentage": 0.3
+      },
+      "Python": {
+        "bytes": 14341036,
+        "percentage": 71.5
+      },
+      "Shell": {
+        "bytes": 5851,
+        "percentage": 0
       },
       "PLpgSQL": {
         "bytes": 33510,
@@ -1959,6 +1959,10 @@
           {
             "count": 0,
             "date": "2026-04-09"
+          },
+          {
+            "count": 0,
+            "date": "2026-04-10"
           }
         ]
       }
@@ -1969,7 +1973,7 @@
     "total_repos": 21
   },
   "meta": {
-    "last_updated": "2026-04-08T21:08:58.382Z",
+    "last_updated": "2026-04-09T21:08:10.429Z",
     "generator": "TapasOS sync-github.yml"
   }
 }
