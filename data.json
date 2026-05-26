@@ -9,12 +9,12 @@
     "pinned_repos": [],
     "all_repos": [
       {
-        "name": "Rain-Lock",
-        "description": "Lock accidental touch during rain",
+        "name": "pocketpad",
+        "description": null,
         "url": null,
         "stars": 0,
-        "language": "Kotlin",
-        "updated_at": "2026-05-25T17:14:47Z",
+        "language": "HTML",
+        "updated_at": "2026-05-26T19:34:25Z",
         "topics": [],
         "is_private": true
       },
@@ -24,9 +24,19 @@
         "url": "https://github.com/tapas-patra/tapas-patra.github.io",
         "stars": 0,
         "language": "JavaScript",
-        "updated_at": "2026-05-24T21:27:46Z",
+        "updated_at": "2026-05-25T21:43:02Z",
         "topics": [],
         "is_private": false
+      },
+      {
+        "name": "Rain-Lock",
+        "description": "Lock accidental touch during rain",
+        "url": null,
+        "stars": 0,
+        "language": "Kotlin",
+        "updated_at": "2026-05-25T17:14:47Z",
+        "topics": [],
+        "is_private": true
       },
       {
         "name": "SleepLatch",
@@ -115,16 +125,6 @@
         "stars": 0,
         "language": "JavaScript",
         "updated_at": "2025-09-28T17:30:25Z",
-        "topics": [],
-        "is_private": true
-      },
-      {
-        "name": "pocketpad",
-        "description": null,
-        "url": null,
-        "stars": 0,
-        "language": "HTML",
-        "updated_at": "2025-09-26T22:12:37Z",
         "topics": [],
         "is_private": true
       },
@@ -230,33 +230,33 @@
       }
     ],
     "languages": {
+      "HTML": {
+        "bytes": 2238290,
+        "percentage": 11.1
+      },
+      "JavaScript": {
+        "bytes": 1186558,
+        "percentage": 5.9
+      },
+      "Python": {
+        "bytes": 14363231,
+        "percentage": 71.2
+      },
+      "CSS": {
+        "bytes": 185296,
+        "percentage": 0.9
+      },
+      "Shell": {
+        "bytes": 8775,
+        "percentage": 0
+      },
       "Kotlin": {
         "bytes": 90166,
         "percentage": 0.4
       },
-      "JavaScript": {
-        "bytes": 1175233,
-        "percentage": 5.8
-      },
-      "HTML": {
-        "bytes": 2237084,
-        "percentage": 11.1
-      },
-      "CSS": {
-        "bytes": 183127,
-        "percentage": 0.9
-      },
       "Swift": {
         "bytes": 52507,
         "percentage": 0.3
-      },
-      "Python": {
-        "bytes": 14341036,
-        "percentage": 71.2
-      },
-      "Shell": {
-        "bytes": 5851,
-        "percentage": 0
       },
       "PLpgSQL": {
         "bytes": 33510,
@@ -1965,6 +1965,10 @@
           {
             "count": 0,
             "date": "2026-05-26"
+          },
+          {
+            "count": 0,
+            "date": "2026-05-27"
           }
         ]
       }
@@ -1975,7 +1979,7 @@
     "total_repos": 22
   },
   "meta": {
-    "last_updated": "2026-05-25T21:42:57.729Z",
+    "last_updated": "2026-05-26T22:05:03.637Z",
     "generator": "TapasOS sync-github.yml"
   }
 }
