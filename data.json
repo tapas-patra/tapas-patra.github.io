@@ -14,7 +14,7 @@
         "url": null,
         "stars": 0,
         "language": "HTML",
-        "updated_at": "2026-05-26T19:34:25Z",
+        "updated_at": "2026-05-27T11:09:05Z",
         "topics": [],
         "is_private": true
       },
@@ -24,7 +24,7 @@
         "url": "https://github.com/tapas-patra/tapas-patra.github.io",
         "stars": 0,
         "language": "JavaScript",
-        "updated_at": "2026-05-25T21:43:02Z",
+        "updated_at": "2026-05-26T22:05:08Z",
         "topics": [],
         "is_private": false
       },
@@ -231,20 +231,20 @@
     ],
     "languages": {
       "HTML": {
-        "bytes": 2238290,
+        "bytes": 2244242,
         "percentage": 11.1
       },
       "JavaScript": {
-        "bytes": 1186558,
+        "bytes": 1201634,
         "percentage": 5.9
+      },
+      "CSS": {
+        "bytes": 196914,
+        "percentage": 1
       },
       "Python": {
         "bytes": 14363231,
-        "percentage": 71.2
-      },
-      "CSS": {
-        "bytes": 185296,
-        "percentage": 0.9
+        "percentage": 71.1
       },
       "Shell": {
         "bytes": 8775,
@@ -1969,6 +1969,10 @@
           {
             "count": 0,
             "date": "2026-05-27"
+          },
+          {
+            "count": 0,
+            "date": "2026-05-28"
           }
         ]
       }
@@ -1979,7 +1983,7 @@
     "total_repos": 22
   },
   "meta": {
-    "last_updated": "2026-05-26T22:05:03.637Z",
+    "last_updated": "2026-05-27T22:16:15.878Z",
     "generator": "TapasOS sync-github.yml"
   }
 }
