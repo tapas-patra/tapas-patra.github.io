@@ -9,6 +9,16 @@
     "pinned_repos": [],
     "all_repos": [
       {
+        "name": "tapas-patra.github.io",
+        "description": null,
+        "url": "https://github.com/tapas-patra/tapas-patra.github.io",
+        "stars": 0,
+        "language": "JavaScript",
+        "updated_at": "2026-05-27T22:16:20Z",
+        "topics": [],
+        "is_private": false
+      },
+      {
         "name": "pocketpad",
         "description": null,
         "url": null,
@@ -17,16 +27,6 @@
         "updated_at": "2026-05-27T11:09:05Z",
         "topics": [],
         "is_private": true
-      },
-      {
-        "name": "tapas-patra.github.io",
-        "description": null,
-        "url": "https://github.com/tapas-patra/tapas-patra.github.io",
-        "stars": 0,
-        "language": "JavaScript",
-        "updated_at": "2026-05-26T22:05:08Z",
-        "topics": [],
-        "is_private": false
       },
       {
         "name": "Rain-Lock",
@@ -230,13 +230,13 @@
       }
     ],
     "languages": {
-      "HTML": {
-        "bytes": 2244242,
-        "percentage": 11.1
-      },
       "JavaScript": {
         "bytes": 1201634,
         "percentage": 5.9
+      },
+      "HTML": {
+        "bytes": 2244242,
+        "percentage": 11.1
       },
       "CSS": {
         "bytes": 196914,
@@ -1973,6 +1973,10 @@
           {
             "count": 0,
             "date": "2026-05-28"
+          },
+          {
+            "count": 0,
+            "date": "2026-05-29"
           }
         ]
       }
@@ -1983,7 +1987,7 @@
     "total_repos": 22
   },
   "meta": {
-    "last_updated": "2026-05-27T22:16:15.878Z",
+    "last_updated": "2026-05-28T22:15:50.726Z",
     "generator": "TapasOS sync-github.yml"
   }
 }
