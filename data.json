@@ -9,6 +9,16 @@
     "pinned_repos": [],
     "all_repos": [
       {
+        "name": "tapas-patra.github.io",
+        "description": null,
+        "url": "https://github.com/tapas-patra/tapas-patra.github.io",
+        "stars": 0,
+        "language": "JavaScript",
+        "updated_at": "2026-06-01T22:40:34Z",
+        "topics": [],
+        "is_private": false
+      },
+      {
         "name": "HisabKitab",
         "description": null,
         "url": null,
@@ -17,16 +27,6 @@
         "updated_at": "2026-06-01T20:17:01Z",
         "topics": [],
         "is_private": true
-      },
-      {
-        "name": "tapas-patra.github.io",
-        "description": null,
-        "url": "https://github.com/tapas-patra/tapas-patra.github.io",
-        "stars": 0,
-        "language": "JavaScript",
-        "updated_at": "2026-05-31T21:30:53Z",
-        "topics": [],
-        "is_private": false
       },
       {
         "name": "pocketpad",
@@ -244,21 +244,21 @@
         "bytes": 1491237,
         "percentage": 7.2
       },
-      "TypeScript": {
-        "bytes": 225874,
-        "percentage": 1.1
+      "HTML": {
+        "bytes": 2245043,
+        "percentage": 10.8
       },
       "CSS": {
         "bytes": 225982,
         "percentage": 1.1
       },
+      "TypeScript": {
+        "bytes": 225874,
+        "percentage": 1.1
+      },
       "PLpgSQL": {
         "bytes": 53889,
         "percentage": 0.3
-      },
-      "HTML": {
-        "bytes": 2245043,
-        "percentage": 10.8
       },
       "Python": {
         "bytes": 14363231,
@@ -1979,6 +1979,10 @@
           {
             "count": 0,
             "date": "2026-06-02"
+          },
+          {
+            "count": 0,
+            "date": "2026-06-03"
           }
         ]
       }
@@ -1989,7 +1993,7 @@
     "total_repos": 23
   },
   "meta": {
-    "last_updated": "2026-06-01T22:40:15.626Z",
+    "last_updated": "2026-06-02T22:32:59.339Z",
     "generator": "TapasOS sync-github.yml"
   }
 }
