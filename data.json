@@ -14,7 +14,7 @@
         "url": "https://github.com/tapas-patra/tapas-patra.github.io",
         "stars": 0,
         "language": "JavaScript",
-        "updated_at": "2026-06-01T22:40:34Z",
+        "updated_at": "2026-06-03T08:41:41Z",
         "topics": [],
         "is_private": false
       },
@@ -95,16 +95,6 @@
         "stars": 0,
         "language": "Python",
         "updated_at": "2026-03-15T04:44:03Z",
-        "topics": [],
-        "is_private": true
-      },
-      {
-        "name": "SecureOverlay",
-        "description": null,
-        "url": null,
-        "stars": 0,
-        "language": "C#",
-        "updated_at": "2025-11-22T12:34:19Z",
         "topics": [],
         "is_private": true
       },
@@ -242,11 +232,11 @@
     "languages": {
       "JavaScript": {
         "bytes": 1491237,
-        "percentage": 7.2
+        "percentage": 7.4
       },
       "HTML": {
         "bytes": 2245043,
-        "percentage": 10.8
+        "percentage": 11.1
       },
       "CSS": {
         "bytes": 225982,
@@ -262,7 +252,7 @@
       },
       "Python": {
         "bytes": 14363231,
-        "percentage": 69.1
+        "percentage": 70.9
       },
       "Shell": {
         "bytes": 8775,
@@ -280,10 +270,6 @@
         "bytes": 2101,
         "percentage": 0
       },
-      "C#": {
-        "bytes": 527096,
-        "percentage": 2.5
-      },
       "Mako": {
         "bytes": 510,
         "percentage": 0
@@ -294,7 +280,7 @@
       },
       "TeX": {
         "bytes": 1489413,
-        "percentage": 7.2
+        "percentage": 7.4
       },
       "Inno Setup": {
         "bytes": 2232,
@@ -1981,19 +1967,19 @@
             "date": "2026-06-02"
           },
           {
-            "count": 0,
+            "count": 1,
             "date": "2026-06-03"
           }
         ]
       }
     ],
-    "streak_days": 0,
-    "committed_today": false,
-    "total_commits_year": 150,
-    "total_repos": 23
+    "streak_days": 1,
+    "committed_today": true,
+    "total_commits_year": 151,
+    "total_repos": 22
   },
   "meta": {
-    "last_updated": "2026-06-02T22:32:59.339Z",
+    "last_updated": "2026-06-03T08:41:52.565Z",
     "generator": "TapasOS sync-github.yml"
   }
 }
