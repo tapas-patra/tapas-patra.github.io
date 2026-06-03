@@ -35,7 +35,9 @@ jobs:
             const HIDDEN_REPOS = [
               'flowerforyou',
               'valentine',
-              'willyoubemine'
+              'willyoubemine',
+              'SecureOverlay',
+              'Phantom'
             ];
 
             // ── Fetch repos (try authenticated first for private repos, fall back to public) ──
