@@ -6,15 +6,76 @@
     "github": "https://github.com/tapas-patra"
   },
   "github": {
-    "pinned_repos": [],
-    "all_repos": [
+    "pinned_repos": [
+      {
+        "name": "algohint-leetcode-extension",
+        "description": "An AI-powered Chrome Extension tutor that guides you through LeetCode problems without giving away the code.",
+        "url": "https://github.com/tapas-patra/algohint-leetcode-extension",
+        "stars": 1,
+        "language": "JavaScript",
+        "language_color": "#f1e05a",
+        "updated_at": "2026-06-14T07:42:43Z",
+        "topics": []
+      },
       {
         "name": "tapas-patra.github.io",
         "description": null,
         "url": "https://github.com/tapas-patra/tapas-patra.github.io",
-        "stars": 0,
+        "stars": 1,
         "language": "JavaScript",
-        "updated_at": "2026-06-12T22:05:19Z",
+        "language_color": "#f1e05a",
+        "updated_at": "2026-06-14T07:43:02Z",
+        "topics": []
+      },
+      {
+        "name": "SleepLatch",
+        "description": "Lightweight macOS menu bar utility to manage caffeinate sessions with timers, safe controls, and visibility into external sleep-prevention processes.",
+        "url": "https://github.com/tapas-patra/SleepLatch",
+        "stars": 1,
+        "language": "Swift",
+        "language_color": "#F05138",
+        "updated_at": "2026-06-14T07:43:51Z",
+        "topics": []
+      }
+    ],
+    "all_repos": [
+      {
+        "name": "SleepLatch",
+        "description": "Lightweight macOS menu bar utility to manage caffeinate sessions with timers, safe controls, and visibility into external sleep-prevention processes.",
+        "url": "https://github.com/tapas-patra/SleepLatch",
+        "stars": 1,
+        "language": "Swift",
+        "updated_at": "2026-06-14T07:43:51Z",
+        "topics": [],
+        "is_private": false
+      },
+      {
+        "name": "tapas-patra.github.io",
+        "description": null,
+        "url": "https://github.com/tapas-patra/tapas-patra.github.io",
+        "stars": 1,
+        "language": "JavaScript",
+        "updated_at": "2026-06-14T07:43:02Z",
+        "topics": [],
+        "is_private": false
+      },
+      {
+        "name": "algohint-leetcode-extension",
+        "description": "An AI-powered Chrome Extension tutor that guides you through LeetCode problems without giving away the code.",
+        "url": "https://github.com/tapas-patra/algohint-leetcode-extension",
+        "stars": 1,
+        "language": "JavaScript",
+        "updated_at": "2026-06-14T07:42:43Z",
+        "topics": [],
+        "is_private": false
+      },
+      {
+        "name": "tapas-patra",
+        "description": null,
+        "url": "https://github.com/tapas-patra/tapas-patra",
+        "stars": 0,
+        "language": null,
+        "updated_at": "2026-06-14T07:41:35Z",
         "topics": [],
         "is_private": false
       },
@@ -47,16 +108,6 @@
         "updated_at": "2026-05-25T17:14:47Z",
         "topics": [],
         "is_private": true
-      },
-      {
-        "name": "SleepLatch",
-        "description": "Lightweight macOS menu bar utility to manage caffeinate sessions with timers, safe controls, and visibility into external sleep-prevention processes.",
-        "url": "https://github.com/tapas-patra/SleepLatch",
-        "stars": 0,
-        "language": "Swift",
-        "updated_at": "2026-04-08T15:01:04Z",
-        "topics": [],
-        "is_private": false
       },
       {
         "name": "portfolio-bot",
@@ -230,17 +281,29 @@
       }
     ],
     "languages": {
+      "Swift": {
+        "bytes": 52507,
+        "percentage": 0.3
+      },
+      "Python": {
+        "bytes": 14363231,
+        "percentage": 70.8
+      },
+      "Shell": {
+        "bytes": 8775,
+        "percentage": 0
+      },
       "JavaScript": {
-        "bytes": 1491237,
-        "percentage": 7.4
+        "bytes": 1520947,
+        "percentage": 7.5
       },
       "HTML": {
-        "bytes": 2245043,
+        "bytes": 2251246,
         "percentage": 11.1
       },
       "CSS": {
-        "bytes": 225982,
-        "percentage": 1.1
+        "bytes": 236260,
+        "percentage": 1.2
       },
       "TypeScript": {
         "bytes": 225874,
@@ -250,21 +313,9 @@
         "bytes": 53889,
         "percentage": 0.3
       },
-      "Python": {
-        "bytes": 14363231,
-        "percentage": 70.9
-      },
-      "Shell": {
-        "bytes": 8775,
-        "percentage": 0
-      },
       "Kotlin": {
         "bytes": 90166,
         "percentage": 0.4
-      },
-      "Swift": {
-        "bytes": 52507,
-        "percentage": 0.3
       },
       "Dockerfile": {
         "bytes": 2101,
@@ -280,7 +331,7 @@
       },
       "TeX": {
         "bytes": 1489413,
-        "percentage": 7.4
+        "percentage": 7.3
       },
       "Inno Setup": {
         "bytes": 2232,
@@ -1955,19 +2006,23 @@
       {
         "days": [
           {
-            "count": 0,
+            "count": 7,
             "date": "2026-06-14"
+          },
+          {
+            "count": 0,
+            "date": "2026-06-15"
           }
         ]
       }
     ],
     "streak_days": 0,
     "committed_today": false,
-    "total_commits_year": 151,
-    "total_repos": 22
+    "total_commits_year": 153,
+    "total_repos": 24
   },
   "meta": {
-    "last_updated": "2026-06-13T21:44:13.951Z",
+    "last_updated": "2026-06-14T21:50:42.391Z",
     "generator": "TapasOS sync-github.yml"
   }
 }
