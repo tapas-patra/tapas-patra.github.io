@@ -24,7 +24,7 @@
         "stars": 1,
         "language": "JavaScript",
         "language_color": "#f1e05a",
-        "updated_at": "2026-06-14T07:43:02Z",
+        "updated_at": "2026-06-14T21:50:46Z",
         "topics": []
       },
       {
@@ -40,22 +40,22 @@
     ],
     "all_repos": [
       {
+        "name": "tapas-patra.github.io",
+        "description": null,
+        "url": "https://github.com/tapas-patra/tapas-patra.github.io",
+        "stars": 1,
+        "language": "JavaScript",
+        "updated_at": "2026-06-14T21:50:46Z",
+        "topics": [],
+        "is_private": false
+      },
+      {
         "name": "SleepLatch",
         "description": "Lightweight macOS menu bar utility to manage caffeinate sessions with timers, safe controls, and visibility into external sleep-prevention processes.",
         "url": "https://github.com/tapas-patra/SleepLatch",
         "stars": 1,
         "language": "Swift",
         "updated_at": "2026-06-14T07:43:51Z",
-        "topics": [],
-        "is_private": false
-      },
-      {
-        "name": "tapas-patra.github.io",
-        "description": null,
-        "url": "https://github.com/tapas-patra/tapas-patra.github.io",
-        "stars": 1,
-        "language": "JavaScript",
-        "updated_at": "2026-06-14T07:43:02Z",
         "topics": [],
         "is_private": false
       },
@@ -281,18 +281,6 @@
       }
     ],
     "languages": {
-      "Swift": {
-        "bytes": 52507,
-        "percentage": 0.3
-      },
-      "Python": {
-        "bytes": 14363231,
-        "percentage": 70.8
-      },
-      "Shell": {
-        "bytes": 8775,
-        "percentage": 0
-      },
       "JavaScript": {
         "bytes": 1520947,
         "percentage": 7.5
@@ -304,6 +292,18 @@
       "CSS": {
         "bytes": 236260,
         "percentage": 1.2
+      },
+      "Swift": {
+        "bytes": 52507,
+        "percentage": 0.3
+      },
+      "Python": {
+        "bytes": 14363231,
+        "percentage": 70.8
+      },
+      "Shell": {
+        "bytes": 8775,
+        "percentage": 0
       },
       "TypeScript": {
         "bytes": 225874,
@@ -2012,6 +2012,10 @@
           {
             "count": 0,
             "date": "2026-06-15"
+          },
+          {
+            "count": 0,
+            "date": "2026-06-16"
           }
         ]
       }
@@ -2022,7 +2026,7 @@
     "total_repos": 24
   },
   "meta": {
-    "last_updated": "2026-06-14T21:50:42.391Z",
+    "last_updated": "2026-06-15T22:33:14.940Z",
     "generator": "TapasOS sync-github.yml"
   }
 }
