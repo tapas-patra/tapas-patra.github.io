@@ -24,7 +24,7 @@
         "stars": 1,
         "language": "JavaScript",
         "language_color": "#f1e05a",
-        "updated_at": "2026-06-25T22:00:52Z",
+        "updated_at": "2026-06-26T21:46:55Z",
         "topics": []
       },
       {
@@ -34,28 +34,48 @@
         "stars": 1,
         "language": "Swift",
         "language_color": "#F05138",
-        "updated_at": "2026-06-14T07:43:51Z",
+        "updated_at": "2026-06-27T08:57:35Z",
         "topics": []
       }
     ],
     "all_repos": [
-      {
-        "name": "tapas-patra.github.io",
-        "description": null,
-        "url": "https://github.com/tapas-patra/tapas-patra.github.io",
-        "stars": 1,
-        "language": "JavaScript",
-        "updated_at": "2026-06-25T22:00:52Z",
-        "topics": [],
-        "is_private": false
-      },
       {
         "name": "SleepLatch",
         "description": "Lightweight macOS menu bar utility to manage caffeinate sessions with timers, safe controls, and visibility into external sleep-prevention processes.",
         "url": "https://github.com/tapas-patra/SleepLatch",
         "stars": 1,
         "language": "Swift",
-        "updated_at": "2026-06-14T07:43:51Z",
+        "updated_at": "2026-06-27T08:57:35Z",
+        "topics": [],
+        "is_private": false
+      },
+      {
+        "name": "HisabKitab",
+        "description": "Personal finance app for Indian household expense tracking with statement imports, duplicate detection, AI-assisted categorization, secure backend auth, and flexible reporting.",
+        "url": null,
+        "stars": 0,
+        "language": "JavaScript",
+        "updated_at": "2026-06-27T08:24:12Z",
+        "topics": [],
+        "is_private": true
+      },
+      {
+        "name": "pocketpad",
+        "description": "A web-based application that transforms a user's phone into a remote control for their computer over the internet, providing convenient control from anywhere.",
+        "url": null,
+        "stars": 0,
+        "language": "HTML",
+        "updated_at": "2026-06-27T07:46:43Z",
+        "topics": [],
+        "is_private": true
+      },
+      {
+        "name": "tapas-patra.github.io",
+        "description": null,
+        "url": "https://github.com/tapas-patra/tapas-patra.github.io",
+        "stars": 1,
+        "language": "JavaScript",
+        "updated_at": "2026-06-26T21:46:55Z",
         "topics": [],
         "is_private": false
       },
@@ -78,26 +98,6 @@
         "updated_at": "2026-06-14T07:41:35Z",
         "topics": [],
         "is_private": false
-      },
-      {
-        "name": "HisabKitab",
-        "description": null,
-        "url": null,
-        "stars": 0,
-        "language": "JavaScript",
-        "updated_at": "2026-06-01T20:17:01Z",
-        "topics": [],
-        "is_private": true
-      },
-      {
-        "name": "pocketpad",
-        "description": null,
-        "url": null,
-        "stars": 0,
-        "language": "HTML",
-        "updated_at": "2026-05-27T11:09:05Z",
-        "topics": [],
-        "is_private": true
       },
       {
         "name": "Rain-Lock",
@@ -281,18 +281,6 @@
       }
     ],
     "languages": {
-      "JavaScript": {
-        "bytes": 1520947,
-        "percentage": 7.5
-      },
-      "HTML": {
-        "bytes": 2251246,
-        "percentage": 11.1
-      },
-      "CSS": {
-        "bytes": 236260,
-        "percentage": 1.2
-      },
       "Swift": {
         "bytes": 52507,
         "percentage": 0.3
@@ -305,13 +293,25 @@
         "bytes": 8775,
         "percentage": 0
       },
+      "JavaScript": {
+        "bytes": 1520947,
+        "percentage": 7.5
+      },
       "TypeScript": {
         "bytes": 225874,
         "percentage": 1.1
       },
+      "CSS": {
+        "bytes": 236260,
+        "percentage": 1.2
+      },
       "PLpgSQL": {
         "bytes": 53889,
         "percentage": 0.3
+      },
+      "HTML": {
+        "bytes": 2251246,
+        "percentage": 11.1
       },
       "Kotlin": {
         "bytes": 90166,
@@ -339,38 +339,6 @@
       }
     },
     "commit_weeks": [
-      {
-        "days": [
-          {
-            "count": 0,
-            "date": "2025-06-22"
-          },
-          {
-            "count": 0,
-            "date": "2025-06-23"
-          },
-          {
-            "count": 0,
-            "date": "2025-06-24"
-          },
-          {
-            "count": 0,
-            "date": "2025-06-25"
-          },
-          {
-            "count": 0,
-            "date": "2025-06-26"
-          },
-          {
-            "count": 0,
-            "date": "2025-06-27"
-          },
-          {
-            "count": 0,
-            "date": "2025-06-28"
-          }
-        ]
-      },
       {
         "days": [
           {
@@ -2030,19 +1998,27 @@
             "date": "2026-06-26"
           },
           {
-            "count": 0,
+            "count": 2,
             "date": "2026-06-27"
+          }
+        ]
+      },
+      {
+        "days": [
+          {
+            "count": 0,
+            "date": "2026-06-28"
           }
         ]
       }
     ],
     "streak_days": 0,
     "committed_today": false,
-    "total_commits_year": 153,
+    "total_commits_year": 155,
     "total_repos": 24
   },
   "meta": {
-    "last_updated": "2026-06-26T21:46:51.063Z",
+    "last_updated": "2026-06-27T21:36:33.949Z",
     "generator": "TapasOS sync-github.yml"
   }
 }
