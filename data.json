@@ -24,7 +24,7 @@
         "stars": 1,
         "language": "JavaScript",
         "language_color": "#f1e05a",
-        "updated_at": "2026-06-26T21:46:55Z",
+        "updated_at": "2026-06-27T21:36:38Z",
         "topics": []
       },
       {
@@ -39,6 +39,16 @@
       }
     ],
     "all_repos": [
+      {
+        "name": "tapas-patra.github.io",
+        "description": null,
+        "url": "https://github.com/tapas-patra/tapas-patra.github.io",
+        "stars": 1,
+        "language": "JavaScript",
+        "updated_at": "2026-06-27T21:36:38Z",
+        "topics": [],
+        "is_private": false
+      },
       {
         "name": "SleepLatch",
         "description": "Lightweight macOS menu bar utility to manage caffeinate sessions with timers, safe controls, and visibility into external sleep-prevention processes.",
@@ -68,16 +78,6 @@
         "updated_at": "2026-06-27T07:46:43Z",
         "topics": [],
         "is_private": true
-      },
-      {
-        "name": "tapas-patra.github.io",
-        "description": null,
-        "url": "https://github.com/tapas-patra/tapas-patra.github.io",
-        "stars": 1,
-        "language": "JavaScript",
-        "updated_at": "2026-06-26T21:46:55Z",
-        "topics": [],
-        "is_private": false
       },
       {
         "name": "algohint-leetcode-extension",
@@ -281,6 +281,18 @@
       }
     ],
     "languages": {
+      "JavaScript": {
+        "bytes": 1520947,
+        "percentage": 7.5
+      },
+      "HTML": {
+        "bytes": 2251246,
+        "percentage": 11.1
+      },
+      "CSS": {
+        "bytes": 236260,
+        "percentage": 1.2
+      },
       "Swift": {
         "bytes": 52507,
         "percentage": 0.3
@@ -293,25 +305,13 @@
         "bytes": 8775,
         "percentage": 0
       },
-      "JavaScript": {
-        "bytes": 1520947,
-        "percentage": 7.5
-      },
       "TypeScript": {
         "bytes": 225874,
         "percentage": 1.1
       },
-      "CSS": {
-        "bytes": 236260,
-        "percentage": 1.2
-      },
       "PLpgSQL": {
         "bytes": 53889,
         "percentage": 0.3
-      },
-      "HTML": {
-        "bytes": 2251246,
-        "percentage": 11.1
       },
       "Kotlin": {
         "bytes": 90166,
@@ -2008,6 +2008,10 @@
           {
             "count": 0,
             "date": "2026-06-28"
+          },
+          {
+            "count": 0,
+            "date": "2026-06-29"
           }
         ]
       }
@@ -2018,7 +2022,7 @@
     "total_repos": 24
   },
   "meta": {
-    "last_updated": "2026-06-27T21:36:33.949Z",
+    "last_updated": "2026-06-28T21:36:31.188Z",
     "generator": "TapasOS sync-github.yml"
   }
 }
