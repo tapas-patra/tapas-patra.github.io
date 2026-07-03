@@ -24,7 +24,7 @@
         "stars": 1,
         "language": "JavaScript",
         "language_color": "#f1e05a",
-        "updated_at": "2026-07-01T21:58:09Z",
+        "updated_at": "2026-07-02T21:42:43Z",
         "topics": []
       },
       {
@@ -40,12 +40,22 @@
     ],
     "all_repos": [
       {
+        "name": "freecodecamp-ML-projects",
+        "description": null,
+        "url": "https://github.com/tapas-patra/freecodecamp-ML-projects",
+        "stars": 0,
+        "language": "Jupyter Notebook",
+        "updated_at": "2026-07-03T15:08:42Z",
+        "topics": [],
+        "is_private": false
+      },
+      {
         "name": "tapas-patra.github.io",
         "description": null,
         "url": "https://github.com/tapas-patra/tapas-patra.github.io",
         "stars": 1,
         "language": "JavaScript",
-        "updated_at": "2026-07-01T21:58:09Z",
+        "updated_at": "2026-07-02T21:42:43Z",
         "topics": [],
         "is_private": false
       },
@@ -281,6 +291,14 @@
       }
     ],
     "languages": {
+      "Jupyter Notebook": {
+        "bytes": 24108,
+        "percentage": 0.1
+      },
+      "Python": {
+        "bytes": 14377851,
+        "percentage": 70.7
+      },
       "JavaScript": {
         "bytes": 1520947,
         "percentage": 7.5
@@ -296,10 +314,6 @@
       "Swift": {
         "bytes": 52507,
         "percentage": 0.3
-      },
-      "Python": {
-        "bytes": 14363231,
-        "percentage": 70.8
       },
       "Shell": {
         "bytes": 8775,
@@ -2026,19 +2040,23 @@
             "date": "2026-07-02"
           },
           {
-            "count": 0,
+            "count": 6,
             "date": "2026-07-03"
+          },
+          {
+            "count": 0,
+            "date": "2026-07-04"
           }
         ]
       }
     ],
     "streak_days": 0,
     "committed_today": false,
-    "total_commits_year": 155,
-    "total_repos": 24
+    "total_commits_year": 161,
+    "total_repos": 25
   },
   "meta": {
-    "last_updated": "2026-07-02T21:42:37.884Z",
+    "last_updated": "2026-07-03T21:38:48.817Z",
     "generator": "TapasOS sync-github.yml"
   }
 }
