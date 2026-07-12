@@ -24,7 +24,7 @@
         "stars": 1,
         "language": "JavaScript",
         "language_color": "#f1e05a",
-        "updated_at": "2026-07-10T21:34:05Z",
+        "updated_at": "2026-07-11T21:14:03Z",
         "topics": []
       },
       {
@@ -40,14 +40,14 @@
     ],
     "all_repos": [
       {
-        "name": "revisit-dsa-from-scratch",
+        "name": "ByteThoughts",
         "description": null,
-        "url": "https://github.com/tapas-patra/revisit-dsa-from-scratch",
+        "url": null,
         "stars": 0,
-        "language": null,
-        "updated_at": "2026-07-11T14:14:28Z",
+        "language": "Astro",
+        "updated_at": "2026-07-12T12:17:08Z",
         "topics": [],
-        "is_private": false
+        "is_private": true
       },
       {
         "name": "tapas-patra.github.io",
@@ -55,7 +55,17 @@
         "url": "https://github.com/tapas-patra/tapas-patra.github.io",
         "stars": 1,
         "language": "JavaScript",
-        "updated_at": "2026-07-10T21:34:05Z",
+        "updated_at": "2026-07-11T21:14:03Z",
+        "topics": [],
+        "is_private": false
+      },
+      {
+        "name": "revisit-dsa-from-scratch",
+        "description": null,
+        "url": "https://github.com/tapas-patra/revisit-dsa-from-scratch",
+        "stars": 0,
+        "language": null,
+        "updated_at": "2026-07-11T14:14:28Z",
         "topics": [],
         "is_private": false
       },
@@ -301,12 +311,20 @@
       }
     ],
     "languages": {
+      "Astro": {
+        "bytes": 11098,
+        "percentage": 0.1
+      },
       "JavaScript": {
-        "bytes": 1520947,
+        "bytes": 1530150,
         "percentage": 7.5
       },
+      "TypeScript": {
+        "bytes": 226406,
+        "percentage": 1.1
+      },
       "HTML": {
-        "bytes": 2251246,
+        "bytes": 2251668,
         "percentage": 11.1
       },
       "CSS": {
@@ -319,7 +337,7 @@
       },
       "Python": {
         "bytes": 14377851,
-        "percentage": 70.7
+        "percentage": 70.6
       },
       "Swift": {
         "bytes": 52507,
@@ -328,10 +346,6 @@
       "Shell": {
         "bytes": 8775,
         "percentage": 0
-      },
-      "TypeScript": {
-        "bytes": 225874,
-        "percentage": 1.1
       },
       "PLpgSQL": {
         "bytes": 53889,
@@ -2032,6 +2046,10 @@
           {
             "count": 0,
             "date": "2026-07-12"
+          },
+          {
+            "count": 0,
+            "date": "2026-07-13"
           }
         ]
       }
@@ -2039,10 +2057,10 @@
     "streak_days": 0,
     "committed_today": false,
     "total_commits_year": 162,
-    "total_repos": 26
+    "total_repos": 27
   },
   "meta": {
-    "last_updated": "2026-07-11T21:13:58.972Z",
+    "last_updated": "2026-07-12T21:22:05.060Z",
     "generator": "TapasOS sync-github.yml"
   }
 }
